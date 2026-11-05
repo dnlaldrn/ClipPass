@@ -54,3 +54,22 @@ test('report quote is 20000000', async () => {
   const { app } = setup()
   expect((await request(app).get('/api/data/report')).body.price).toBe('20000000')
 })
+
+test('proof whose event lands while the request waits is accepted', async () => {
+  const quotes = new QuoteStore()
+  const verifier = createVerifier({ quotes, merchant: MERCHANT, deviceHash: DEVICE })
+  const app = createApp({ webOrigin: '*', routers: [merchantRouter({ quotes, verifier, merchant: MERCHANT, proofWaitMs: 2000 })] })
+  const { body: q } = await request(app).get('/api/data/quote')
+  setTimeout(() => verifier.recordEvent({ txHash: 'late', contractId: NOIR_TESTNET_CONTRACTS.paymentEscrow, merchant: MERCHANT, deviceHash: DEVICE, amount: 1_000_000n }), 300)
+  const res = await request(app).get('/api/data/quote').set('X-Payment', 'late').set('X-Quote-Id', q.quoteId)
+  expect(res.status).toBe(200)
+})
+
+test('still not_found after the wait', async () => {
+  const quotes = new QuoteStore()
+  const verifier = createVerifier({ quotes, merchant: MERCHANT, deviceHash: DEVICE })
+  const app = createApp({ webOrigin: '*', routers: [merchantRouter({ quotes, verifier, merchant: MERCHANT, proofWaitMs: 100 })] })
+  const { body: q } = await request(app).get('/api/data/quote')
+  const res = await request(app).get('/api/data/quote').set('X-Payment', 'never').set('X-Quote-Id', q.quoteId)
+  expect(res.body).toEqual({ reason: 'not_found' })
+})

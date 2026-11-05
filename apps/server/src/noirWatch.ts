@@ -11,7 +11,8 @@ export function startPaymentWatch(noir: NoirAgentClient, verifier: Verifier, mer
     onEvent: (e) => {
       if (e.type !== 'payment.authorized') return
       verifier.recordEvent({ txHash: e.txHash, contractId: e.contractId, merchant: e.merchant, deviceHash: e.deviceHash, amount: e.amount })
-      console.log(`noir payment.authorized ${e.txHash} ${e.amount}`)
+      const lagS = ((Date.now() - Date.parse(e.ledgerClosedAt)) / 1000).toFixed(1)
+      console.log(`noir payment.authorized ${e.txHash} ${e.amount} (seen ${lagS}s after ledger close)`)
     },
   })
 }
