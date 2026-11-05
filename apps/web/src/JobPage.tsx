@@ -73,7 +73,7 @@ export function JobPage({ jobId }: { jobId: string }) {
         <h1>{job.topic}</h1>
         <dl className="facts">
           <div><dt>Status</dt><dd className={`status is-${job.status}`}>{STATUS_TEXT[job.status]}</dd></div>
-          <div><dt>Velo checkout</dt><dd>{job.status === 'awaiting_payment' ? (job.veloStatus ?? 'checking') : 'paid'}</dd></div>
+          <div><dt>Velo checkout</dt><dd>{job.veloStatus ?? (job.status === 'awaiting_payment' ? 'checking' : 'not used (dev run)')}</dd></div>
           <div><dt>Data budget</dt><dd>{xlm(job.budget)} XLM</dd></div>
           <div><dt>Card escrow</dt><dd>{balances ? `${xlm(balances.escrow)} XLM` : '…'}</dd></div>
           <div><dt>Merchant can claim</dt><dd>{balances ? `${xlm(balances.pending)} XLM` : '…'}</dd></div>
