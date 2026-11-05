@@ -7,7 +7,7 @@ import { JobStore } from './jobs'
 import { QuoteStore } from './quotes'
 import { createVerifier } from './verifier'
 import { merchantRouter } from './merchant'
-import { runJob } from './runner'
+import { runJob, createJobQueue } from './runner'
 
 const MERCHANT = 'GMERCHANT'
 const DEVICE = 'ab'.repeat(32)
@@ -54,4 +54,22 @@ test('runJob marks failed on crash', async () => {
   const job = s.jobs.get('j1')!
   expect(job.status).toBe('failed')
   expect(job.trace.at(-1)!.reason).toMatch(/rpc down/)
+})
+
+test('queued jobs never pay concurrently (one agent key = one sequence number)', async () => {
+  const s = await setup()
+  s.jobs.create({ jobId: 'j2', topic: 'stellar fees', budget: 25_000_000n, paymentIntentId: 'pi2', checkoutUrl: 'c' })
+  s.jobs.markPaid('j2')
+  let inFlight = 0
+  const authorize = s.noir.authorizePayment
+  s.noir.authorizePayment = async (p) => {
+    if (++inFlight > 1) throw new Error('tx_bad_seq')
+    await new Promise((r) => setTimeout(r, 20))
+    try { return await authorize(p) } finally { inFlight-- }
+  }
+  const enqueue = createJobQueue((id) => runJob(id, { jobs: s.jobs, noir: s.noir, agent, deviceHash: DEVICE, baseUrl: s.baseUrl, delayMs: 0 }))
+  await Promise.all([enqueue('j1'), enqueue('j2')])
+  s.close()
+  expect(s.jobs.get('j1')!.status).toBe('done')
+  expect(s.jobs.get('j2')!.status).toBe('done')
 })

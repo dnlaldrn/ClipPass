@@ -125,7 +125,7 @@ npm run dev:server   # API on :8787 (needs VELO_* and WEB_ORIGIN in .env)
 npm run dev:web      # site on :5173 (set VITE_API_URL=http://localhost:8787)
 ```
 
-`npm run setup` is idempotent. Rerun it after a Testnet reset.
+`npm run setup` is idempotent. Rerun it after a Testnet reset. To try the site locally without a Velo checkout, set `DEV_ROUTES=1` in `.env` and start a job with `curl -X POST localhost:8787/api/dev/jobs -H 'content-type: application/json' -d '{"topic":"stellar weather","budget":"2.5"}'`. Jobs run one at a time because they all pay with the same agent key.
 
 ## Environment variables
 
@@ -141,6 +141,8 @@ npm run dev:web      # site on :5173 (set VITE_API_URL=http://localhost:8787)
 | `WEB_ORIGIN` | Public URL of the site (CORS, checkout return URLs) | Your Vercel URL |
 | `PUBLIC_SERVER_URL` | Public URL of the API | Your Render URL |
 | `VITE_API_URL` | API URL baked into the site at build time | Your Render URL |
+| `DEV_ROUTES` | `1` turns on `POST /api/dev/jobs`, which starts a job without a Velo checkout. Local only. Never set it on Render, because anyone could spend the card's escrow | Set it yourself in your local `.env` |
+| `NODE_ENV` | Set to `production` on Render so error responses don't include stack traces | Render environment settings |
 | `AGENT_LLM` | Reserved for an optional LLM planner (unused; rules run by default) | Leave empty |
 | `ANTHROPIC_API_KEY` | Reserved for the optional planner | Leave empty |
 

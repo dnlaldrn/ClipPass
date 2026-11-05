@@ -13,7 +13,8 @@ import { QuoteStore } from './quotes'
 import { createVerifier } from './verifier'
 import { merchantRouter } from './merchant'
 import { startPaymentWatch } from './noirWatch'
-import { runJob } from './runner'
+import { runJob, createJobQueue } from './runner'
+import { devRoutesEnabled } from './dev'
 import { claimRouter } from './claim'
 import { restoreSuccessFlag } from './rpcShim'
 
@@ -40,15 +41,16 @@ startPaymentWatch(noir, verifier, merchant)
 const port = Number(process.env.PORT ?? 8787)
 const agent = keypairSigner(env.AGENT_SECRET) // the agent key lives only on the server
 // The agent buys from our own merchant API over real HTTP, so the full 402 path runs.
-const startAgent = (id: string) => void runJob(id, { jobs, noir, agent, deviceHash: env.DEVICE_HASH, baseUrl: `http://127.0.0.1:${port}` })
+const enqueue = createJobQueue((id) => runJob(id, { jobs, noir, agent, deviceHash: env.DEVICE_HASH, baseUrl: `http://127.0.0.1:${port}` }))
+const startAgent = (id: string) => void enqueue(id)
 
 const routers = [
   veloRouter({ velo, jobs, webOrigin: env.WEB_ORIGIN, secret: env.VELO_WEBHOOK_SECRET, onPaid: startAgent }),
   merchantRouter({ quotes, verifier, merchant }),
   claimRouter({ noir, merchant: keypairSigner(env.MERCHANT_SECRET), deviceHash: env.DEVICE_HASH }),
 ]
-if (process.env.NODE_ENV !== 'production') {
-  // Dev only: create and start a job without a Velo checkout. Never mounted in production.
+if (devRoutesEnabled(process.env)) {
+  // Local dev only (DEV_ROUTES=1): create and start a job without a Velo checkout. Never set it on Render.
   const dev = Router()
   dev.post('/api/dev/jobs', (req, res) => {
     const jobId = randomUUID()

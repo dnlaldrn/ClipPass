@@ -2,6 +2,15 @@ import type { NoirSigner } from '@noirx402/agent-sdk'
 import { runAgent, type NoirPort } from '@tollbooth/agent'
 import type { JobStore } from './jobs'
 
+/**
+ * Runs jobs one at a time. Every job pays with the same agent key, and concurrent transactions from one
+ * account collide on its sequence number, so a second job would fail mid-purchase.
+ */
+export function createJobQueue(run: (jobId: string) => Promise<void>): (jobId: string) => Promise<void> {
+  let chain = Promise.resolve()
+  return (jobId) => (chain = chain.then(() => run(jobId)))
+}
+
 /** Runs the agent for a paid job, streaming its decisions into the job so polling shows progress. Never rejects. */
 export async function runJob(
   jobId: string,
