@@ -87,8 +87,9 @@ tollbooth/
     token it was first funded with, so the server asserts once at startup that
     `noir.getEscrowToken(deviceHash)` equals the XLM SAC and refuses to start otherwise. It also checks
     `event.contractId` equals the payment_escrow ID.
-  - **No quote binding on-chain:** `authorizePayment` takes no nonce or reference, so a payment cannot
-    name its `quoteId`. Replay safety comes from single-use tx hashes plus single-use quotes plus the
+  - **No quote binding on-chain:** `authorizePayment` takes an optional `nonce: bigint`, but it must
+    increase per (device, agent) (default `Date.now()`) and the `payment.authorized` event does not
+    carry it, so the server cannot check a payment against a `quoteId`. Use the default nonce. Replay safety comes from single-use tx hashes plus single-use quotes plus the
     amount check. Known limit: a payment made for quote A could redeem a different open quote B of
     equal or lower price. That is acceptable for the demo because there is only one agent.
   - If the event has not arrived yet, return 402 `{ reason: "not_found" }`. The agent retries the
