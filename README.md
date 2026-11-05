@@ -56,7 +56,7 @@ There's a sequence diagram of one paid call in [docs/architecture.md](docs/archi
 ## Noir integration
 
 - **SDK:** `@noirx402/agent-sdk` 0.3.0, constructed as `new NoirAgentClient()` with no overrides.
-- **Contracts:** the deployed 2026-10-24 Testnet contracts, which are the SDK's built-in defaults. The server and every script assert this at startup ([contracts.ts](packages/shared/src/contracts.ts#L10), [index.ts](apps/server/src/index.ts#L29)).
+- **Contracts:** the deployed 2026-10-24 Testnet contracts, which are the SDK's built-in defaults. The server and every script assert this at startup ([contracts.ts](packages/shared/src/contracts.ts#L10), [index.ts](apps/server/src/index.ts#L30)).
   - device_registry `CAC4KOLHDLDYDWBOKXNKRN5KVHO56PLOIFXDLTBUWGVN6GVDEB7FQHU5`
   - agent_registry `CCMZDSPTLX7IIJWCYEUM5DJUHOSOYSTHGK777S2TXZWEMC5ZZGPJ3EBV`
   - payment_escrow `CC7EAW5FNJEDBS7THM5IT6XIOHO4AOYMLXT3KSZ3HWUIKEACTW7E5BFS`
@@ -69,7 +69,7 @@ There's a sequence diagram of one paid call in [docs/architecture.md](docs/archi
 | `checkPayment` | [packages/agent/src/run.ts:41](packages/agent/src/run.ts#L41) |
 | `authorizePayment` | [packages/agent/src/run.ts:47](packages/agent/src/run.ts#L47) |
 | `claim` | [apps/server/src/claim.ts:18](apps/server/src/claim.ts#L18), [scripts/claim.ts:15](scripts/claim.ts#L15) |
-| `getEscrowToken` (startup asset check) | [apps/server/src/index.ts:30](apps/server/src/index.ts#L30) |
+| `getEscrowToken` (startup asset check) | [apps/server/src/index.ts:31](apps/server/src/index.ts#L31) |
 | `getPendingBalance`, `getEscrowBalance` | [apps/server/src/claim.ts:10](apps/server/src/claim.ts#L10) |
 | `watch` (`payment.authorized`) | [apps/server/src/noirWatch.ts:6](apps/server/src/noirWatch.ts#L6) |
 
@@ -82,7 +82,7 @@ We use `watch`, so `startWebhookRelay` and `verifyWebhookSignature` aren't neede
 - **SDK:** `@carts1024/velo-sdk` pinned to exactly `0.1.0-alpha.4`, server side only.
 - **Checkout:** `velo.checkout.sessions.create` for the 1 XLM job fee, with an idempotency key per job ([velo.ts:51](apps/server/src/velo.ts#L51)).
 - **Status:** `velo.paymentIntents.retrieve`, used as a fallback when the webhook is late ([velo.ts:71](apps/server/src/velo.ts#L71)).
-- **Webhooks:** `Velo.webhooks.verify` on the raw body. Bad signatures get a 400, and duplicates are dropped by `x-velo-delivery` and by event id ([velo.ts:84](apps/server/src/velo.ts#L84)). The client is constructed in [index.ts:34](apps/server/src/index.ts#L34).
+- **Webhooks:** `Velo.webhooks.verify` on the raw body. Bad signatures get a 400, and duplicates are dropped by `x-velo-delivery` and by event id ([velo.ts:84](apps/server/src/velo.ts#L84)). The client is constructed in [index.ts:35](apps/server/src/index.ts#L35).
 
 ## Testnet proof
 
