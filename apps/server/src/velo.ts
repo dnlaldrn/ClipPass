@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { Router } from 'express'
 import { Velo, VeloWebhookSignatureVerificationError } from '@carts1024/velo-sdk'
 import { toStroops } from '@noirx402/agent-sdk'
-import { JOB_FEE, MAX_JOB_BUDGET } from '@tollbooth/shared'
+import { JOB_FEE, MAX_JOB_BUDGET, MIN_JOB_BUDGET } from '@tollbooth/shared'
 import type { JobStore } from './jobs'
 
 /** Checkout asset; the day-one Velo check settles whether Testnet takes 'native'. */
@@ -21,7 +21,7 @@ function parseBudget(raw: unknown): bigint | null {
   if (typeof raw !== 'string') return null
   try {
     const b = toStroops(raw)
-    return b > 0n && b <= MAX_JOB_BUDGET ? b : null
+    return b >= MIN_JOB_BUDGET && b <= MAX_JOB_BUDGET ? b : null
   } catch {
     return null
   }
@@ -45,7 +45,7 @@ export function veloRouter(d: {
     const topic = typeof req.body?.topic === 'string' ? req.body.topic.trim() : ''
     const budget = parseBudget(req.body?.budget)
     if (!topic || topic.length > 200) return res.status(400).json({ error: 'Topic is required (max 200 characters).' })
-    if (budget === null) return res.status(400).json({ error: 'Budget must be an XLM amount above 0 and at most 5.' })
+    if (budget === null) return res.status(400).json({ error: 'Budget must be an XLM amount from 2 to 5.' })
 
     const jobId = randomUUID()
     const session = await d.velo.checkout.sessions.create(

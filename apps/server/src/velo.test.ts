@@ -38,7 +38,7 @@ const succeeded = (piId: string, id = 'evt_1') =>
   JSON.stringify({ version: '1', id, type: 'payment.succeeded', paymentIntent: { id: piId, status: 'paid' } })
 
 async function newJob(app: any) {
-  const res = await request(app).post('/api/jobs').send({ topic: 'stellar fees', budget: '1.5' })
+  const res = await request(app).post('/api/jobs').send({ topic: 'stellar fees', budget: '2.5' })
   return res
 }
 
@@ -54,11 +54,11 @@ test('POST /api/jobs creates a session', async () => {
 
 test('rejects bad budget', async () => {
   const { app, creates } = setup()
-  for (const budget of ['abc', '-1', '0', '1.123456789', '50']) {
+  for (const budget of ['abc', '-1', '0', '1.5', '1.123456789', '50']) {
     const res = await request(app).post('/api/jobs').send({ topic: 't', budget })
     expect(res.status, budget).toBe(400)
   }
-  expect((await request(app).post('/api/jobs').send({ topic: '', budget: '1' })).status).toBe(400)
+  expect((await request(app).post('/api/jobs').send({ topic: '', budget: '2' })).status).toBe(400)
   expect(creates).toHaveLength(0)
 })
 

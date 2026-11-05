@@ -11,6 +11,8 @@ export const CATALOG: Record<EndpointName, { path: string; price: bigint; descri
 export const POLICY_MAX = 10_000_000n
 /** Flat Velo job fee. */
 export const JOB_FEE = '1.00'
+/** Smallest job budget: the report price, so every job reaches the over-cap policy refusal. */
+export const MIN_JOB_BUDGET = 20_000_000n
 /** Largest job budget a user may ask for: 5 XLM. */
 export const MAX_JOB_BUDGET = 50_000_000n
 export const QUOTE_TTL_MS = 120_000
