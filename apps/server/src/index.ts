@@ -2,7 +2,9 @@ import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { Keypair } from '@stellar/stellar-sdk'
 import { Velo } from '@carts1024/velo-sdk'
-import { NoirAgentClient } from '@noirx402/agent-sdk'
+import { randomUUID } from 'node:crypto'
+import { NoirAgentClient, keypairSigner, toStroops } from '@noirx402/agent-sdk'
+import { Router } from 'express'
 import { assertTestnetContracts, readEnv, XLM_SAC } from '@tollbooth/shared'
 import { createApp } from './app'
 import { JobStore } from './jobs'
@@ -11,16 +13,19 @@ import { QuoteStore } from './quotes'
 import { createVerifier } from './verifier'
 import { merchantRouter } from './merchant'
 import { startPaymentWatch } from './noirWatch'
+import { runJob } from './runner'
+import { claimRouter } from './claim'
+import { restoreSuccessFlag } from './rpcShim'
 
 const rootEnv = fileURLToPath(new URL('../../../.env', import.meta.url))
 if (existsSync(rootEnv)) process.loadEnvFile(rootEnv) // local dev only; Render sets real env vars
 
-const env = readEnv(['VELO_API_KEY', 'VELO_WEBHOOK_SECRET', 'WEB_ORIGIN', 'MERCHANT_SECRET', 'DEVICE_HASH'])
+const env = readEnv(['VELO_API_KEY', 'VELO_WEBHOOK_SECRET', 'WEB_ORIGIN', 'MERCHANT_SECRET', 'AGENT_SECRET', 'DEVICE_HASH'])
 const merchant = Keypair.fromSecret(env.MERCHANT_SECRET).publicKey()
 
 // Startup assertions: the SDK must point at the deployed Testnet contracts, and the escrow must hold XLM
 // (payment.authorized events carry no asset, so this is where the asset check lives).
-const noir = new NoirAgentClient()
+const noir = restoreSuccessFlag(new NoirAgentClient()) // see rpcShim.ts: SDK 0.3.0 drops RPC v30 events
 assertTestnetContracts(noir.contracts)
 if ((await noir.getEscrowToken(env.DEVICE_HASH)) !== XLM_SAC) {
   throw new Error('escrow not bound to XLM SAC; run npm run setup')
@@ -32,16 +37,33 @@ const quotes = new QuoteStore()
 const verifier = createVerifier({ quotes, merchant, deviceHash: env.DEVICE_HASH })
 startPaymentWatch(noir, verifier, merchant)
 
+const port = Number(process.env.PORT ?? 8787)
+const agent = keypairSigner(env.AGENT_SECRET) // the agent key lives only on the server
+// The agent buys from our own merchant API over real HTTP, so the full 402 path runs.
+const startAgent = (id: string) => void runJob(id, { jobs, noir, agent, deviceHash: env.DEVICE_HASH, baseUrl: `http://127.0.0.1:${port}` })
+
+const routers = [
+  veloRouter({ velo, jobs, webOrigin: env.WEB_ORIGIN, secret: env.VELO_WEBHOOK_SECRET, onPaid: startAgent }),
+  merchantRouter({ quotes, verifier, merchant }),
+  claimRouter({ noir, merchant: keypairSigner(env.MERCHANT_SECRET), deviceHash: env.DEVICE_HASH }),
+]
+if (process.env.NODE_ENV !== 'production') {
+  // Dev only: create and start a job without a Velo checkout. Never mounted in production.
+  const dev = Router()
+  dev.post('/api/dev/jobs', (req, res) => {
+    const jobId = randomUUID()
+    const topic = String(req.body?.topic ?? 'stellar fees')
+    jobs.create({ jobId, topic, budget: toStroops(String(req.body?.budget ?? '2.5')), paymentIntentId: `dev-${jobId}`, checkoutUrl: '' })
+    jobs.markPaid(jobId)
+    startAgent(jobId)
+    res.json({ jobId })
+  })
+  routers.push(dev)
+}
+
 const app = createApp({
   webOrigin: env.WEB_ORIGIN,
-  routers: [
-    veloRouter({
-      velo, jobs, webOrigin: env.WEB_ORIGIN, secret: env.VELO_WEBHOOK_SECRET,
-      onPaid: (id) => console.log(`job paid ${id}`),
-    }),
-    merchantRouter({ quotes, verifier, merchant }),
-  ],
+  routers,
 })
 
-const port = Number(process.env.PORT ?? 8787)
 app.listen(port, () => console.log(`tollbooth server on :${port}`))
