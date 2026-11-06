@@ -49,6 +49,9 @@ Tested on Nov 6. Each tool answered a one-line prompt from an empty folder.
 | B2 | Deploy readiness, no deploying | Gemini 4 Argon | Merged | `render.yaml`, `docs/deploy.md` |
 | D1 | README in the handbook format | Claude | Merged | `README.md`, `scripts/readme-links.test.ts` |
 | F1 | Site redesign: far less copy, more real UI, motion, sound | Claude directs, Sol 6.1 builds | Merged | `apps/web/**`, `DESIGN.md` |
+| F2-A | Server: JSON errors, balance cache, low escrow, license body, catalog, activity | Sol 6.1 | In progress | `apps/server`, `packages/agent`, `packages/shared` |
+| F2-B | Web core: error states, routes, sample reel, receipt | Claude subagent | Queued | `App.tsx`, `JobPage.tsx`, `api.ts`, new view files |
+| F2-C | Library, Artists, Activity pages | Sol 6.1 | Queued | `apps/web/src/pages/*`, `apps/web/src/pages.css` |
 | S1 | Write-up, demo script, pitch deck, logo | Claude | Queued | `docs/submission/**` |
 | Q1 | End-to-end browser test | Terra 6.1 | Queued | None; reports only |
 | R1 | Independent review of the full diff | Claude subagent | Queued | None; reports only |
@@ -56,6 +59,9 @@ Tested on Nov 6. Each tool answered a one-line prompt from an empty folder.
 ## Decision and handoff log
 
 Newest first.
+
+- **Nov 6:** Sol cannot run vitest or vite in its sandbox (esbuild `spawn EPERM`). It writes tests and runs `tsc`; the orchestrator runs the rest. It also cannot open a browser, so the orchestrator reviews every screen.
+- **Nov 6:** Scope for F2 is in `docs/team/f2-spec.md`. Code freeze is 8:00 AM.
 
 - **Nov 6:** Codex can exit with code 0 having done nothing. The default Windows sandbox failed to start on this machine, so use the unelevated setting and always check the diff, not the exit code.
 - **Nov 6:** The owner asked for a less wordy site with more UI, motion and sound, so F1 grew from visual QA to a redesign pass inside the existing Edge-Code Reel world.
