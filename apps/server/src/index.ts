@@ -4,7 +4,7 @@ import { Velo } from '@carts1024/velo-sdk'
 import { randomUUID } from 'node:crypto'
 import { NoirAgentClient, keypairSigner, toStroops } from '@noirx402/agent-sdk'
 import { Router } from 'express'
-import { assertTestnetContracts, readEnv, XLM_SAC } from '@clippass/shared'
+import { assertTestnetContracts, readEnv, XLM_SAC, DEMO_SCRIPT, MOODS, type Mood } from '@clippass/shared'
 import { createApp } from './app'
 import { JobStore } from './jobs'
 import { veloRouter } from './velo'
@@ -56,8 +56,9 @@ if (devRoutesEnabled(process.env)) {
   const dev = Router()
   dev.post('/api/dev/jobs', (req, res) => {
     const jobId = randomUUID()
-    const topic = String(req.body?.topic ?? 'stellar fees')
-    jobs.create({ jobId, topic, budget: toStroops(String(req.body?.budget ?? '2.5')), paymentIntentId: `dev-${jobId}`, checkoutUrl: '' })
+    const script = String(req.body?.script ?? DEMO_SCRIPT)
+    const mood: Mood = MOODS.includes(req.body?.mood) ? req.body.mood : 'chill'
+    jobs.create({ jobId, script, mood, budget: toStroops(String(req.body?.budget ?? '2.5')), paymentIntentId: `dev-${jobId}`, checkoutUrl: '' })
     jobs.markPaid(jobId)
     startAgent(jobId)
     res.json({ jobId })

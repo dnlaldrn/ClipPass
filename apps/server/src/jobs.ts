@@ -1,4 +1,4 @@
-import type { JobView } from '@clippass/shared'
+import type { JobView, Mood } from '@clippass/shared'
 
 export type Job = Omit<JobView, 'budget'> & { budget: bigint; paymentIntentId: string }
 
@@ -6,8 +6,8 @@ export type Job = Omit<JobView, 'budget'> & { budget: bigint; paymentIntentId: s
 export class JobStore {
   private jobs = new Map<string, Job>()
 
-  create(p: { jobId: string; topic: string; budget: bigint; paymentIntentId: string; checkoutUrl: string }): Job {
-    const job: Job = { ...p, status: 'awaiting_payment', veloStatus: null, trace: [], payments: [], summary: null }
+  create(p: { jobId: string; script: string; mood: Mood; budget: bigint; paymentIntentId: string; checkoutUrl: string }): Job {
+    const job: Job = { ...p, status: 'awaiting_payment', veloStatus: null, trace: [], licenses: [], summary: null }
     this.jobs.set(p.jobId, job)
     return job
   }

@@ -1,5 +1,6 @@
 import request from 'supertest'
 import { VeloWebhookSignatureVerificationError } from '@carts1024/velo-sdk'
+import { DEMO_SCRIPT } from '@clippass/shared'
 import { createApp } from './app'
 import { JobStore } from './jobs'
 import { veloRouter, type VeloLike } from './velo'
@@ -38,7 +39,7 @@ const succeeded = (piId: string, id = 'evt_1') =>
   JSON.stringify({ version: '1', id, type: 'payment.succeeded', paymentIntent: { id: piId, status: 'paid' } })
 
 async function newJob(app: any) {
-  const res = await request(app).post('/api/jobs').send({ topic: 'stellar fees', budget: '2.5' })
+  const res = await request(app).post('/api/jobs').send({ script: DEMO_SCRIPT, mood: 'chill', budget: '2.5' })
   return res
 }
 
@@ -48,18 +49,29 @@ test('POST /api/jobs creates a session', async () => {
   expect(res.status).toBe(200)
   expect(res.body.checkoutUrl).toBe('https://pay/1')
   const { p, o } = creates[0]
-  expect(p).toMatchObject({ amount: '1.00', asset: 'native', successUrl: `${WEB}/jobs/${res.body.jobId}`, cancelUrl: `${WEB}/` })
+  expect(p).toMatchObject({
+    amount: '1.00', asset: 'native', description: `ClipPass reel project: ${DEMO_SCRIPT}`,
+    successUrl: `${WEB}/jobs/${res.body.jobId}`, cancelUrl: `${WEB}/`,
+  })
   expect(o).toEqual({ idempotencyKey: `job:${res.body.jobId}` })
 })
 
 test('rejects bad budget', async () => {
   const { app, creates } = setup()
   for (const budget of ['abc', '-1', '0', '1.5', '1.123456789', '50']) {
-    const res = await request(app).post('/api/jobs').send({ topic: 't', budget })
+    const res = await request(app).post('/api/jobs').send({ script: DEMO_SCRIPT, mood: 'chill', budget })
     expect(res.status, budget).toBe(400)
   }
-  expect((await request(app).post('/api/jobs').send({ topic: '', budget: '2' })).status).toBe(400)
   expect(creates).toHaveLength(0)
+})
+
+test('rejects bad script or mood', async () => {
+  const { app, creates } = setup()
+  const post = (body: object) => request(app).post('/api/jobs').send({ script: DEMO_SCRIPT, mood: 'chill', budget: '2.5', ...body })
+  for (const script of ['', '   ', 'x'.repeat(501), 42]) expect((await post({ script })).status, String(script)).toBe(400)
+  for (const mood of ['Chill', 'sad', undefined]) expect((await post({ mood })).status, String(mood)).toBe(400)
+  expect(creates).toHaveLength(0)
+  expect((await post({ script: 'x'.repeat(500) })).status).toBe(200)
 })
 
 const hook = (app: any, body: string, sig = 'good', delivery = 'd1') =>

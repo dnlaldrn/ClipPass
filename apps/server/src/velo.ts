@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { Router } from 'express'
 import { Velo, VeloWebhookSignatureVerificationError } from '@carts1024/velo-sdk'
 import { toStroops } from '@noirx402/agent-sdk'
-import { JOB_FEE, MAX_JOB_BUDGET, MIN_JOB_BUDGET } from '@clippass/shared'
+import { JOB_FEE, MAX_JOB_BUDGET, MIN_JOB_BUDGET, MOODS, type Mood } from '@clippass/shared'
 import type { JobStore } from './jobs'
 
 /** Checkout asset; the day-one Velo check settles whether Testnet takes 'native'. */
@@ -42,9 +42,11 @@ export function veloRouter(d: {
   const paid = (jobId: string) => { if (d.jobs.markPaid(jobId)) d.onPaid(jobId) }
 
   r.post('/api/jobs', async (req, res) => {
-    const topic = typeof req.body?.topic === 'string' ? req.body.topic.trim() : ''
+    const script = typeof req.body?.script === 'string' ? req.body.script.trim() : ''
+    const mood = req.body?.mood as Mood
     const budget = parseBudget(req.body?.budget)
-    if (!topic || topic.length > 200) return res.status(400).json({ error: 'Topic is required (max 200 characters).' })
+    if (!script || script.length > 500) return res.status(400).json({ error: 'Script is required (max 500 characters).' })
+    if (!MOODS.includes(mood)) return res.status(400).json({ error: `Mood must be one of: ${MOODS.join(', ')}.` })
     if (budget === null) return res.status(400).json({ error: 'Budget must be an XLM amount from 2 to 5.' })
 
     const jobId = randomUUID()
@@ -52,14 +54,14 @@ export function veloRouter(d: {
       {
         amount: JOB_FEE,
         asset: VELO_ASSET,
-        description: `Tollbooth research job: ${topic.slice(0, 80)}`,
+        description: `ClipPass reel project: ${script.slice(0, 80)}`,
         successUrl: `${d.webOrigin}/jobs/${jobId}`,
         cancelUrl: `${d.webOrigin}/`,
       },
       { idempotencyKey: `job:${jobId}` },
     )
     if (!session.checkoutUrl) return res.status(502).json({ error: 'Velo returned no checkout URL.' })
-    d.jobs.create({ jobId, topic, budget, paymentIntentId: session.paymentIntentId, checkoutUrl: session.checkoutUrl })
+    d.jobs.create({ jobId, script, mood, budget, paymentIntentId: session.paymentIntentId, checkoutUrl: session.checkoutUrl })
     res.json({ jobId, checkoutUrl: session.checkoutUrl })
   })
 
