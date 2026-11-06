@@ -3,6 +3,7 @@ export type Route =
   | { name: 'job' | 'receipt'; id: string }
 
 export const NAV = [
+  { href: '/', label: 'New reel' },
   { href: '/library', label: 'Library' },
   { href: '/artists', label: 'Artists' },
   { href: '/activity', label: 'Activity' },

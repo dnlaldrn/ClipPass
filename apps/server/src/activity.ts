@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { ARTISTS, type Activity, type ActivityItem, type ArtistId, type License } from '@clippass/shared'
+import { ARTISTS, ASSETS, type Activity, type ActivityItem, type ArtistId, type License } from '@clippass/shared'
 import type { NoirEvent } from '@noirx402/agent-sdk'
 
 export type AuthorizedPayment = Extract<NoirEvent, { type: 'payment.authorized' }>
@@ -20,9 +20,12 @@ export class ActivityLog {
 
   recordPayment(event: AuthorizedPayment, payees: Record<ArtistId, string>): void {
     const id = (Object.keys(ARTISTS) as ArtistId[]).find((id) => payees[id] === event.merchant)
+    // On-chain events name no asset, but artist plus price is unique in the catalog.
+    const title = ASSETS.find((a) => a.artist === id && a.price === event.amount)?.title
     this.record({
       id: event.txHash, at: event.ledgerClosedAt, kind: 'paid', amount: event.amount.toString(),
-      address: event.merchant, hash: event.txHash, ...(id ? { artist: ARTISTS[id].name } : {}),
+      address: event.merchant, hash: event.txHash,
+      ...(id ? { artist: ARTISTS[id].name } : {}), ...(title ? { title } : {}),
     })
   }
 

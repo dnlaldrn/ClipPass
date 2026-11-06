@@ -172,7 +172,7 @@ docs/            architecture, screenshots, design specs and plans
    Other commands:
 
    ```bash
-   npm test             # 160 unit tests
+   npm test             # 161 unit tests
    npm run demo         # one reel end to end on Testnet, then artist payouts; prints every link
    npm run claim        # pay out every artist with pending earnings
    ```
