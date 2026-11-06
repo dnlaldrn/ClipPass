@@ -6,6 +6,7 @@ import { Reel } from './reel/Reel'
 import { DEMO_REEL } from './reel/demo'
 import { txLink } from './format'
 import { PencilMark } from './PencilMark'
+import { Edge } from './Edge'
 
 export function StartJob() {
   const [script, setScript] = useState('Rain at a night market in Manila, street food sizzle, crowd chatter')
@@ -45,8 +46,8 @@ export function StartJob() {
           <a href={txLink(DEMO_REEL[1].hash!)} target="_blank" rel="noreferrer">See the first license on stellar.expert</a>
         </p>
         <p className="reel-refusal">
-          <span>Card limit: 1 XLM per payment</span>
-          <PencilMark>Neon Crown, 2 XLM: refused by card, over_limit</PencilMark>
+          <Edge>Card limit: 1 XLM per payment</Edge>
+          <PencilMark><Edge>Neon Crown, 2 XLM: refused by card, over_limit</Edge></PencilMark>
         </p>
       </div>
 

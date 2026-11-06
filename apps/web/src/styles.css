@@ -61,7 +61,10 @@ footer p { margin: 0 0 4px; }
 .reel-notes { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 10px 28px; margin: 0 0 32px; }
 .reel-caption { margin: 0; font-size: 0.9375rem; color: var(--ink-2); }
 .reel-refusal { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 0; font-family: var(--edge); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.03em; }
-.reel-refusal .pencil { padding: 3px 1.4em; color: var(--pencil); }
+.reel-refusal .pencil { padding: 3px 1.4em; white-space: nowrap; color: var(--pencil); }
+.edge { white-space: nowrap; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.edge-i { display: inline-block; margin: 0 -0.16em; }
 
 /* Grease pencil: an authored ring around a refusal, and it stays */
 .pencil { position: relative; display: inline-block; padding: 0 0.4em; }
@@ -193,6 +196,8 @@ button:disabled { opacity: 0.6; cursor: progress; }
   .top, main, footer { padding-left: 16px; padding-right: 16px; }
   .top { flex-direction: column; align-items: flex-start; gap: 12px; }
   .reel { height: 230px; }
+  .reel-refusal { font-size: 0.8125rem; letter-spacing: 0; }
+  .reel-refusal .pencil { padding: 3px 1.1em; }
   .leader-form { grid-template-columns: 1fr; }
   .leader-form button { justify-self: stretch; }
   .gauge-row { grid-template-columns: 70px minmax(0, 1fr) 108px; gap: 12px; }

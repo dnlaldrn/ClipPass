@@ -3,6 +3,7 @@ import type { AssetType, DecisionAction } from '@clippass/shared'
 import type { LaneState } from './format'
 import { LANES } from './mirror'
 import { PencilMark } from './PencilMark'
+import { Edge } from './Edge'
 
 const CAP = 1
 const SCALE = 2.4
@@ -25,7 +26,7 @@ export function Lanes({ states = {} }: { states?: Partial<Record<AssetType, Lane
           const text = s && (s.action === 'paid' ? `Paid ×${s.count}` : STATE_TEXT[s.action])
           return (
             <div key={l.type} className={`gauge-row ${s ? `is-${s.action}` : ''}`}>
-              <span className="gauge-name">{l.label}</span>
+              <span className="gauge-name"><Edge>{l.label}</Edge></span>
               <span className="gauge-track">
                 <span className={`gauge-bar ${l.price > CAP ? 'over' : ''}`} style={{ width: `${(l.price / SCALE) * 100}%` }} />
               </span>

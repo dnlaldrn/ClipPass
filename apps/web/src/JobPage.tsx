@@ -7,6 +7,7 @@ import { LANES } from './mirror'
 import { Reel } from './reel/Reel'
 import { reelFrames } from './reel/frames'
 import { PencilMark } from './PencilMark'
+import { Edge } from './Edge'
 
 const STATUS_TEXT: Record<JobView['status'], string> = {
   awaiting_payment: 'Waiting for Velo to confirm the project fee',
@@ -97,7 +98,7 @@ export function JobPage({ jobId }: { jobId: string }) {
                 {job.licenses.map((l) => (
                   <tr key={l.hash}>
                     <td className="asset">{l.title}</td>
-                    <td className="lane">{LANE_LABEL[l.assetType]}</td>
+                    <td className="lane"><Edge>{LANE_LABEL[l.assetType]}</Edge></td>
                     <td>{l.artist}</td>
                     <td className="amt">{xlm(l.price)} XLM</td>
                     <td className="proof"><a href={txLink(l.hash)} target="_blank" rel="noreferrer">tx {l.hash.slice(0, 8)}…</a></td>

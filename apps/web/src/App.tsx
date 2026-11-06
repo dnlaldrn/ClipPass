@@ -1,5 +1,6 @@
 import { StartJob } from './StartJob'
 import { JobPage } from './JobPage'
+import { Edge } from './Edge'
 
 export function App() {
   const jobId = location.pathname.match(/^\/jobs\/([\w-]+)$/)?.[1]
@@ -10,7 +11,7 @@ export function App() {
           <a href="/" className="wordmark" aria-label="ClipPass home">Clip<span>Pass</span></a>
           <p className="tagline">An AI agent that licenses stock media for each reel and pays every artist per use, inside a card limit it can’t exceed.</p>
         </div>
-        <p className="network">Stellar Testnet · no real money moves</p>
+        <p className="network"><Edge>Stellar Testnet · no real money moves</Edge></p>
       </header>
       <main>{jobId ? <JobPage jobId={jobId} /> : <StartJob />}</main>
       <footer>
