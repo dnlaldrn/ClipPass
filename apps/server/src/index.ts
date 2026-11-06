@@ -22,7 +22,7 @@ import { loadArtists, payees } from './artists'
 const rootEnv = fileURLToPath(new URL('../../../.env', import.meta.url))
 if (existsSync(rootEnv)) process.loadEnvFile(rootEnv) // local dev only; Render sets real env vars
 
-const env = readEnv(['VELO_API_KEY', 'VELO_WEBHOOK_SECRET', 'WEB_ORIGIN', 'MERCHANT_SECRET', 'AGENT_SECRET', 'DEVICE_HASH'])
+const env = readEnv(['VELO_API_KEY', 'VELO_WEBHOOK_SECRET', 'WEB_ORIGIN', 'AGENT_SECRET', 'DEVICE_HASH'])
 const artists = loadArtists()
 
 // Startup assertions: the SDK must point at the deployed Testnet contracts, and the escrow must hold XLM
@@ -49,7 +49,7 @@ const startAgent = (id: string) => void enqueue(id)
 const routers = [
   veloRouter({ velo, jobs, webOrigin: env.WEB_ORIGIN, secret: env.VELO_WEBHOOK_SECRET, onPaid: startAgent }),
   merchantRouter({ quotes, verifier, payees: payees(artists) }),
-  claimRouter({ noir, merchant: keypairSigner(env.MERCHANT_SECRET), deviceHash: env.DEVICE_HASH }),
+  claimRouter({ noir, artists, deviceHash: env.DEVICE_HASH }),
 ]
 if (devRoutesEnabled(process.env)) {
   // Local dev only (DEV_ROUTES=1): create and start a job without a Velo checkout. Never set it on Render.

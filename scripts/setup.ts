@@ -1,8 +1,9 @@
-// Rebuilds Tollbooth's Testnet state. Idempotent: safe to rerun, including after a Testnet reset.
+// Rebuilds ClipPass's Testnet state. Idempotent: safe to rerun, including after a Testnet reset.
 import { createHash } from 'node:crypto'
 import { Keypair } from '@stellar/stellar-sdk'
 import { NoirAgentClient, keypairSigner, toStroops, fromStroops } from '@noirx402/agent-sdk'
-import { assertTestnetContracts, XLM_SAC, POLICY_MAX, accountLink, txLink } from '@clippass/shared'
+import { assertTestnetContracts, XLM_SAC, POLICY_MAX, ARTISTS, accountLink, txLink, type ArtistId } from '@clippass/shared'
+import { artistEnvKey } from '../apps/server/src/artists'
 import { loadDotEnv, upsertDotEnv } from './env-file'
 
 const ESCROW_TOPUP = toStroops('20')
@@ -31,13 +32,14 @@ async function main() {
   loadDotEnv()
   const owner = keypair('OWNER_SECRET')
   const agent = keypair('AGENT_SECRET')
-  const merchant = keypair('MERCHANT_SECRET')
+  const artists = (Object.keys(ARTISTS) as ArtistId[]).map((id) => ({ name: ARTISTS[id].name, kp: keypair(artistEnvKey(id)) }))
+  // keep the Tollbooth-era UID: a new one registers a new device and escrow
   const uid = process.env.DEVICE_UID || 'TOLLBOOTH-DEMO-0001'
   const deviceHash = createHash('sha256').update(uid).digest('hex')
   upsertDotEnv({ DEVICE_UID: uid, DEVICE_HASH: deviceHash })
 
   console.log('Funding accounts with friendbot…')
-  for (const kp of [owner, agent, merchant]) await friendbot(kp.publicKey())
+  for (const kp of [owner, agent, ...artists.map((a) => a.kp)]) await friendbot(kp.publicKey())
 
   const noir = new NoirAgentClient()
   assertTestnetContracts(noir.contracts)
@@ -79,7 +81,7 @@ async function main() {
   console.log(`
 owner    ${owner.publicKey()}  ${accountLink(owner.publicKey())}
 agent    ${agent.publicKey()}  ${accountLink(agent.publicKey())}
-merchant ${merchant.publicKey()}  ${accountLink(merchant.publicKey())}
+${artists.map((a) => `${a.name.padEnd(20)} ${a.kp.publicKey()}  ${accountLink(a.kp.publicKey())}`).join('\n')}
 deviceHash ${deviceHash}
 escrow   ${fromStroops(await noir.getEscrowBalance(deviceHash))} XLM
 ${sent.length} transaction(s) sent. Secrets are in .env (gitignored).`)
