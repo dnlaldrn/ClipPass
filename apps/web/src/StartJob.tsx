@@ -5,6 +5,7 @@ import { MOODS } from './mirror'
 import { Reel } from './reel/Reel'
 import { DEMO_REEL } from './reel/demo'
 import { txLink } from './format'
+import { PencilMark } from './PencilMark'
 
 export function StartJob() {
   const [script, setScript] = useState('Rain at a night market in Manila, street food sizzle, crowd chatter')
@@ -38,10 +39,16 @@ export function StartJob() {
       </section>
 
       <Reel frames={DEMO_REEL} mode="replay" label="A replay of a real Testnet reel: six licensed frames and the exclusive track refused by the card" />
-      <p className="reel-caption">
-        A replay of a real Testnet reel: 6 licenses from 4 artists, and Neon Crown refused by the card.{' '}
-        <a href={txLink(DEMO_REEL[1].hash!)} target="_blank" rel="noreferrer">See the first license on stellar.expert</a>
-      </p>
+      <div className="reel-notes">
+        <p className="reel-caption">
+          A replay of a real Testnet reel: 6 licenses from 4 artists, and Neon Crown refused by the card.{' '}
+          <a href={txLink(DEMO_REEL[1].hash!)} target="_blank" rel="noreferrer">See the first license on stellar.expert</a>
+        </p>
+        <p className="reel-refusal">
+          <span>Card limit: 1 XLM per payment</span>
+          <PencilMark>Neon Crown, 2 XLM: refused by card, over_limit</PencilMark>
+        </p>
+      </div>
 
       <form className="leader-form" onSubmit={submit}>
         <label className="leader-field">

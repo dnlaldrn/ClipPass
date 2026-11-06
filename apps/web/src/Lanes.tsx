@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 import type { AssetType, DecisionAction } from '@clippass/shared'
 import type { LaneState } from './format'
 import { LANES } from './mirror'
+import { PencilMark } from './PencilMark'
 
 const CAP = 1
 const SCALE = 2.4
@@ -28,7 +29,7 @@ export function Lanes({ states = {} }: { states?: Partial<Record<AssetType, Lane
               <span className="gauge-track">
                 <span className={`gauge-bar ${l.price > CAP ? 'over' : ''}`} style={{ width: `${(l.price / SCALE) * 100}%` }} />
               </span>
-              <span className="gauge-price">{l.price < CAP ? 'up to ' : ''}{l.price} XLM</span>
+              <span className="gauge-price">{l.price > CAP ? <PencilMark>{l.price} XLM</PencilMark> : <>up to {l.price} XLM</>}</span>
               <span className="gauge-tag">{text && <strong className={`tag is-${s!.action}`}>{text}</strong>}</span>
             </div>
           )

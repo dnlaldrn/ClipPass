@@ -25,7 +25,8 @@ void main() {
 const film = /* glsl */ `
 precision highp float;
 uniform sampler2D uAtlas;
-uniform float uCount, uOffset, uPitch, uGate, uTime, uStripH, uLoop;
+uniform float uCount, uOffset, uPitch, uGate, uTime, uStripH, uLoop, uHead;
+uniform float uRefused[${MAX}];
 uniform float uExpose[${MAX}];
 uniform float uFlash[${MAX}];
 uniform float uFog[${MAX}];
@@ -61,17 +62,26 @@ void main() {
   }
 
   float lit = 1.0 - smoothstep(0.45, 0.95, abs(f - uOffset)); // light is the state: only the gate is lit
-  float flash = inReel ? pick(uFlash, idx) : 0.0;
-  float grain = (hash(floor(vUv * vec2(1400.0, 260.0)) + floor(uTime * 12.0)) - 0.5) * 0.045;
+  // what this frame has been through: in the replay, every frame behind the head stays developed,
+  // the head plays its moment, frames ahead are still unexposed; a live reel reads its own state
+  float e = 0.0, fog = 0.0, flash = 0.0;
+  if (inReel) {
+    if (uLoop < 0.5 || abs(idxF - uHead) < 0.5) { e = pick(uExpose, idx); fog = pick(uFog, idx); flash = pick(uFlash, idx); }
+    else if (idxF < uHead) { e = 1.0; fog = pick(uRefused, idx); }
+  }
+  // grain is the stock itself, static; it only boils while a frame is being exposed
+  float boil = step(0.02, flash) * floor(uTime * 12.0);
+  float grain = (hash(floor(vUv * vec2(1400.0, 260.0)) + boil) - 0.5) * 0.045;
   float density = sin(vX * 0.9) * 0.015;
   float sheen = smoothstep(0.0, 1.0, 1.0 - abs(fract(vX * 0.035 - uTime * 0.02 + v * 0.3) - 0.5) * 8.0) * 0.05;
 
   vec3 col = ACETATE * mix(0.9, 1.06, lit) + grain + density + sheen;
   col += WARM * flash * 0.32 * exp(-abs(local - 0.5) * 3.0); // a light leak spills onto the base around a fresh frame
+  col += WARM * 0.2 * exp(-pow((f - uOffset) / 0.75, 2.0)); // the gate lamp shines up through the acetate
 
   if (inReel) {
     // off register: idle frames ride a hair loose, the gate frame sits on the pin
-    float jitter = sin(uTime * 0.7 + idxF * 1.7) * 0.0025 * (1.0 - lit);
+    float jitter = sin(uTime * 0.7 + idxF * 1.7) * 0.006 * (1.0 - lit);
     vec2 auv = vec2((slot + local) / float(${MAX}), v + jitter);
     vec4 a = texture2D(uAtlas, auv);
     vec2 fr = vec2(local, 1.0 - v);
@@ -80,10 +90,10 @@ void main() {
     bool inFrame = fr.x > lo.x && fr.x < hi.x && fr.y > lo.y && fr.y < hi.y;
     if (inFrame) {
       vec2 q = (fr - lo) / (hi - lo);               // 0..1 inside the frame window
-      float e = pick(uExpose, idx);
-      vec3 img = mix(vec3(0.05, 0.035, 0.028), a.rgb, e);   // develops from black
+      // unexposed stock: dense, grainy, faintly brown at the edges, never a flat hole
+      vec3 raw = vec3(0.07, 0.048, 0.036) * (0.8 + 0.35 * (1.0 - length(q - 0.5))) + grain * 0.9;
+      vec3 img = mix(raw, a.rgb, e);                // develops from unexposed stock
       img += WARM * flash * 0.5 * (1.0 - length(q - 0.5) * 1.3);
-      float fog = pick(uFog, idx);
       img = mix(img, FOG, fog * 0.86);              // the refusal overexposes the frame
       // grease-pencil cross, drawn on as the fog lands
       float wob = (hash(floor(q * 90.0)) - 0.5) * 0.006;
@@ -93,7 +103,7 @@ void main() {
       float s2 = step(q.x, clamp(fog * 2.0 - 1.0, 0.0, 1.0) * 0.9 + 0.05) * step(0.05, q.x);
       float x = max((1.0 - smoothstep(w * 0.6, w, d1)) * s1, (1.0 - smoothstep(w * 0.6, w, d2)) * s2);
       img = mix(img, PENCIL, x);
-      img *= mix(0.74, 1.0, lit);
+      img *= mix(0.58, 1.0, lit);
       // registration edge: the gate frame alone is outlined in edge-print yellow
       float edge = min(min(q.x, 1.0 - q.x) * aspect, min(q.y, 1.0 - q.y));
       img = mix(img, PRINT, (1.0 - smoothstep(0.004, 0.008, edge)) * smoothstep(0.85, 1.0, lit));
@@ -144,6 +154,8 @@ export class ReelScene {
   private time = 0
   private running = false
   private drawn = false
+  private head = -1 // replay: the absolute index of the frame last pulled into the gate
+  private narrow = false
 
   constructor(private canvas: HTMLCanvasElement, private mode: ReelMode, private still: boolean) {
     this.renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'low-power' })
@@ -161,6 +173,7 @@ export class ReelScene {
       uAtlas: { value: this.texture }, uCount: { value: 0 }, uOffset: { value: 0 }, uPitch: { value: 1 }, uGate: { value: 0 },
       uTime: { value: 0 }, uBend: { value: still ? 0 : 0.09 }, uStripH: { value: 1 }, uLoop: { value: mode === 'replay' ? 1 : 0 },
       uExpose: { value: this.anim.expose }, uFlash: { value: this.anim.flash }, uFog: { value: this.anim.fog },
+      uHead: { value: -1 }, uRefused: { value: Array(MAX).fill(0) },
     }
     this.film = new ShaderMaterial({ uniforms, vertexShader: vertex, fragmentShader: film })
     this.shade = new ShaderMaterial({ uniforms, vertexShader: vertex, fragmentShader: shadow, transparent: true, depthWrite: false })
@@ -176,6 +189,7 @@ export class ReelScene {
     drawAtlas(this.atlas, this.frames)
     this.texture.needsUpdate = true
     this.film.uniforms.uCount.value = this.frames.length
+    this.film.uniforms.uRefused.value = Array.from({ length: MAX }, (_, i) => (this.frames[i]?.state === 'refused' ? 1 : 0))
 
     if (this.mode === 'live') {
       const decided = this.frames.filter((f) => f.state !== 'empty').length
@@ -186,7 +200,7 @@ export class ReelScene {
         this.reveal(i, f, first || this.still ? 'now' : fresh ? 'event' : 'keep')
       }
       this.revealed = decided
-      this.target = Math.max(0, decided - 1)
+      this.target = this.liveTarget()
       if (first || this.still) { this.offset = this.target; this.velocity = 0 }
     } else if (!this.drawn) {
       this.replayAt = 0.9
@@ -203,6 +217,17 @@ export class ReelScene {
     this.goal.fog[i] = f.state === 'refused' ? 1 : 0
     if (how === 'now') { this.anim.expose[i] = this.goal.expose[i]; this.anim.fog[i] = this.goal.fog[i]; return }
     if (f.state === 'paid') this.anim.flash[i] = 1
+  }
+
+  /**
+   * Where a live reel parks: on the newest frame while the agent works. Once every slot is decided on a narrow
+   * screen, which shows about three frames, it parks on the refusal so the reel's one memorable moment stays in view.
+   */
+  private liveTarget(): number {
+    const decided = this.frames.filter((f) => f.state !== 'empty').length
+    const refused = this.frames.findIndex((f) => f.state === 'refused')
+    if (this.narrow && decided === this.frames.length && refused >= 0) return refused
+    return Math.max(0, decided - 1)
   }
 
   resize(width: number, height: number): void {
@@ -225,7 +250,10 @@ export class ReelScene {
     const u = this.film.uniforms
     u.uPitch.value = pitch
     u.uStripH.value = stripH
-    u.uGate.value = width < 640 ? 0 : viewW * 0.12
+    // the gate sits right of centre on wide screens; a live reel's sits further right so all seven frames fit behind it
+    this.narrow = width < 640
+    u.uGate.value = this.narrow ? 0 : viewW * (this.mode === 'live' ? 0.2 : 0.12)
+    if (this.mode === 'live' && this.drawn) { this.target = this.liveTarget(); this.offset = this.target; this.velocity = 0 }
     this.frame()
   }
 
@@ -259,17 +287,21 @@ export class ReelScene {
     }
   }
 
-  /** Start page: replays a real reel, one frame through the gate every 2.4 s; each loop starts unexposed. */
+  /**
+   * Start page: replays a real reel, one frame through the gate every 2.4 s, forever. Frames behind the gate stay
+   * developed (the shader reads them from uRefused); only the frame entering the gate replays its moment.
+   */
   private replay(dt: number) {
     this.replayAt -= dt
     if (this.replayAt > 0) return
     const n = this.frames.length
     if (!n) return
-    const i = this.revealed++
+    const i = ++this.head
     const slot = i % n
-    if (slot === 0 && i > 0) for (let k = 0; k < MAX; k++) { this.goal.expose[k] = 0; this.goal.fog[k] = 0 }
-    this.target = i
+    this.anim.expose[slot] = 0
+    this.anim.fog[slot] = 0
     this.reveal(slot, this.frames[slot], 'event')
+    this.target = i
     this.replayAt = slot === n - 1 ? 3.6 : 2.4
   }
 
@@ -277,13 +309,16 @@ export class ReelScene {
     const u = this.film.uniforms
     u.uOffset.value = this.offset
     u.uTime.value = this.time
+    u.uHead.value = this.head
     this.renderer.render(this.scene, this.camera)
   }
 
-  /** Reduced motion: the whole reel developed and still. */
+  /** Reduced motion: the whole reel developed and still, parked on the refusal. */
   showAll(): void {
     this.frames.forEach((f, i) => this.reveal(i, f, 'now'))
-    this.target = this.offset = Math.max(0, this.frames.findIndex((f) => f.state === 'refused'))
+    const refused = Math.max(0, this.frames.findIndex((f) => f.state === 'refused'))
+    if (this.mode === 'replay') this.head = 1e6 // every frame reads as already through the gate
+    this.target = this.offset = refused
     this.frame()
   }
 

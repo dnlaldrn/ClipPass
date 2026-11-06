@@ -6,6 +6,7 @@ import { laneStates, txLink, xlm } from './format'
 import { LANES } from './mirror'
 import { Reel } from './reel/Reel'
 import { reelFrames } from './reel/frames'
+import { PencilMark } from './PencilMark'
 
 const STATUS_TEXT: Record<JobView['status'], string> = {
   awaiting_payment: 'Waiting for Velo to confirm the project fee',
@@ -96,7 +97,7 @@ export function JobPage({ jobId }: { jobId: string }) {
                 {job.licenses.map((l) => (
                   <tr key={l.hash}>
                     <td className="asset">{l.title}</td>
-                    <td>{LANE_LABEL[l.assetType]}</td>
+                    <td className="lane">{LANE_LABEL[l.assetType]}</td>
                     <td>{l.artist}</td>
                     <td className="amt">{xlm(l.price)} XLM</td>
                     <td className="proof"><a href={txLink(l.hash)} target="_blank" rel="noreferrer">tx {l.hash.slice(0, 8)}…</a></td>
@@ -113,7 +114,7 @@ export function JobPage({ jobId }: { jobId: string }) {
             {job.trace.map((d, i) => (
               <li key={i} className={`line is-${d.action}`}>
                 <div className="line-head">
-                  <span className="act">{ACTION_TEXT[d.action]}</span>
+                  <span className="act">{d.action === 'refused' ? <PencilMark>{ACTION_TEXT[d.action]}</PencilMark> : ACTION_TEXT[d.action]}</span>
                   {d.assetId && <span className="ep">/api/assets/{d.assetId}</span>}
                   {d.price && <span className="amt">{xlm(d.price)} XLM</span>}
                 </div>
