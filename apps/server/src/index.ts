@@ -1,6 +1,5 @@
 import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { Keypair } from '@stellar/stellar-sdk'
 import { Velo } from '@carts1024/velo-sdk'
 import { randomUUID } from 'node:crypto'
 import { NoirAgentClient, keypairSigner, toStroops } from '@noirx402/agent-sdk'
@@ -18,12 +17,13 @@ import { ollamaPlanner } from '@clippass/agent'
 import { devRoutesEnabled } from './dev'
 import { claimRouter } from './claim'
 import { restoreSuccessFlag } from './rpcShim'
+import { loadArtists, payees } from './artists'
 
 const rootEnv = fileURLToPath(new URL('../../../.env', import.meta.url))
 if (existsSync(rootEnv)) process.loadEnvFile(rootEnv) // local dev only; Render sets real env vars
 
 const env = readEnv(['VELO_API_KEY', 'VELO_WEBHOOK_SECRET', 'WEB_ORIGIN', 'MERCHANT_SECRET', 'AGENT_SECRET', 'DEVICE_HASH'])
-const merchant = Keypair.fromSecret(env.MERCHANT_SECRET).publicKey()
+const artists = loadArtists()
 
 // Startup assertions: the SDK must point at the deployed Testnet contracts, and the escrow must hold XLM
 // (payment.authorized events carry no asset, so this is where the asset check lives).
@@ -36,8 +36,8 @@ if ((await noir.getEscrowToken(env.DEVICE_HASH)) !== XLM_SAC) {
 const velo = new Velo({ apiKey: env.VELO_API_KEY, environment: 'testnet' })
 const jobs = new JobStore()
 const quotes = new QuoteStore()
-const verifier = createVerifier({ quotes, merchant, deviceHash: env.DEVICE_HASH })
-startPaymentWatch(noir, verifier, merchant)
+const verifier = createVerifier({ quotes, deviceHash: env.DEVICE_HASH })
+startPaymentWatch(noir, verifier, env.DEVICE_HASH)
 
 const port = Number(process.env.PORT ?? 8787)
 const agent = keypairSigner(env.AGENT_SECRET) // the agent key lives only on the server
@@ -48,7 +48,7 @@ const startAgent = (id: string) => void enqueue(id)
 
 const routers = [
   veloRouter({ velo, jobs, webOrigin: env.WEB_ORIGIN, secret: env.VELO_WEBHOOK_SECRET, onPaid: startAgent }),
-  merchantRouter({ quotes, verifier, merchant }),
+  merchantRouter({ quotes, verifier, payees: payees(artists) }),
   claimRouter({ noir, merchant: keypairSigner(env.MERCHANT_SECRET), deviceHash: env.DEVICE_HASH }),
 ]
 if (devRoutesEnabled(process.env)) {
@@ -70,4 +70,4 @@ const app = createApp({
   routers,
 })
 
-app.listen(port, () => console.log(`tollbooth server on :${port}`))
+app.listen(port, () => console.log(`clippass server on :${port}`))
