@@ -51,14 +51,14 @@ const runWith = (o: { budget: bigint; planner?: Planner }) => run(o.budget, fake
 
 test('licenses retain the paid response licenseId and terms', async () => {
   const { result } = await run(25_000_000n, fakeMerchant({ licenseBody: { licenseId: 'license-from-merchant', terms: 'merchant terms' } }))
-  expect(result.licenses).toHaveLength(6)
+  expect(result.licenses).toHaveLength(3)
   for (const license of result.licenses) expect(license).toMatchObject({ licenseId: 'license-from-merchant', terms: 'merchant terms' })
 })
 
 test('missing or invalid license fields fall back to the hash and reel terms', async () => {
   for (const licenseBody of [null, {}, { licenseId: 42, terms: false }]) {
     const { result } = await run(25_000_000n, fakeMerchant({ licenseBody }))
-    expect(result.licenses).toHaveLength(6)
+    expect(result.licenses).toHaveLength(3)
     for (const license of result.licenses) {
       expect(license.licenseId).toBe(license.hash)
       expect(license.terms).toBe('single use in one reel')
@@ -66,8 +66,8 @@ test('missing or invalid license fields fall back to the hash and reel terms', a
   }
 })
 
-test('plan: exclusive first, then music, 3 b-roll, 2 sfx', () => {
-  expect(makePlan(DEMO_SCRIPT, 'chill').map((s) => s.type)).toEqual(['exclusive', 'music', 'broll', 'broll', 'broll', 'sfx', 'sfx'])
+test('plan: exclusive first, then music, b-roll, sfx', () => {
+  expect(makePlan(DEMO_SCRIPT, 'chill').map((s) => s.type)).toEqual(['exclusive', 'music', 'broll', 'sfx'])
   expect(makePlan(DEMO_SCRIPT, 'chill')[2].tags).toEqual(['rain', 'night', 'market', 'street', 'food'])
 })
 
@@ -75,38 +75,38 @@ test('matching ignores case, punctuation and suffixes', () => {
   expect(makePlan('RAIN!!! Night-markets… street-food', 'chill')[2].tags.sort()).toEqual(['food', 'market', 'night', 'rain', 'street'])
 })
 
-test('demo reel licenses six assets from four artists and the card refuses the exclusive', async () => {
+test('demo reel licenses three assets from three artists and the card refuses the exclusive', async () => {
   const { result, log, authorized } = await run(25_000_000n)
-  expect(result.licenses.map((l) => l.assetId)).toEqual(['m-lofi', 'b-market', 'b-food', 'b-glass', 's-sizzle', 's-crowd'])
-  expect(new Set(result.licenses.map((l) => l.artistAddress)).size).toBe(4)
-  expect(result.spent).toBe(6_700_000n)
+  expect(result.licenses.map((l) => l.assetId)).toEqual(['m-lofi', 'b-market', 's-sizzle'])
+  expect(new Set(result.licenses.map((l) => l.artistAddress)).size).toBe(3)
+  expect(result.spent).toBe(3_500_000n)
   expect(log.find((d) => d.assetId === 'x-crown')).toMatchObject({ action: 'refused', reason: 'over_limit', title: 'Neon Crown (exclusive rights)' })
   expect(authorized.some((a) => a.amount === 20_000_000n)).toBe(false)
   expect(result.summary).toBe([
-    'Licensed 6 assets from 4 artists: Low Tide Lo-fi, Night Market Lights, Street Food Close-ups, Rain on Glass, Wok Sizzle, Market Crowd.',
-    'Spent 0.67 of 2.5 XLM.',
+    'Licensed 3 assets from 3 artists: Low Tide Lo-fi, Night Market Lights, Wok Sizzle.',
+    'Spent 0.35 of 2.5 XLM.',
     'Refused by card: Neon Crown (exclusive rights) (exclusive, over_limit).',
   ].join('\n'))
 })
 
-test('pick reasons: cheaper of equal matches, and no duplicates', async () => {
+test('pick reason: cheaper of equal matches', async () => {
   const { result } = await run(25_000_000n)
   const why = Object.fromEntries(result.licenses.map((l) => [l.assetId, l.decision]))
   expect(why['s-sizzle']).toMatch(/^picked Wok Sizzle over Market Crowd: same match, 0.02 cheaper/)
-  expect(why['b-food']).toMatch(/^Night Market Lights already used in this reel; next best Street Food Close-ups/)
 })
 
-test('same tag on every slot still licenses distinct assets', async () => {
-  const planner: Planner = async (_s, _m, slots) => slots.map((s) => (s.type === 'broll' ? { ...s, tags: ['market'] } : s))
+test('same tag on repeated slots still licenses distinct assets', async () => {
+  const planner: Planner = async (_s, _m, slots) => slots.flatMap((s) => (s.type === 'broll' ? [s, s, s].map((b) => ({ ...b, tags: ['market'] })) : [s]))
   const { result } = await runWith({ budget: 25_000_000n, planner })
-  expect(result.licenses.filter((l) => l.assetType === 'broll').map((l) => l.assetId)).toEqual(['b-market', 'b-food', 'b-drizzle'])
+  const broll = result.licenses.filter((l) => l.assetType === 'broll')
+  expect(broll.map((l) => l.assetId)).toEqual(['b-market', 'b-food', 'b-drizzle'])
+  expect(broll[1].decision).toMatch(/^Night Market Lights already used in this reel; next best Street Food Close-ups/)
 })
 
 test('script with no tag words still fills every slot', async () => {
   const { result } = await run(25_000_000n, fakeMerchant(), fakeNoir(), 'hello world')
-  expect(result.licenses.map((l) => l.assetType)).toEqual(['music', 'broll', 'broll', 'broll', 'sfx', 'sfx'])
+  expect(result.licenses.map((l) => l.assetType)).toEqual(['music', 'broll', 'sfx'])
   expect(result.licenses[1].decision).toMatch(/^no tag match; cheapest unused: City Drizzle/)
-  expect(result.licenses[2].decision).toMatch(/^City Drizzle already used in this reel; next best Sunset Beach; no tag match/)
 })
 
 test('quote above the listed price is skipped', async () => {
@@ -123,7 +123,7 @@ test('over budget is skipped', async () => {
 test('NoirContractError fails only that purchase', async () => {
   const { log, result } = await run(25_000_000n, fakeMerchant(), fakeNoir({ throwOnce: true }))
   expect(log.find((d) => d.action === 'failed')!.assetId).toBe('m-lofi') // first authorize; the exclusive never reaches it
-  expect(result.licenses.map((l) => l.assetId)).toEqual(['b-market', 'b-food', 'b-glass', 's-sizzle', 's-crowd'])
+  expect(result.licenses.map((l) => l.assetId)).toEqual(['b-market', 's-sizzle'])
 })
 
 test('pick returns null when a lane is used up', () => {

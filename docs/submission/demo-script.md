@@ -9,9 +9,9 @@
 - Don't press **Pay out artists** before the Noir claim shot. The server holds a copy of Foley Fern's key and would collect the earnings first.
 - Keep sound on. The sound design carries part of this.
 
-**Fast-forward plan.** A reel makes six real Testnet payments, one after another, and each waits for Stellar to confirm it. That's 15 to 40 seconds per payment. Record the whole reel in real time, then in editing:
+**Fast-forward plan.** A reel makes three real Testnet payments, one after another, and each waits for Stellar to confirm it. That's 15 to 40 seconds per payment. Record the whole reel in real time, then in editing:
 - Keep the refusal and the first payment at real speed.
-- Speed up the other five payments to about 10 seconds, with the real factor on screen (for example "8× speed").
+- Speed up the other two payments to about 10 seconds, with the real factor on screen (for example "8× speed").
 - Return to real speed for the license sheet.
 - Never cut a payment out. Only speed up the waiting.
 
@@ -22,9 +22,9 @@
 | 0:22 to 0:32 | Click **Velo checkout · 1 XLM**, pay with Freighter | "I pay one flat project fee through Velo. Velo's signed webhook starts the agent. From here, no human touches a payment." |
 | 0:32 to 0:44 | Job page: the refused exclusive frame, real speed | "First, the agent tries a 2 XLM exclusive track. The card says no. That limit lives in the Noir contract, so the agent can't get around it." |
 | 0:44 to 1:04 | The first paid asset, real speed | "Each asset answers 402 with its price and the artist's own address. The agent checks the card, pays that artist directly and waits for Stellar to confirm." |
-| 1:04 to 1:14 | The other five payments, sped up, speed label on screen | "Five more real payments, sped up. Only the waiting is cut." |
-| 1:14 to 1:32 | Finished license sheet, click one transaction to Stellar Expert | "Six assets from four artists. Every license is a real Testnet transaction, and here's the proof. The creator keeps the receipt." |
-| 1:32 to 1:52 | Open the Noir extension as Foley Fern, show the waiting payment, press Claim | "Foley Fern made the two sound effects. The payment is waiting in the studio's own Noir wallet, and the studio claims it there." |
+| 1:04 to 1:14 | The other two payments, sped up, speed label on screen | "Two more real payments, sped up. Only the waiting is cut." |
+| 1:14 to 1:32 | Finished license sheet, click one transaction to Stellar Expert | "Three assets from three artists. Every license is a real Testnet transaction, and here's the proof. The creator keeps the receipt." |
+| 1:32 to 1:52 | Open the Noir extension as Foley Fern, show the waiting payment, press Claim | "Foley Fern made the sound effect. The payment is waiting in the studio's own Noir wallet, and the studio claims it there." |
 | 1:52 to 2:00 | Reel on screen | "ClipPass. The agent spends on its own, inside limits it can't exceed." |
 
 ## Live pitch backup (5 minutes plus 3 of Q&A)
@@ -35,6 +35,7 @@
   - **Is the media real?** No, it's mocked by design. The payments are real Testnet transactions.
   - **Who pays the Velo fee?** The creator, once per reel.
   - **What stops the agent overspending?** The per-payment cap in the Noir contract, plus its own budget check.
-  - **Why does a reel take a few minutes?** It makes six real payments in order, and each waits for Stellar to confirm. They can't run in parallel because they all come from one agent account.
+  - **Why does a reel take a few minutes?** It makes three real payments in order, and each waits for Stellar to confirm. They can't run in parallel because they all come from one agent account.
+  - **Why does the sample reel show six assets?** It was recorded before we cut each reel to three payments to make it faster.
   - **Does only the artist hold their key?** Not in the demo. The server keeps a copy so Pay out artists works for every artist. In the real product, each artist would claim from their own wallet only.
   - **Why does `rpcShim.ts` exist?** The Noir SDK dropped events on current Stellar RPC, so we restore one field on the response. All payments still go through the SDK.

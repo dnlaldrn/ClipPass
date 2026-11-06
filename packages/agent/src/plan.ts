@@ -7,7 +7,7 @@ export const laneTags = (type: AssetType): string[] =>
   [...new Set(ASSETS.filter((a) => a.type === type).flatMap((a) => a.tags))]
 
 /**
- * Deterministic plan for one reel: exclusive, music, 3 b-roll, 2 sfx.
+ * Deterministic plan for one reel: exclusive, music, b-roll, sfx. Three paid slots keep a reel to three on-chain payments.
  * The exclusive goes first so the card refusal is reached before any budget is spent.
  */
 export function makePlan(script: string, mood: Mood): Slot[] {
@@ -22,7 +22,7 @@ export function makePlan(script: string, mood: Mood): Slot[] {
   return [
     { type: 'exclusive', tags: [mood], why: `exclusive rights to a ${mood} track would cover the whole reel` },
     { type: 'music', tags: [mood], why: `mood ${mood}` },
-    lane('broll'), lane('broll'), lane('broll'),
-    lane('sfx'), lane('sfx'),
+    lane('broll'),
+    lane('sfx'),
   ]
 }

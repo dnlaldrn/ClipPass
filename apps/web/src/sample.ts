@@ -1,6 +1,6 @@
 import type { Decision, JobView, License } from '@clippass/shared'
 import { DEMO_REEL } from './reel/demo'
-import { SLOTS, type FrameSpec } from './reel/frames'
+import type { FrameSpec } from './reel/frames'
 
 /** README "Artist accounts". */
 const ADDRESSES: Record<string, string> = {
@@ -43,7 +43,7 @@ const SUMMARY = [
   'Refused by card: Neon Crown (exclusive rights) (exclusive, over_limit).',
 ].join('\n')
 
-/** The real reel from `npm run demo` (README "Testnet proof"), as the job page would have shown it. */
+/** The real reel from `npm run demo` (README "Testnet proof"), as the job page would have shown it. Recorded before reels were cut to three payments. */
 export const SAMPLE_JOB: JobView = {
   jobId: 'sample',
   script: 'Rain at a night market in Manila, street food sizzle, crowd chatter',
@@ -53,7 +53,7 @@ export const SAMPLE_JOB: JobView = {
   veloStatus: null,
   checkoutUrl: '',
   trace: [
-    { at: AT, action: 'plan', reason: `budget 2.5 XLM; plan: ${SLOTS.join(', ')}` },
+    { at: AT, action: 'plan', reason: `budget 2.5 XLM; plan: ${DEMO_REEL.map(f => f.type).join(', ')}` },
     ...DEMO_REEL.map(decision),
     { at: AT, action: 'done', reason: SUMMARY },
   ],

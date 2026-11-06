@@ -12,7 +12,7 @@ Primary visitors are hackathon judges evaluating a submission, often watching on
 
 ## Product Purpose
 
-ClipPass is an AI agent that licenses stock media per reel. A creator describes a reel (a script of up to 500 characters and a mood) and sets a license budget of 2 to 5 XLM. The agent plans one music track, three b-roll clips and two sound effects, picks the cheapest asset that matches the script and mood, and pays each artist per use from a Noir card escrow on Stellar Testnet. Every asset arrives with a license tied to a Stellar transaction. Success is a judge watching a reel go from script to a license sheet of 6 assets from 4 artists, each with a payment link, plus a visible card refusal of the 2 XLM exclusive-rights track.
+ClipPass is an AI agent that licenses stock media per reel. A creator describes a reel (a script of up to 500 characters and a mood) and sets a license budget of 2 to 5 XLM. The agent plans one music track, one b-roll clip and one sound effect, picks the cheapest asset that matches the script and mood, and pays each artist per use from a Noir card escrow on Stellar Testnet. Every asset arrives with a license tied to a Stellar transaction. Success is a judge watching a reel go from script to a license sheet of 3 assets from 3 artists, each with a payment link, plus a visible card refusal of the 2 XLM exclusive-rights track.
 
 ## Positioning
 
@@ -45,7 +45,7 @@ The agent spends on its own, inside limits it cannot exceed. Each 402 quote name
 
 ## Evidence on Hand
 
-- Real Testnet run (README "Testnet proof"): 6 licenses from 4 artists, 0.63 XLM, Neon Crown refused `over_limit`, 4 artist payouts, all with stellar.expert links.
+- Real Testnet run (README "Testnet proof"), recorded under the earlier six-slot plan: 6 licenses from 4 artists, 0.63 XLM, Neon Crown refused `over_limit`, 4 artist payouts, all with stellar.expert links.
 - Card setup transactions and the four artist account links (README).
 - No testimonials, users, customers, press, pricing or metrics exist. Do not invent any.
 

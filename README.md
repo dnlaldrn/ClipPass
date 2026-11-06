@@ -16,16 +16,16 @@ Short-form creators pay monthly stock media subscriptions, but many need only tw
 
 ## Solution
 
-ClipPass gives an agent a constrained key on a Noir card. The owner sets the policy once: which key may spend, which asset, a cap per payment (1 XLM) and an expiry, all backed by an escrow. The creator pays a flat 1 XLM reel project fee through a Velo checkout, then the agent does the rest. It reads the script, plans one music track, three b-roll clips and two sound effects, and buys each one from a stock library that answers `402 Payment Required` with that asset's price. Each payment is made out to the artist's own Stellar account, and the transaction is the license receipt.
+ClipPass gives an agent a constrained key on a Noir card. The owner sets the policy once: which key may spend, which asset, a cap per payment (1 XLM) and an expiry, all backed by an escrow. The creator pays a flat 1 XLM reel project fee through a Velo checkout, then the agent does the rest. It reads the script, plans one music track, one b-roll clip and one sound effect, and buys each one from a stock library that answers `402 Payment Required` with that asset's price. Each payment is made out to the artist's own Stellar account, and the transaction is the license receipt.
 
 Every reel also tries a 2 XLM exclusive-rights track. That is above the card's 1 XLM cap, so you can watch the card refuse the agent.
 
-The demo in one line: "This reel uses 6 assets from 4 artists. Here is the payment proof for every one. The agent tried an exclusive track and the card said no."
+The demo in one line: "This reel uses 3 assets from 3 artists. Here is the payment proof for every one. The agent tried an exclusive track and the card said no."
 
 ## How the agentic payment works
 
 1. **A human pays for the project, not the media.** `POST /api/jobs` checks the script (1 to 500 characters), the mood and the budget, then creates a Velo checkout session for the 1 XLM fee. When Velo's signed `payment.succeeded` webhook arrives, the server starts the agent. No human click ever triggers a Noir payment.
-2. **The agent plans the reel.** It turns the script and mood into seven slots: the exclusive first, then music, three b-roll and two SFX. Script words are matched to each lane's tags, so "rainy" matches `rain` ([plan.ts](packages/agent/src/plan.ts#L13)). With `AGENT_LLM` set, a local Ollama model reads the script and picks one tag for each b-roll and SFX slot, limited to each lane's tag list. Music always keeps the mood you chose ([llm.ts](packages/agent/src/llm.ts#L12)). The exclusive slot is never sent to the model, so the card refusal always shows.
+2. **The agent plans the reel.** It turns the script and mood into four slots: the exclusive first, then music, one b-roll and one SFX. That keeps a reel to three on-chain payments, since each one waits for Stellar to confirm. Script words are matched to each lane's tags, so "rainy" matches `rain` ([plan.ts](packages/agent/src/plan.ts#L13)). With `AGENT_LLM` set, a local Ollama model reads the script and picks one tag for each b-roll and SFX slot, limited to each lane's tag list. Music always keeps the mood you chose ([llm.ts](packages/agent/src/llm.ts#L12)). The exclusive slot is never sent to the model, so the card refusal always shows.
 3. **The agent picks the cheapest match.** For each slot it ranks the unused assets by matching tags, then by price, and writes down why: "picked Wok Sizzle over Market Crowd: same match, 0.02 cheaper". It never licenses the same asset twice in one reel ([pick.ts](packages/agent/src/pick.ts#L6)).
 4. **Each asset starts with a 402.** `GET /api/assets/:id` answers `{ quoteId, price, asset, merchant, network, expiresAt }`, where `merchant` is that artist's address. The quote is random, single use and valid for 2 minutes ([merchant.ts](apps/server/src/merchant.ts#L11)).
 5. **The agent decides.** It skips anything over the remaining budget, or quoted above the catalog's listed price ([decide.ts](packages/agent/src/decide.ts#L5)). Otherwise it asks Noir `checkPayment`. If the card would refuse (`over_limit`, `expired`, `insufficient_escrow`, ...), it logs the reason and does not pay.
@@ -93,7 +93,7 @@ We use `watch`, so `startWebhookRelay` and `verifyWebhookSignature` aren't neede
 
 ## Testnet proof
 
-One reel from `npm run demo` (script "Rain at a night market in Manila, street food sizzle, crowd chatter", mood chill, budget 2.5 XLM). This run had `AGENT_LLM=qwen2.5:3b-instruct`, so the model tagged the slots. With rules only, the same reel licenses Market Crowd in place of Rain on Tin Roof and spends 0.67 XLM.
+One reel from `npm run demo` (script "Rain at a night market in Manila, street food sizzle, crowd chatter", mood chill, budget 2.5 XLM). This run had `AGENT_LLM=qwen2.5:3b-instruct`, so the model tagged the slots. It was recorded under the earlier plan of six paid slots. Reels now make three payments: with rules only, this script licenses Low Tide Lo-fi, Night Market Lights and Wok Sizzle for 0.35 XLM.
 
 License sheet, 6 assets from 4 artists, 0.63 XLM:
 

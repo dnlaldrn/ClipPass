@@ -14,7 +14,7 @@ export function ollamaPlanner(o: { model: string; url?: string; timeoutMs?: numb
   const doFetch = o.fetch ?? fetch
   return async (script, mood, slots) => {
     const seen: Record<string, number> = {}
-    // schema keys: broll1..3, sfx1..2. Music keeps the creator's chosen mood; the exclusive is never sent.
+    // schema keys: broll1, sfx1 (numbered per lane). Music keeps the creator's chosen mood; the exclusive is never sent.
     const keys = slots.map((s) => (s.type === 'broll' || s.type === 'sfx' ? `${s.type}${(seen[s.type] = (seen[s.type] ?? 0) + 1)}` : null))
     const props = Object.fromEntries(keys.flatMap((k, i) => (k ? [[k, {
       type: 'object',

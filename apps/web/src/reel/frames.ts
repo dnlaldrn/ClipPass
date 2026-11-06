@@ -14,15 +14,17 @@ export type FrameSpec = {
   note?: string
 }
 
-/** The agent's seven slots, in the order it plans them (mirrors packages/agent makePlan). */
-export const SLOTS: AssetType[] = ['exclusive', 'music', 'broll', 'broll', 'broll', 'sfx', 'sfx']
+/** The agent's four slots, in the order it plans them (mirrors packages/agent makePlan). */
+export const SLOTS: AssetType[] = ['exclusive', 'music', 'broll', 'sfx']
 
 const STATE: Partial<Record<Decision['action'], FrameState>> = { paid: 'paid', refused: 'refused', skip: 'skip', failed: 'failed' }
 
 /** Each slot logs exactly one decision with an asset type, in plan order; unreached slots stay unexposed. */
 export function reelFrames(trace: Decision[], licenses: License[]): FrameSpec[] {
   const decided = trace.filter((d) => d.assetType && STATE[d.action])
-  return SLOTS.map((type, i): FrameSpec => {
+  // a reel recorded under the earlier seven-slot plan keeps every decided frame
+  const lanes = decided.length > SLOTS.length ? decided.map((d) => d.assetType!) : SLOTS
+  return lanes.map((type, i): FrameSpec => {
     const d = decided[i]
     if (!d) return { key: `slot-${i}`, type, state: 'empty', title: '' }
     const state = STATE[d.action]!

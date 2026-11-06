@@ -5,7 +5,7 @@ import {
 import { CELL_H, CELL_W, FRAME, PITCH_RATIO, drawAtlas, fontsReady } from './atlas'
 import type { FrameSpec } from './frames'
 
-const MAX = 8 // frames the shader holds; the plan has 7 slots
+const MAX = 8 // frames the shader holds; the plan has 4 slots, the recorded sample 7
 
 const vertex = /* glsl */ `
 uniform float uTime;
@@ -250,7 +250,7 @@ export class ReelScene {
     const u = this.film.uniforms
     u.uPitch.value = pitch
     u.uStripH.value = stripH
-    // the gate sits right of centre on wide screens; a live reel's sits further right so all seven frames fit behind it
+    // the gate sits right of centre on wide screens; a live reel's sits further right so every frame fits behind it
     this.narrow = width < 640
     u.uGate.value = this.narrow ? 0 : viewW * (this.mode === 'live' ? 0.2 : 0.12)
     if (this.mode === 'live' && this.drawn) { this.target = this.liveTarget(); this.offset = this.target; this.velocity = 0 }

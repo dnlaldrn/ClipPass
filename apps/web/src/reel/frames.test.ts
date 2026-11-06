@@ -19,5 +19,5 @@ test('one frame per slot, in plan order, padded with unexposed frames', () => {
     { key: 'm-lofi', type: 'music', state: 'paid', title: 'Low Tide Lo-fi', artist: 'Lowtide Loops', price: '1800000', hash: 'tx1' },
     { key: 'slot-2', type: 'broll', state: 'skip', title: '', note: 'no unused broll left' },
   ])
-  expect(frames.slice(3).map((f) => [f.type, f.state])).toEqual([['broll', 'empty'], ['broll', 'empty'], ['sfx', 'empty'], ['sfx', 'empty']])
+  expect(frames.slice(3).map((f) => [f.type, f.state])).toEqual([['sfx', 'empty']])
 })

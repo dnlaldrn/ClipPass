@@ -48,7 +48,7 @@ test('runJob records refusals and enriches paid activity as licenses arrive', as
     await runJob('j1', { ...s, agent, deviceHash: DEVICE, delayMs: 0 })
     const items = s.activity.list()
     const paid = items.filter((item) => item.kind === 'paid')
-    expect(paid).toHaveLength(6)
+    expect(paid).toHaveLength(3)
     for (const license of s.jobs.get('j1')!.licenses) {
       expect(paid.find((item) => item.id === license.hash)).toMatchObject({
         title: license.title, artist: license.artist, address: license.artistAddress, amount: license.price, hash: license.hash,
@@ -68,9 +68,9 @@ test('runJob marks done and stores trace', async () => {
   s.close()
   const job = s.jobs.get('j1')!
   expect(job.status).toBe('done')
-  expect(job.licenses.map((l) => l.assetId)).toEqual(['m-lofi', 'b-market', 'b-food', 'b-glass', 's-sizzle', 's-crowd'])
+  expect(job.licenses.map((l) => l.assetId)).toEqual(['m-lofi', 'b-market', 's-sizzle'])
   expect(job.trace.find((d) => d.assetId === 'x-crown')!.action).toBe('refused')
-  expect(job.summary).toMatch(/^Licensed 6 assets from 4 artists/)
+  expect(job.summary).toMatch(/^Licensed 3 assets from 3 artists/)
 })
 
 test('licenses show up as they are paid and survive a crash mid-reel', async () => {
