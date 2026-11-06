@@ -49,9 +49,9 @@ Tested on Nov 6. Each tool answered a one-line prompt from an empty folder.
 | B2 | Deploy readiness, no deploying | Gemini 4 Argon | Merged | `render.yaml`, `docs/deploy.md` |
 | D1 | README in the handbook format | Claude | Merged | `README.md`, `scripts/readme-links.test.ts` |
 | F1 | Site redesign: far less copy, more real UI, motion, sound | Claude directs, Sol 6.1 builds | Merged | `apps/web/**`, `DESIGN.md` |
-| F2-A | Server: JSON errors, balance cache, low escrow, license body, catalog, activity | Sol 6.1 | In progress | `apps/server`, `packages/agent`, `packages/shared` |
-| F2-B | Web core: error states, routes, sample reel, receipt | Claude subagent | Queued | `App.tsx`, `JobPage.tsx`, `api.ts`, new view files |
-| F2-C | Library, Artists, Activity pages | Sol 6.1 | Queued | `apps/web/src/pages/*`, `apps/web/src/pages.css` |
+| F2-A | Server: JSON errors, balance cache, low escrow, license body, catalog, activity | Sol 6.1 | Merged | `apps/server`, `packages/agent`, `packages/shared` |
+| F2-B | Web core: error states, routes, sample reel, receipt | Claude subagent | In progress | `App.tsx`, `JobPage.tsx`, `api.ts`, new view files |
+| F2-C | Library, Artists, Activity pages | Sol 6.1 | In progress | `apps/web/src/pages/*`, `apps/web/src/pages.css` |
 | S1 | Write-up, demo script, pitch deck, logo | Claude | Queued | `docs/submission/**` |
 | Q1 | End-to-end browser test | Terra 6.1 | Queued | None; reports only |
 | R1 | Independent review of the full diff | Claude subagent | Queued | None; reports only |

@@ -1,4 +1,4 @@
-import type { JobView } from '@clippass/shared'
+import type { Activity, Catalog, JobView } from '@clippass/shared'
 
 const API = import.meta.env.VITE_API_URL ?? 'http://localhost:8787'
 
@@ -26,4 +26,6 @@ export const createDevJob = (script: string, mood: string, budget: string) =>
   })
 export const getJob = (id: string) => call<JobView>(`/api/jobs/${id}`)
 export const getBalances = () => call<Balances>('/api/balances')
+export const getCatalog = () => call<Catalog>('/api/catalog')
+export const getActivity = () => call<Activity>('/api/activity')
 export const claim = () => call<{ claims: Payout[] }>('/api/claim', { method: 'POST' })
