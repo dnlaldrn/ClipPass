@@ -21,7 +21,7 @@ test('ReelView has no sound and no fetching of its own', () => {
 
 test('the sample shows its one line, its receipt link, and no payout or live balances', () => {
   const html = renderToStaticMarkup(createElement(SamplePage))
-  expect(html).toContain('Recorded Testnet reel. Nothing here spends.')
+  expect(html).toContain('Recorded Testnet reel. Log text rebuilt from the catalog. Nothing here spends.')
   expect(html).toContain('href="/sample/receipt"')
   expect(html).not.toContain('Pay out artists')
   expect(html).not.toContain('Card escrow')

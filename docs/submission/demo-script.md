@@ -10,7 +10,7 @@
 | Time | On screen | Say |
 |---|---|---|
 | 0:00 to 0:12 | Start page, reel moving | "Creators pay monthly stock subscriptions for two or three clips. Artists earn pennies from pooled royalties. ClipPass replaces that with an AI agent that pays each artist per use." |
-| 0:12 to 0:30 | Type a script and watch tags appear. Pick a mood. Slide the budget | "I describe the reel and set a budget. The agent is already reading the script. I've given it a Noir card with a hard limit of 1 XLM per payment." |
+| 0:12 to 0:30 | Type a script and watch tags appear. Pick a mood. Slide the budget | "I describe the reel and set a budget. The page previews the tags the agent will match. I've given it a Noir card with a hard limit of 1 XLM per payment." |
 | 0:30 to 0:42 | Click Start reel, show Velo checkout | "I pay one flat project fee through Velo. Velo's signed webhook starts the agent. From here, no human touches a payment." |
 | 0:42 to 1:05 | Job page, frames developing, first paid rows | "Each asset answers 402 with its price and the artist's own address. The agent picks the cheapest match, checks the card, and pays that artist directly." |
 | 1:05 to 1:22 | The refused frame and pencil ring | "Here's the part I care about. The agent tried a 2 XLM exclusive track. The card said no. That limit lives in the Noir contract, so the agent can't get around it." |

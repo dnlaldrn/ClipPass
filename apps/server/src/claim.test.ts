@@ -174,3 +174,20 @@ test('a successful claim still invalidates cache if a later artist claim fails',
     expect(read).toHaveBeenCalledTimes(2)
   } finally { quiet.mockRestore() }
 })
+
+test('a new payment clears the balance cache so the next read is fresh', async () => {
+  const pending = { lowtide: 0n, lantern: 0n, kestrel: 0n, fern: 0n }
+  let clear = () => {}
+  const noir = {
+    getEscrowBalance: async () => 100n,
+    getPendingBalance: async (g: string) => (g === 'G-fern' ? pending.fern : 0n),
+  }
+  const artists = Object.fromEntries(IDS.map((id) => [id, { publicKey: `G-${id}` }])) as any
+  const router = claimRouter({ noir: noir as any, artists, deviceHash: 'ab'.repeat(32), exposeInvalidate: (fn) => { clear = fn } })
+  const app = createApp({ webOrigin: '*', routers: [router] })
+  await request(app).get('/api/balances')
+  pending.fern = 500_000n
+  clear()
+  const res = await request(app).get('/api/balances')
+  expect(res.body.artists.find((a: { id: string }) => a.id === 'fern').pending).toBe('500000')
+})

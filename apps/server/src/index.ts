@@ -39,7 +39,8 @@ const quotes = new QuoteStore()
 const verifier = createVerifier({ quotes, deviceHash: env.DEVICE_HASH })
 const activity = new ActivityLog()
 const artistPayees = payees(artists)
-startPaymentWatch(noir, verifier, env.DEVICE_HASH, (event) => activity.recordPayment(event, artistPayees))
+let clearBalances = () => {}
+startPaymentWatch(noir, verifier, env.DEVICE_HASH, (event) => { activity.recordPayment(event, artistPayees); clearBalances() })
 const canStart = async () => await noir.getEscrowBalance(env.DEVICE_HASH) >= toStroops('2')
 
 const port = Number(process.env.PORT ?? 8787)
@@ -52,7 +53,7 @@ const startAgent = (id: string) => void enqueue(id)
 const routers = [
   veloRouter({ velo, jobs, webOrigin: env.WEB_ORIGIN, secret: env.VELO_WEBHOOK_SECRET, onPaid: startAgent, canStart }),
   merchantRouter({ quotes, verifier, payees: artistPayees }),
-  claimRouter({ noir, artists, deviceHash: env.DEVICE_HASH }),
+  claimRouter({ noir, artists, deviceHash: env.DEVICE_HASH, exposeInvalidate: (clear) => { clearBalances = clear } }),
   catalogRouter({ payees: artistPayees }),
   activityRouter({ activity }),
 ]

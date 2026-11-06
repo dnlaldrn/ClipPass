@@ -47,7 +47,11 @@ export function JobPage({ jobId }: { jobId: string }) {
         failed = 0
         setFailures(0)
         setJob(j)
-        if (pollingEnded(j)) stopped = true
+        if (pollingEnded(j)) {
+          stopped = true
+          // The last payment landed moments ago, so read balances once more after it.
+          getBalances().then((b) => { if (!disposed) setBalances(b) }).catch(() => {})
+        }
       } else if (result.reason instanceof ApiError && result.reason.status === 404) { setMissing(true); stopped = true; sound.stopHum() }
       else {
         failed += 1
