@@ -13,8 +13,11 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
   return body as T
 }
 
-export const createJob = (topic: string, budget: string) =>
-  call<{ jobId: string; checkoutUrl: string }>('/api/jobs', { method: 'POST', body: JSON.stringify({ topic, budget }) })
+export type Balances = { escrow: string; artists: { id: string; name: string; address: string; pending: string }[] }
+export type Payout = { artist: string; name: string; amount: string; hash: string }
+
+export const createJob = (script: string, mood: string, budget: string) =>
+  call<{ jobId: string; checkoutUrl: string }>('/api/jobs', { method: 'POST', body: JSON.stringify({ script, mood, budget }) })
 export const getJob = (id: string) => call<JobView>(`/api/jobs/${id}`)
-export const getBalances = () => call<{ escrow: string; pending: string }>('/api/balances')
-export const claim = () => call<{ hash: string; before: string; after: string }>('/api/claim', { method: 'POST' })
+export const getBalances = () => call<Balances>('/api/balances')
+export const claim = () => call<{ claims: Payout[] }>('/api/claim', { method: 'POST' })

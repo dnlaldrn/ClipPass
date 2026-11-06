@@ -1,25 +1,27 @@
 import { useEffect, useState } from 'react'
-import type { DecisionAction, EndpointName, JobView } from '@clippass/shared'
-import { ApiError, claim, getBalances, getJob } from './api'
+import type { AssetType, DecisionAction, JobView } from '@clippass/shared'
+import { ApiError, claim, getBalances, getJob, type Balances, type Payout } from './api'
 import { Lanes } from './Lanes'
-import { txLink, xlm } from './format'
+import { laneStates, txLink, xlm } from './format'
+import { LANES } from './mirror'
 
 const STATUS_TEXT: Record<JobView['status'], string> = {
-  awaiting_payment: 'Waiting for Velo to confirm the job fee',
-  paid: 'Job fee paid. The agent is starting.',
-  running: 'The agent is buying data',
+  awaiting_payment: 'Waiting for Velo to confirm the project fee',
+  paid: 'Project fee paid. The agent is starting.',
+  running: 'The agent is licensing assets',
   done: 'Finished',
   failed: 'Stopped with an error',
 }
 const ACTION_TEXT: Record<DecisionAction, string> = {
   plan: 'Plan', skip: 'Skip', refused: 'Refused', paid: 'Paid', failed: 'Failed', done: 'Total',
 }
+const LANE_LABEL = Object.fromEntries(LANES.map((l) => [l.type, l.label])) as Record<AssetType, string>
 
 export function JobPage({ jobId }: { jobId: string }) {
   const [job, setJob] = useState<JobView | null>(null)
   const [missing, setMissing] = useState(false)
-  const [balances, setBalances] = useState<{ escrow: string; pending: string } | null>(null)
-  const [claimed, setClaimed] = useState<{ hash: string; before: string; after: string } | null>(null)
+  const [balances, setBalances] = useState<Balances | null>(null)
+  const [payouts, setPayouts] = useState<Payout[] | null>(null)
   const [claimError, setClaimError] = useState<string | null>(null)
   const [claiming, setClaiming] = useState(false)
 
@@ -44,10 +46,10 @@ export function JobPage({ jobId }: { jobId: string }) {
     setClaiming(true)
     setClaimError(null)
     try {
-      setClaimed(await claim())
+      setPayouts((await claim()).claims)
       setBalances(await getBalances())
     } catch (e) {
-      setClaimError(e instanceof ApiError && e.status === 409 ? 'Nothing to claim yet.' : e instanceof Error ? e.message : String(e))
+      setClaimError(e instanceof ApiError && e.status === 409 ? 'Nothing to pay out yet.' : e instanceof Error ? e.message : String(e))
     } finally {
       setClaiming(false)
     }
@@ -56,51 +58,75 @@ export function JobPage({ jobId }: { jobId: string }) {
   if (missing) {
     return (
       <div className="notice">
-        <h1>Job not found (the server restarted). Start a new job.</h1>
-        <p>Jobs live in the server’s memory, so a restart clears them. Payments that already happened stay on Testnet.</p>
-        <a className="button" href="/">Start a new job</a>
+        <h1>Reel not found (the server restarted). Start a new reel.</h1>
+        <p>Reels live in the server’s memory, so a restart clears them. Payments that already happened stay on Testnet.</p>
+        <a className="button" href="/">Start a new reel</a>
       </div>
     )
   }
-  if (!job) return <p className="notice">Loading job…</p>
+  if (!job) return <p className="notice">Loading reel…</p>
 
-  const states: Partial<Record<EndpointName, DecisionAction>> = {}
-  for (const d of job.trace) if (d.endpoint) states[d.endpoint] = d.action
+  const artists = new Set(job.licenses.map((l) => l.artistAddress)).size
+  const owed = balances?.artists.reduce((sum, a) => sum + BigInt(a.pending), 0n)
 
   return (
     <div className="job">
       <section className="job-side">
-        <h1>{job.topic}</h1>
+        <h1>{job.licenses.length ? `This reel uses ${job.licenses.length} assets from ${artists} artists` : 'Reel project'}</h1>
+        <p className="script">“{job.script}” · mood {job.mood}</p>
         <dl className="facts">
           <div><dt>Status</dt><dd className={`status is-${job.status}`}>{STATUS_TEXT[job.status]}</dd></div>
           <div><dt>Velo checkout</dt><dd>{job.veloStatus ?? (job.status === 'awaiting_payment' ? 'checking' : 'not used (dev run)')}</dd></div>
-          <div><dt>Data budget</dt><dd>{xlm(job.budget)} XLM</dd></div>
+          <div><dt>License budget</dt><dd>{xlm(job.budget)} XLM</dd></div>
           <div><dt>Card escrow</dt><dd>{balances ? `${xlm(balances.escrow)} XLM` : '…'}</dd></div>
-          <div><dt>Merchant can claim</dt><dd>{balances ? `${xlm(balances.pending)} XLM` : '…'}</dd></div>
+          <div><dt>Artists can claim</dt><dd>{owed !== undefined ? `${xlm(owed.toString())} XLM` : '…'}</dd></div>
         </dl>
-        <Lanes states={states} />
+        <Lanes states={laneStates(job.trace)} />
         <div className="claim">
-          <button onClick={onClaim} disabled={claiming}>{claiming ? 'Claiming…' : 'Claim earnings'}</button>
-          <p className="hint">This collects what the agent paid the merchant. It doesn’t make a payment.</p>
-          {claimed && (
-            <p>
-              Claimed {xlm(claimed.before)} XLM, {xlm(claimed.after)} XLM left.{' '}
-              <a href={txLink(claimed.hash)} target="_blank" rel="noreferrer">See the claim on stellar.expert</a>
-            </p>
+          <button onClick={onClaim} disabled={claiming}>{claiming ? 'Paying out…' : 'Pay out artists'}</button>
+          <p className="hint">This sends each artist what the agent paid them. It doesn’t make a payment.</p>
+          {payouts && (
+            <ul className="payouts">
+              {payouts.map((p) => (
+                <li key={p.hash}>
+                  {p.name}: {xlm(p.amount)} XLM.{' '}
+                  <a href={txLink(p.hash)} target="_blank" rel="noreferrer">See the payout on stellar.expert</a>
+                </li>
+              ))}
+            </ul>
           )}
           {claimError && <p className="error" role="alert">{claimError}</p>}
         </div>
       </section>
 
-      <section className="tape" aria-label="The agent’s decisions" aria-live="polite">
-        <h2>Agent receipt</h2>
-        {job.status === 'awaiting_payment' && <p className="tape-empty">The agent starts once Velo confirms the job fee.</p>}
+      <section className="tape" aria-label="License sheet and the agent’s decisions" aria-live="polite">
+        <h2>License sheet</h2>
+        {job.licenses.length ? (
+          <table className="licenses">
+            <thead><tr><th scope="col">Asset</th><th scope="col">Type</th><th scope="col">Artist</th><th scope="col">Price</th><th scope="col">Proof</th></tr></thead>
+            <tbody>
+              {job.licenses.map((l) => (
+                <tr key={l.hash}>
+                  <td>{l.title}</td>
+                  <td>{LANE_LABEL[l.assetType]}</td>
+                  <td>{l.artist}</td>
+                  <td className="amt">{xlm(l.price)} XLM</td>
+                  <td><a href={txLink(l.hash)} target="_blank" rel="noreferrer">tx {l.hash.slice(0, 8)}…</a></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="tape-empty">{job.status === 'awaiting_payment' ? 'The agent starts once Velo confirms the project fee.' : 'No licenses yet.'}</p>
+        )}
+
+        <h2>How the agent decided</h2>
         <ol>
           {job.trace.map((d, i) => (
             <li key={i} className={`line is-${d.action}`}>
               <div className="line-head">
                 <span className="act">{ACTION_TEXT[d.action]}</span>
-                {d.endpoint && <span className="ep">/api/data/{d.endpoint}</span>}
+                {d.assetId && <span className="ep">/api/assets/{d.assetId}</span>}
                 {d.price && <span className="amt">{xlm(d.price)} XLM</span>}
               </div>
               <p className="why">{d.action === 'refused' ? `The card’s policy refused it: ${d.reason}` : d.reason}</p>

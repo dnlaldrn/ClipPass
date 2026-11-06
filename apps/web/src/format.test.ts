@@ -1,4 +1,5 @@
-import { xlm } from './format'
+import type { AssetType, DecisionAction } from '@clippass/shared'
+import { laneStates, xlm } from './format'
 
 test('formats stroop strings as exact XLM', () => {
   expect(xlm('1000000')).toBe('0.1')
@@ -6,4 +7,10 @@ test('formats stroop strings as exact XLM', () => {
   expect(xlm('193400000')).toBe('19.34')
   expect(xlm('1')).toBe('0.0000001')
   expect(xlm('0')).toBe('0')
+})
+
+test('laneStates counts paid assets per lane', () => {
+  const t = (action: DecisionAction, assetType: AssetType) => ({ at: '', action, assetType, reason: '' })
+  expect(laneStates([t('refused', 'exclusive'), t('paid', 'broll'), t('failed', 'broll'), t('paid', 'broll'), t('skip', 'sfx')]))
+    .toEqual({ exclusive: { action: 'refused', count: 0 }, broll: { action: 'paid', count: 2 }, sfx: { action: 'skip', count: 0 } })
 })

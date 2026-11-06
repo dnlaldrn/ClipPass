@@ -6,11 +6,11 @@ export function App() {
   return (
     <>
       <header className="sign">
-        <a href="/" className="sign-title">Tollbooth</a>
-        <p className="sign-sub">An AI agent that pays for each API call itself, inside a card limit it can’t exceed.</p>
+        <a href="/" className="sign-title">ClipPass</a>
+        <p className="sign-sub">An AI agent that licenses stock media for each reel and pays every artist per use, inside a card limit it can’t exceed.</p>
       </header>
       <main>{jobId ? <JobPage jobId={jobId} /> : <StartJob />}</main>
-      <footer>Stellar Testnet only, so no real money moves. The agent pays through Noir; the job fee goes through Velo.</footer>
+      <footer>Stellar Testnet only, so no real money moves. The agent pays artists through Noir; the project fee goes through Velo.</footer>
     </>
   )
 }
