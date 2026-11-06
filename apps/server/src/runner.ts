@@ -1,5 +1,5 @@
 import type { NoirSigner } from '@noirx402/agent-sdk'
-import { runAgent, type NoirPort, type Planner } from '@tollbooth/agent'
+import { runAgent, type NoirPort, type Planner } from '@clippass/agent'
 import type { JobStore } from './jobs'
 
 /**

@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { NoirContractError, type NoirAgentClient, type NoirSigner } from '@noirx402/agent-sdk'
-import { XLM_SAC } from '@tollbooth/shared'
+import { XLM_SAC } from '@clippass/shared'
 
 /** Escrow and merchant balances, and the merchant's "Claim earnings" (merchant collects; not an agent payment). */
 export function claimRouter(d: { noir: NoirAgentClient; merchant: NoirSigner; deviceHash: string }): Router {

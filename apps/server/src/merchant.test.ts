@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { NOIR_TESTNET_CONTRACTS, XLM_SAC } from '@tollbooth/shared'
+import { NOIR_TESTNET_CONTRACTS, XLM_SAC } from '@clippass/shared'
 import { createApp } from './app'
 import { QuoteStore } from './quotes'
 import { createVerifier } from './verifier'

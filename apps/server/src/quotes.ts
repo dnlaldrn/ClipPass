@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { QUOTE_TTL_MS, type EndpointName } from '@tollbooth/shared'
+import { QUOTE_TTL_MS, type EndpointName } from '@clippass/shared'
 
 export type StoredQuote = { quoteId: string; endpoint: EndpointName; price: bigint; expiresAt: number; consumed: boolean }
 

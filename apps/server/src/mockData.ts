@@ -1,4 +1,4 @@
-import type { EndpointName } from '@tollbooth/shared'
+import type { EndpointName } from '@clippass/shared'
 
 // Data is mocked by design (spec); only the payment rail is real.
 const DATA: Record<EndpointName, unknown> = {

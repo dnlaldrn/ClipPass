@@ -1,5 +1,5 @@
 import { NoirContractError, fromStroops, type NoirAgentClient, type NoirSigner } from '@noirx402/agent-sdk'
-import { CATALOG, type Decision, type PaymentRecord } from '@tollbooth/shared'
+import { CATALOG, type Decision, type PaymentRecord } from '@clippass/shared'
 import { makePlan } from './plan'
 import { decide } from './decide'
 import { paidFetch } from './paidFetch'

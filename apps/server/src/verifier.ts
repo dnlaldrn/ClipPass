@@ -1,4 +1,4 @@
-import { NOIR_TESTNET_CONTRACTS, type EndpointName, type ProofReason } from '@tollbooth/shared'
+import { NOIR_TESTNET_CONTRACTS, type EndpointName, type ProofReason } from '@clippass/shared'
 import type { QuoteStore } from './quotes'
 
 export type PaymentEvent = { txHash: string; contractId: string; merchant: string; deviceHash: string; amount: bigint }

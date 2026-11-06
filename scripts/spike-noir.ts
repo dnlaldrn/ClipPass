@@ -1,7 +1,7 @@
 // Day-one gate: one live checkPayment + authorizePayment + claim round trip on Testnet.
 import { Keypair } from '@stellar/stellar-sdk'
 import { NoirAgentClient, keypairSigner, toStroops, fromStroops } from '@noirx402/agent-sdk'
-import { assertTestnetContracts, readEnv, XLM_SAC, txLink } from '@tollbooth/shared'
+import { assertTestnetContracts, readEnv, XLM_SAC, txLink } from '@clippass/shared'
 import { loadDotEnv } from './env-file'
 
 function expect(cond: boolean, what: string): void {

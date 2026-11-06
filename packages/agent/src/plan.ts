@@ -1,5 +1,5 @@
 import { toStroops } from '@noirx402/agent-sdk'
-import type { EndpointName } from '@tollbooth/shared'
+import type { EndpointName } from '@clippass/shared'
 
 export type PlanItem = { endpoint: EndpointName; value: bigint; why: string }
 

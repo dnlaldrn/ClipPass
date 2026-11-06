@@ -1,6 +1,6 @@
 import { Contract, xdr } from '@stellar/stellar-sdk'
 import { NoirAgentClient } from '@noirx402/agent-sdk'
-import { NOIR_TESTNET_CONTRACTS } from '@tollbooth/shared'
+import { NOIR_TESTNET_CONTRACTS } from '@clippass/shared'
 import { restoreSuccessFlag } from './rpcShim'
 
 // The real payment.authorized event from Testnet tx 2a19e1e2…, exactly as RPC v30 returns it:

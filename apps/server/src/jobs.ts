@@ -1,4 +1,4 @@
-import type { JobView } from '@tollbooth/shared'
+import type { JobView } from '@clippass/shared'
 
 export type Job = Omit<JobView, 'budget'> & { budget: bigint; paymentIntentId: string }
 

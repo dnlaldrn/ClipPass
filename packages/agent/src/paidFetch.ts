@@ -1,4 +1,4 @@
-import type { Quote402 } from '@tollbooth/shared'
+import type { Quote402 } from '@clippass/shared'
 
 export type PaidFetchResult =
   | { status: 'free' | 'paid'; data: unknown; hash?: string }

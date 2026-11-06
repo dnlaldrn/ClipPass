@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { CATALOG, XLM_SAC, type EndpointName, type Quote402 } from '@tollbooth/shared'
+import { CATALOG, XLM_SAC, type EndpointName, type Quote402 } from '@clippass/shared'
 import type { QuoteStore } from './quotes'
 import type { Verifier } from './verifier'
 import { mockData } from './mockData'

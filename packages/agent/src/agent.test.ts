@@ -1,5 +1,5 @@
 import { NoirContractError, type NoirSigner } from '@noirx402/agent-sdk'
-import { CATALOG, POLICY_MAX, type Decision, type EndpointName } from '@tollbooth/shared'
+import { CATALOG, POLICY_MAX, type Decision, type EndpointName } from '@clippass/shared'
 import { makePlan, runAgent, paidFetch, type NoirPort } from './index'
 
 const signer: NoirSigner = { publicKey: 'GAGENT', signTransaction: async () => '' }

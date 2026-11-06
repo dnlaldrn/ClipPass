@@ -1,4 +1,4 @@
-import type { JobView } from '@tollbooth/shared'
+import type { JobView } from '@clippass/shared'
 
 const API = import.meta.env.VITE_API_URL ?? 'http://localhost:8787'
 

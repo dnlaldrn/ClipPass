@@ -1,6 +1,6 @@
 // Merchant collects everything the agent has paid it: noir.claim with the merchant signer.
 import { NoirAgentClient, NoirContractError, keypairSigner, fromStroops } from '@noirx402/agent-sdk'
-import { assertTestnetContracts, readEnv, XLM_SAC, txLink } from '@tollbooth/shared'
+import { assertTestnetContracts, readEnv, XLM_SAC, txLink } from '@clippass/shared'
 import { loadDotEnv } from './env-file'
 
 loadDotEnv()

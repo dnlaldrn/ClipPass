@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { DecisionAction, EndpointName, JobView } from '@tollbooth/shared'
+import type { DecisionAction, EndpointName, JobView } from '@clippass/shared'
 import { ApiError, claim, getBalances, getJob } from './api'
 import { Lanes } from './Lanes'
 import { txLink, xlm } from './format'

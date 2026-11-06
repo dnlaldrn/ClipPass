@@ -2,7 +2,7 @@
 import { createHash } from 'node:crypto'
 import { Keypair } from '@stellar/stellar-sdk'
 import { NoirAgentClient, keypairSigner, toStroops, fromStroops } from '@noirx402/agent-sdk'
-import { assertTestnetContracts, XLM_SAC, POLICY_MAX, accountLink, txLink } from '@tollbooth/shared'
+import { assertTestnetContracts, XLM_SAC, POLICY_MAX, accountLink, txLink } from '@clippass/shared'
 import { loadDotEnv, upsertDotEnv } from './env-file'
 
 const ESCROW_TOPUP = toStroops('20')

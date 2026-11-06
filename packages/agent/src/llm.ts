@@ -1,5 +1,5 @@
 import { fromStroops, toStroops } from '@noirx402/agent-sdk'
-import { CATALOG, type EndpointName } from '@tollbooth/shared'
+import { CATALOG, type EndpointName } from '@clippass/shared'
 import type { PlanItem } from './plan'
 
 export type Planner = (topic: string, plan: PlanItem[]) => Promise<PlanItem[]>

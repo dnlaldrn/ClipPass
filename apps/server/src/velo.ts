@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { Router } from 'express'
 import { Velo, VeloWebhookSignatureVerificationError } from '@carts1024/velo-sdk'
 import { toStroops } from '@noirx402/agent-sdk'
-import { JOB_FEE, MAX_JOB_BUDGET, MIN_JOB_BUDGET } from '@tollbooth/shared'
+import { JOB_FEE, MAX_JOB_BUDGET, MIN_JOB_BUDGET } from '@clippass/shared'
 import type { JobStore } from './jobs'
 
 /** Checkout asset; the day-one Velo check settles whether Testnet takes 'native'. */

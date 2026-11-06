@@ -1,4 +1,4 @@
-import { NOIR_TESTNET_CONTRACTS } from '@tollbooth/shared'
+import { NOIR_TESTNET_CONTRACTS } from '@clippass/shared'
 import { QuoteStore } from './quotes'
 import { createVerifier, type PaymentEvent } from './verifier'
 

@@ -1,4 +1,4 @@
-import type { DecisionAction, EndpointName } from '@tollbooth/shared'
+import type { DecisionAction, EndpointName } from '@clippass/shared'
 
 // Mirrors CATALOG prices and the 1 XLM Noir policy cap; kept here so the page doesn't bundle the Stellar SDK.
 const LANES: { name: EndpointName; label: string; price: number }[] = [
