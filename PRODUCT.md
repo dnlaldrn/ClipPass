@@ -24,6 +24,7 @@ The agent spends on its own, inside limits it cannot exceed. Each 402 quote name
 - Lanes: Music, B-roll, SFX, Exclusive. Price ranges: SFX 0.03–0.07, B-roll 0.08–0.15, Music 0.15–0.30, Exclusive 2 XLM (above the 1 XLM card limit).
 - Agent decisions shown to the visitor: plan, skip (over budget, quote above listed price, lane used up), refused (by the card policy, e.g. `over_limit`), paid (with the pick reason, e.g. "picked Wok Sizzle over Market Crowd: same match, 0.02 cheaper"), failed, done (summary).
 - Every payment, payout and account links to stellar.expert (Testnet).
+- Pages: start, Library (the 14 assets), Artists (accounts and pending earnings), Activity (recent payments and refusals), Sample reel (a recorded real reel that spends nothing, for visitors with no Testnet wallet), job page and license receipt.
 - Local demos run through a dev route that starts a reel without Velo; `npm run demo` prints the same flow in a terminal.
 
 ## Capabilities and Constraints
