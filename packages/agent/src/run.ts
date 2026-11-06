@@ -65,9 +65,13 @@ export async function runAgent(p: {
 
       if (result.status === 'paid') {
         const decision = `${why}; ${fromStroops(price)} XLM within budget and card policy`
+        const body = result.data !== null && typeof result.data === 'object'
+          ? result.data as { licenseId?: unknown; terms?: unknown } : {}
         const license: License = {
           assetId: asset.id, assetType: asset.type, title: asset.title, artist: ARTISTS[asset.artist].name,
           artistAddress: payee, price: price.toString(), hash: result.hash!, decision,
+          licenseId: typeof body.licenseId === 'string' ? body.licenseId : result.hash!,
+          terms: typeof body.terms === 'string' ? body.terms : 'single use in one reel',
         }
         licenses.push(license)
         p.onLicense?.(license)

@@ -27,6 +27,19 @@ export function parseBudget(raw: unknown): bigint | null {
   }
 }
 
+/** Shared by checkout and the opt-in dev route; a failed read never opens a job. */
+export async function checkCardFunding(canStart?: () => Promise<boolean>): Promise<string | null> {
+  try {
+    if (canStart && !await canStart()) {
+      return 'The card is out of funds right now, so no checkout opened. You were not charged.'
+    }
+    return null
+  } catch (error) {
+    console.error('card funding check failed', error)
+    return 'Stellar Testnet is not responding, so no checkout opened. You were not charged.'
+  }
+}
+
 export function veloRouter(d: {
   velo: VeloLike
   jobs: JobStore
@@ -34,6 +47,7 @@ export function veloRouter(d: {
   secret: string
   verify?: typeof Velo.webhooks.verify
   onPaid: (jobId: string) => void
+  canStart?: () => Promise<boolean>
 }): Router {
   const r = Router()
   const verify = d.verify ?? Velo.webhooks.verify
@@ -48,6 +62,9 @@ export function veloRouter(d: {
     if (!script || script.length > 500) return res.status(400).json({ error: 'Script is required (max 500 characters).' })
     if (!MOODS.includes(mood)) return res.status(400).json({ error: `Mood must be one of: ${MOODS.join(', ')}.` })
     if (budget === null) return res.status(400).json({ error: 'Budget must be an XLM amount from 2 to 5.' })
+
+    const error = await checkCardFunding(d.canStart)
+    if (error) return res.status(503).json({ error })
 
     const jobId = randomUUID()
     let session: Awaited<ReturnType<VeloLike['checkout']['sessions']['create']>>

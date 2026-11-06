@@ -1,4 +1,29 @@
-import type { AssetType, Mood } from './catalog'
+import type { ArtistId, AssetType, Mood } from './catalog'
+
+export type CatalogItem = {
+  id: string
+  type: AssetType
+  title: string
+  artistId: ArtistId
+  artist: string
+  address: string
+  price: string
+  tags: string[]
+}
+export type Catalog = { cardLimit: string; assets: CatalogItem[] }
+
+export type ActivityItem = {
+  id: string
+  at: string
+  kind: 'paid' | 'refused'
+  amount: string
+  artist?: string
+  address?: string
+  title?: string
+  hash?: string
+  reason?: string
+}
+export type Activity = { items: ActivityItem[] }
 
 export type Quote402 = {
   quoteId: string
@@ -36,6 +61,8 @@ export type License = {
   artistAddress: string
   price: string
   hash: string
+  licenseId: string
+  terms: string
   decision: string
 }
 
