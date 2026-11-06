@@ -11,7 +11,7 @@ export function pick(slot: Slot, tried: ReadonlySet<string>): { asset: Asset; wh
   if (!open.length) return null
   const [best, next] = open
   let why: string
-  if (tried.has(ranked[0].id)) why = `${ranked[0].title} already used in this reel; next best ${best.title}`
+  if (tried.has(ranked[0].id)) why = `${ranked[0].title} already used in this reel; next best ${best.title}${overlap(best) ? '' : '; no tag match'}`
   else if (!overlap(best)) why = `no tag match; cheapest unused: ${best.title}`
   else if (next && overlap(next) === overlap(best)) why = `picked ${best.title} over ${next.title}: same match, ${fromStroops(next.price - best.price)} cheaper`
   else why = `picked ${best.title}: matches ${best.tags.filter((t) => slot.tags.includes(t)).join(', ')}`

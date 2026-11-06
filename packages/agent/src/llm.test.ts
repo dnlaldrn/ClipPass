@@ -19,8 +19,14 @@ test('model tags each slot; exclusive untouched', async () => {
   expect(slots[2]).toMatchObject({ type: 'broll', tags: ['beach'], why: 'm: sunny' })
   expect(slots[6]).toMatchObject({ type: 'sfx', tags: ['crowd'], why: 'm: busy' })
   const props = seen[0].format.properties
-  expect(Object.keys(props)).toEqual(['music', 'broll1', 'broll2', 'broll3', 'sfx1', 'sfx2'])
+  expect(Object.keys(props)).toEqual(['broll1', 'broll2', 'broll3', 'sfx1', 'sfx2'])
   expect(props.broll1.properties.tag.enum).toEqual(laneTags('broll'))
+})
+
+test('the creator’s mood is never overridden for music', async () => {
+  const fetch = ollamaReply({ ...VALID, music: { tag: 'upbeat', why: 'energy' } })
+  const slots = await ollamaPlanner({ model: 'm', fetch })(DEMO_SCRIPT, 'chill', rules())
+  expect(slots[1]).toEqual(rules()[1])
 })
 
 test('a tag outside the lane vocabulary keeps that slot rule-tagged', async () => {

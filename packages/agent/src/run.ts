@@ -25,6 +25,8 @@ export async function runAgent(p: {
   delayMs?: number
   /** Optional model that re-tags the rule plan from the script. */
   planner?: Planner
+  /** Called as each license is paid, before the reel finishes. */
+  onLicense?: (l: License) => void
 }): Promise<{ licenses: License[]; spent: bigint; summary: string }> {
   const log = (d: Omit<Decision, 'at'>) => p.log({ at: new Date().toISOString(), ...d })
   const rules = makePlan(p.script, p.mood)
@@ -63,10 +65,12 @@ export async function runAgent(p: {
 
       if (result.status === 'paid') {
         const decision = `${why}; ${fromStroops(price)} XLM within budget and card policy`
-        licenses.push({
+        const license: License = {
           assetId: asset.id, assetType: asset.type, title: asset.title, artist: ARTISTS[asset.artist].name,
           artistAddress: payee, price: price.toString(), hash: result.hash!, decision,
-        })
+        }
+        licenses.push(license)
+        p.onLicense?.(license)
         log({ action: 'paid', ...at, price: price.toString(), reason: decision, hash: result.hash })
       } else if (result.status === 'rejected') {
         log({ action: 'failed', ...at, price: price.toString(), reason: `merchant rejected proof: ${result.reason}`, hash: result.hash })

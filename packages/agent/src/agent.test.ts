@@ -89,6 +89,7 @@ test('script with no tag words still fills every slot', async () => {
   const { result } = await run(25_000_000n, fakeMerchant(), fakeNoir(), 'hello world')
   expect(result.licenses.map((l) => l.assetType)).toEqual(['music', 'broll', 'broll', 'broll', 'sfx', 'sfx'])
   expect(result.licenses[1].decision).toMatch(/^no tag match; cheapest unused: City Drizzle/)
+  expect(result.licenses[2].decision).toMatch(/^City Drizzle already used in this reel; next best Sunset Beach; no tag match/)
 })
 
 test('quote above the listed price is skipped', async () => {

@@ -23,8 +23,8 @@ export async function runJob(
     const result = await runAgent({
       script: job.script, mood: job.mood, budget: job.budget, baseUrl: d.baseUrl, noir: d.noir, agent: d.agent,
       deviceHash: d.deviceHash, log: (dec) => job.trace.push(dec), delayMs: d.delayMs, planner: d.planner,
+      onLicense: (l) => job.licenses.push(l), // live, so the sheet fills while polling and survives a crash
     })
-    job.licenses = result.licenses
     job.summary = result.summary
     job.status = 'done'
   } catch (e) {

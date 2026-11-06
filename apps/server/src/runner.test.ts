@@ -47,6 +47,21 @@ test('runJob marks done and stores trace', async () => {
   expect(job.summary).toMatch(/^Licensed 6 assets from 4 artists/)
 })
 
+test('licenses show up as they are paid and survive a crash mid-reel', async () => {
+  const s = await setup()
+  const authorize = s.noir.authorizePayment
+  let calls = 0
+  s.noir.authorizePayment = async (p) => {
+    if (++calls === 3) throw new Error('rpc timeout') // not a NoirContractError: aborts the reel
+    return authorize(p)
+  }
+  await runJob('j1', { jobs: s.jobs, noir: s.noir, agent, deviceHash: DEVICE, baseUrl: s.baseUrl, delayMs: 0 })
+  s.close()
+  const job = s.jobs.get('j1')!
+  expect(job.status).toBe('failed')
+  expect(job.licenses.map((l) => l.assetId)).toEqual(['m-lofi', 'b-market']) // the two paid before the crash
+})
+
 test('runJob marks failed on crash', async () => {
   const s = await setup({ checkPayment: async () => { throw new Error('rpc down') } })
   await expect(runJob('j1', { jobs: s.jobs, noir: s.noir, agent, deviceHash: DEVICE, baseUrl: s.baseUrl, delayMs: 0 })).resolves.toBeUndefined()

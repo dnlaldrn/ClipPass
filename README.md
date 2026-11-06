@@ -27,11 +27,11 @@ Every reel also tries a 2 XLM exclusive-rights track. That is above the card's 1
 ## How the agentic payment works
 
 1. **A human pays for the project, not the media.** `POST /api/jobs` checks the script (1 to 500 characters), the mood and the budget, then creates a Velo checkout session for the 1 XLM fee. When Velo's signed `payment.succeeded` webhook arrives, the server starts the agent. No human click ever triggers a Noir payment.
-2. **The agent plans the reel.** It turns the script and mood into seven slots: the exclusive first, then music, three b-roll and two SFX. Script words are matched to each lane's tags, so "rainy" matches `rain` ([plan.ts](packages/agent/src/plan.ts#L13)). With `AGENT_LLM` set, a local Ollama model reads the script and picks one tag per slot, limited to each lane's tag list ([llm.ts](packages/agent/src/llm.ts#L11)). The exclusive slot is never sent to the model, so the card refusal always shows.
+2. **The agent plans the reel.** It turns the script and mood into seven slots: the exclusive first, then music, three b-roll and two SFX. Script words are matched to each lane's tags, so "rainy" matches `rain` ([plan.ts](packages/agent/src/plan.ts#L13)). With `AGENT_LLM` set, a local Ollama model reads the script and picks one tag for each b-roll and SFX slot, limited to each lane's tag list. Music always keeps the mood you chose ([llm.ts](packages/agent/src/llm.ts#L12)). The exclusive slot is never sent to the model, so the card refusal always shows.
 3. **The agent picks the cheapest match.** For each slot it ranks the unused assets by matching tags, then by price, and writes down why: "picked Wok Sizzle over Market Crowd: same match, 0.02 cheaper". It never licenses the same asset twice in one reel ([pick.ts](packages/agent/src/pick.ts#L6)).
 4. **Each asset starts with a 402.** `GET /api/assets/:id` answers `{ quoteId, price, asset, merchant, network, expiresAt }`, where `merchant` is that artist's address. The quote is random, single use and valid for 2 minutes ([merchant.ts](apps/server/src/merchant.ts#L11)).
 5. **The agent decides.** It skips anything over the remaining budget, or quoted above the catalog's listed price ([decide.ts](packages/agent/src/decide.ts#L5)). Otherwise it asks Noir `checkPayment`. If the card would refuse (`over_limit`, `expired`, `insufficient_escrow`, ...), it logs the reason and does not pay.
-6. **The agent pays the artist with its own key.** It calls `authorizePayment` to the artist's address with `keypairSigner(AGENT_SECRET)` and retries the request with `X-Payment: <tx hash>` and `X-Quote-Id` ([run.ts](packages/agent/src/run.ts#L59)).
+6. **The agent pays the artist with its own key.** It calls `authorizePayment` to the artist's address with `keypairSigner(AGENT_SECRET)` and retries the request with `X-Payment: <tx hash>` and `X-Quote-Id` ([run.ts](packages/agent/src/run.ts#L61)).
 7. **The library verifies through Noir.** The server watches `payment.authorized` events for our device. It accepts a proof only if the payment went to the artist named on the quote, the device matches, the amount is at least the quoted price, the event came from the payment_escrow contract, and both the tx hash and the quote are unused and unexpired ([verifier.ts](apps/server/src/verifier.ts#L32)). Then it returns the license.
 8. **Artists collect.** "Pay out artists" claims each artist's pending balance with that artist's own key ([claim.ts](apps/server/src/claim.ts#L8)). The job page shows the license sheet (asset, artist, price, tx link) and every decision the agent made.
 
@@ -74,8 +74,8 @@ There's a sequence diagram of one licensed asset in [docs/architecture.md](docs/
 | `execute` → `registerDevice` | [scripts/setup.ts:54](scripts/setup.ts#L54) |
 | `execute` → `registerAgent` (XLM SAC, 1 XLM cap, 30-day expiry) | [scripts/setup.ts:67](scripts/setup.ts#L67) |
 | `execute` → `fundEscrow` | [scripts/setup.ts:76](scripts/setup.ts#L76) |
-| `checkPayment` | [packages/agent/src/run.ts:53](packages/agent/src/run.ts#L53) |
-| `authorizePayment` (payee = the quote's artist) | [packages/agent/src/run.ts:59](packages/agent/src/run.ts#L59) |
+| `checkPayment` | [packages/agent/src/run.ts:55](packages/agent/src/run.ts#L55) |
+| `authorizePayment` (payee = the quote's artist) | [packages/agent/src/run.ts:61](packages/agent/src/run.ts#L61) |
 | `claim` (one per artist, signed by that artist) | [apps/server/src/claim.ts:17](apps/server/src/claim.ts#L17), used by [scripts/claim.ts:13](scripts/claim.ts#L13) and `scripts/demo.ts` |
 | `getEscrowToken` (startup asset check) | [apps/server/src/index.ts:32](apps/server/src/index.ts#L32) |
 | `getPendingBalance`, `getEscrowBalance` | [apps/server/src/claim.ts:31](apps/server/src/claim.ts#L31) |
@@ -148,7 +148,7 @@ You need Node 24.22.1 or newer (`.nvmrc`). The Noir SDK refuses older versions.
 ```bash
 npm install
 npm run setup        # creates and funds the owner, agent and 4 artist accounts, registers the card, funds escrow; writes .env
-npm test             # 71 unit tests
+npm test             # 74 unit tests
 npm run demo         # one reel end to end on Testnet, then artist payouts; prints every link
 npm run claim        # pay out every artist with pending earnings
 npm run dev:server   # API on :8787 (needs VELO_* and WEB_ORIGIN in .env)
@@ -176,7 +176,7 @@ npm run dev:web      # site on :5173 (set VITE_API_URL=http://localhost:8787)
 | `AGENT_LLM` | Ollama model that reads the script and tags each slot (e.g. `qwen2.5:3b-instruct`). Empty: rules only. If Ollama is down, the agent falls back to the rules | `ollama pull qwen2.5:3b-instruct` |
 | `OLLAMA_URL` | Ollama address | Defaults to `http://localhost:11434` |
 
-**Deploying:** Render needs the four `ARTIST_*_SECRET` values. `MERCHANT_SECRET` is no longer used. Vercel only needs a rebuild.
+**Deploying:** on Render, change the start command to `npm -w @clippass/server start` (the workspace was renamed from `@tollbooth/server`, so the old command no longer finds it), add the four `ARTIST_*_SECRET` values, and remove `MERCHANT_SECRET`, which is no longer used. Vercel only needs a rebuild.
 
 ## Screenshots
 
