@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>ClipPass — Category standard</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400..800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{width:1440px;height:900px;overflow:hidden}
+body{background:#0b1020;font-family:Archivo,sans-serif;color:#e6e9f2}
+nav{display:flex;justify-content:space-between;padding:24px 64px;font-weight:700}
+nav span{font-size:13px;color:#38bdf8;border:1px solid #38bdf8;border-radius:99px;padding:4px 12px;font-weight:500}
+.l{position:absolute;left:64px;top:150px;width:640px}
+.l h1{font-size:50px;line-height:1.08;font-weight:800;letter-spacing:-.02em}
+.l p{margin-top:22px;font-size:18px;color:#9aa3b8;line-height:1.5}
+.card{position:absolute;right:64px;top:130px;width:560px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:28px}
+label{display:grid;gap:6px;font-size:14px;color:#9aa3b8;margin-bottom:16px}
+.in{background:#111833;border:1px solid #243052;border-radius:10px;padding:14px;color:#e6e9f2;font-size:16px}
+.in.tall{height:100px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+button{width:100%;background:#38bdf8;color:#0b1020;border:0;border-radius:10px;padding:16px;font-weight:800;font-size:16px}
+.stats{position:absolute;left:64px;top:640px;display:grid;grid-template-columns:repeat(4,300px);gap:20px}
+.s{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:20px}
+.s b{display:block;font-size:30px;margin-top:6px}
+.s small{color:#9aa3b8}
+.ok{color:#22c55e}.no{color:#f87171}
+</style></head><body>
+<nav><div>ClipPass</div><span>Stellar Testnet</span></nav>
+<div class="l"><h1>Describe your reel and set a budget. The agent licenses the music, b-roll and sound effects, and pays each artist per use.</h1>
+<p>Every asset answers with 402 Payment Required and its own price. The exclusive-rights track costs more than the card allows, so the card refuses it every time.</p></div>
+<div class="card">
+  <label>Reel script<div class="in tall">Rain at a night market in Manila, street food sizzle, crowd chatter</div></label>
+  <div class="row"><label>Mood<div class="in">chill ▾</div></label><label>License budget (XLM)<div class="in">2.5</div></label></div>
+  <button>Pay reel project fee (1 XLM) with Velo</button>
+</div>
+<div class="stats">
+  <div class="s"><small>SFX</small><b>up to 0.07</b></div>
+  <div class="s"><small>B-roll</small><b>up to 0.15</b></div>
+  <div class="s"><small>Music</small><b>up to 0.30</b></div>
+  <div class="s"><small>Exclusive</small><b class="no">2 XLM · refused</b></div>
+</div>
+</body></html>

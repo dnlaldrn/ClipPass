@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>ClipPass — VU Bridge</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{width:1440px;height:900px;overflow:hidden}
+body{background:#5a3a24;font-family:Archivo,sans-serif;color:#e7dcc4}
+.top{padding:28px 56px;display:flex;justify-content:space-between;align-items:baseline}
+.top h1{font-size:40px;font-weight:800;font-stretch:90%;width:900px;line-height:1.05}
+.top span{font-size:14px;opacity:.8}
+.bridge{position:absolute;left:56px;top:200px;width:1328px;height:330px;background:#9aa3a8;padding:24px;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;border-top:6px solid #151515}
+.m{background:#e7dcc4;position:relative;overflow:hidden;color:#151515}
+.arc{position:absolute;left:50%;top:150px;width:260px;height:260px;margin-left:-130px;border-radius:50%;border:3px solid #151515;clip-path:inset(0 0 55% 0)}
+.red{position:absolute;left:50%;top:150px;width:260px;height:260px;margin-left:-130px;border-radius:50%;border:10px solid #d6302b;clip-path:polygon(72% 0,100% 0,100% 30%,72% 30%)}
+.needle{position:absolute;left:50%;bottom:20px;width:3px;height:200px;background:#151515;transform-origin:bottom center}
+.lbl{position:absolute;left:16px;bottom:14px;font-weight:800;font-size:18px}
+.price{position:absolute;right:16px;bottom:14px;font-size:16px}
+.zero{position:absolute;right:58px;top:132px;font-size:13px;color:#d6302b;font-weight:700}
+.m.over .lbl,.m.over .price{color:#d6302b}
+form{position:absolute;left:56px;top:580px;width:1328px;display:grid;grid-template-columns:1fr 200px 220px;gap:18px}
+label{display:grid;gap:6px;font-weight:700;font-size:14px}
+.in{background:#151515;color:#e7dcc4;padding:14px;font-size:17px;height:56px}
+.in.tall{height:96px}
+button{grid-column:1/-1;justify-self:start;background:#d6302b;color:#fff;border:0;font-weight:800;font-size:18px;padding:18px 30px}
+</style></head><body>
+<div class="top"><h1>Describe your reel and set a budget. The agent licenses the music, b-roll and sound effects, and pays each artist per use.</h1><span>STELLAR TESTNET</span></div>
+<div class="bridge">
+  <div class="m"><div class="arc"></div><div class="red"></div><span class="zero">1 XLM</span><div class="needle" style="transform:rotate(-52deg)"></div><span class="lbl">SFX</span><span class="price">up to 0.07</span></div>
+  <div class="m"><div class="arc"></div><div class="red"></div><span class="zero">1 XLM</span><div class="needle" style="transform:rotate(-44deg)"></div><span class="lbl">B-ROLL</span><span class="price">up to 0.15</span></div>
+  <div class="m"><div class="arc"></div><div class="red"></div><span class="zero">1 XLM</span><div class="needle" style="transform:rotate(-34deg)"></div><span class="lbl">MUSIC</span><span class="price">up to 0.30</span></div>
+  <div class="m over"><div class="arc"></div><div class="red"></div><span class="zero">1 XLM</span><div class="needle" style="transform:rotate(58deg);background:#d6302b"></div><span class="lbl">EXCLUSIVE</span><span class="price">2 XLM · refused</span></div>
+</div>
+<form>
+  <label>Reel script<div class="in tall">Rain at a night market in Manila, street food sizzle, crowd chatter</div></label>
+  <label>Mood<div class="in">chill ▾</div></label>
+  <label>License budget in XLM (2 to 5)<div class="in">2.5</div></label>
+  <button>Pay reel project fee (1 XLM) with Velo</button>
+</form>
+</body></html>

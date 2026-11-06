@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>ClipPass — Edge-Code Reel</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{width:1440px;height:900px;overflow:hidden}
+body{background:#e9eef0;background-image:linear-gradient(#d9e1e4 1px,transparent 1px),linear-gradient(90deg,#d9e1e4 1px,transparent 1px);background-size:48px 48px;font-family:Archivo,sans-serif;color:#1a120d}
+nav{display:flex;justify-content:space-between;align-items:center;padding:22px 48px}
+.mark{font-weight:900;font-stretch:125%;font-size:26px;letter-spacing:-.02em}
+.mark b{color:#c75f2a}
+.net{font-family:DotGothic16;font-size:15px;color:#1a120d;border:1.5px solid #1a120d;padding:4px 10px}
+h1{position:absolute;left:48px;top:96px;width:900px;font-size:46px;line-height:1.02;font-weight:800;font-stretch:88%;letter-spacing:-.02em}
+.strip{position:absolute;left:-40px;top:300px;width:1560px;height:250px;background:#c75f2a;transform:rotate(-3deg);box-shadow:0 30px 60px -30px rgba(26,18,13,.45)}
+.perf{position:absolute;left:0;right:0;height:22px;background:repeating-linear-gradient(90deg,transparent 0 14px,#e9eef0 14px 34px,transparent 34px 48px)}
+.perf.t{top:10px}.perf.b{bottom:10px}
+.edge{position:absolute;left:60px;font-family:DotGothic16;font-size:14px;color:#f1bd45;letter-spacing:.18em}
+.edge.t{top:36px}.edge.b{bottom:36px}
+.frames{position:absolute;left:60px;top:62px;display:flex;gap:14px}
+.f{width:190px;height:126px;background:#1a120d;color:#e9eef0;padding:12px;display:flex;flex-direction:column;justify-content:space-between}
+.f .lane{font-family:DotGothic16;font-size:13px;color:#f1bd45;letter-spacing:.12em}
+.f .t{font-weight:700;font-size:17px;line-height:1.1}
+.f .p{font-family:DotGothic16;font-size:13px}
+.f.lit{outline:3px solid #f1bd45;box-shadow:0 0 0 8px rgba(241,189,69,.25)}
+.f.fog{background:#efe3d6;color:#1a120d;position:relative}
+.f.fog::after{content:"";position:absolute;inset:10px;background:linear-gradient(45deg,transparent 47%,#d4302a 47% 53%,transparent 53%),linear-gradient(-45deg,transparent 47%,#d4302a 47% 53%,transparent 53%)}
+.gate{position:absolute;left:1180px;top:240px;width:4px;height:370px;background:#1a120d}
+.gate span{position:absolute;top:-30px;left:-60px;width:180px;font-family:DotGothic16;font-size:13px}
+.refuse{position:absolute;left:1210px;top:590px;font-family:DotGothic16;font-size:15px;color:#d4302a;transform:rotate(-3deg)}
+form{position:absolute;left:48px;top:640px;width:1344px;display:grid;grid-template-columns:1fr 200px 200px auto;gap:16px;align-items:end}
+label{display:grid;gap:6px;font-weight:700;font-size:14px}
+.leader{background:#1a120d;color:#f1bd45;font-family:DotGothic16;font-size:18px;padding:16px 18px;height:84px}
+.in{border:2px solid #1a120d;background:#fff;padding:14px;font-size:17px;height:56px}
+button{background:#c75f2a;color:#fff;border:0;font-family:Archivo;font-weight:800;font-stretch:110%;font-size:18px;padding:0 28px;height:56px}
+.hint{position:absolute;left:48px;top:850px;font-size:14px;color:#4a3f37}
+</style></head><body>
+<nav><div class="mark">Clip<b>Pass</b></div><div class="net">STELLAR TESTNET · NO REAL MONEY</div></nav>
+<h1>Describe your reel and set a budget. The agent licenses the music, b-roll and sound effects, and pays each artist per use.</h1>
+<div class="strip">
+  <div class="perf t"></div><div class="perf b"></div>
+  <div class="edge t">CLIPPASS 5219 ▸ 30F92754 ◂ 12 · EF7C8D3A ◂ 13 · 5E22B03D ◂ 14 · A00A7B5B ◂ 15</div>
+  <div class="frames">
+    <div class="f lit"><span class="lane">MUSIC · LOWTIDE LOOPS</span><span class="t">Low Tide Lo-fi</span><span class="p">0.18 XLM ✓</span></div>
+    <div class="f"><span class="lane">B-ROLL · PAPER LANTERN</span><span class="t">Night Market Lights</span><span class="p">0.12 XLM ✓</span></div>
+    <div class="f"><span class="lane">B-ROLL · KESTREL</span><span class="t">Street Food Close-ups</span><span class="p">0.15 XLM ✓</span></div>
+    <div class="f"><span class="lane">B-ROLL · PAPER LANTERN</span><span class="t">Rain on Glass</span><span class="p">0.10 XLM ✓</span></div>
+    <div class="f"><span class="lane">SFX · FOLEY FERN</span><span class="t">Wok Sizzle</span><span class="p">0.05 XLM ✓</span></div>
+    <div class="f"><span class="lane">SFX · FOLEY FERN</span><span class="t">Market Crowd</span><span class="p">0.07 XLM ✓</span></div>
+    <div class="f fog"><span class="lane" style="color:#1a120d">EXCLUSIVE · KESTREL</span><span class="t">Neon Crown</span><span class="p">2 XLM</span></div>
+  </div>
+  <div class="edge b">KEYCODE = LICENSE TX · EVERY FRAME LINKS TO STELLAR.EXPERT · 6 ASSETS · 4 ARTISTS</div>
+</div>
+<div class="gate"><span>CARD LIMIT · 1 XLM PER PAYMENT</span></div>
+<div class="refuse">REFUSED BY CARD: over_limit</div>
+<form>
+  <label>Reel script<div class="leader">Rain at a night market in Manila, street food sizzle, crowd chatter</div></label>
+  <label>Mood<div class="in">chill ▾</div></label>
+  <label>License budget in XLM (2 to 5)<div class="in">2.5</div></label>
+  <button>Pay reel project fee (1 XLM) with Velo</button>
+</form>
+<p class="hint">You pay the project fee once at checkout. After that, the agent decides every license itself.</p>
+</body></html>
