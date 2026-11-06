@@ -1,5 +1,10 @@
 import type { AssetType, DecisionAction } from '@clippass/shared'
-import { laneStates, xlm } from './format'
+import { accountLink as sharedAccountLink } from '@clippass/shared'
+import { accountLink, laneStates, xlm } from './format'
+
+test('account links match the shared stellar.expert links', () => {
+  expect(accountLink('GABC')).toBe(sharedAccountLink('GABC'))
+})
 
 test('formats stroop strings as exact XLM', () => {
   expect(xlm('1000000')).toBe('0.1')

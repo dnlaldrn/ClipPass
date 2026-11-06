@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { VeloWebhookSignatureVerificationError } from '@carts1024/velo-sdk'
+import { VeloAuthError, VeloWebhookSignatureVerificationError } from '@carts1024/velo-sdk'
 import { DEMO_SCRIPT } from '@clippass/shared'
 import { createApp } from './app'
 import { JobStore } from './jobs'
@@ -54,6 +54,30 @@ test('POST /api/jobs creates a session', async () => {
     successUrl: `${WEB}/jobs/${res.body.jobId}`, cancelUrl: `${WEB}/`,
   })
   expect(o).toEqual({ idempotencyKey: `job:${res.body.jobId}` })
+})
+
+test('a failed Velo checkout is a plain 502, never Velo’s status or a stack trace', async () => {
+  const failing = (error: Error) => {
+    const velo: VeloLike = {
+      checkout: { sessions: { create: async () => { throw error } } },
+      paymentIntents: { retrieve: async () => ({ status: 'pending' }) },
+    }
+    const jobs = new JobStore()
+    const app = createApp({ webOrigin: WEB, routers: [veloRouter({ velo, jobs, webOrigin: WEB, secret: 's', onPaid: () => {} })] })
+    return newJob(app)
+  }
+  const quiet = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+  const auth = await failing(new VeloAuthError('Missing or invalid API key.', { status: 401 }))
+  expect(auth.status).toBe(502)
+  expect(auth.body.error).toMatch(/API key/)
+  expect(auth.body.error).toMatch(/not charged/)
+
+  const other = await failing(new Error('secret internal detail'))
+  expect(other.status).toBe(502)
+  expect(other.body.error).toMatch(/not charged/)
+  expect(JSON.stringify(other.body)).not.toContain('secret internal detail')
+  quiet.mockRestore()
 })
 
 test('rejects bad budget', async () => {

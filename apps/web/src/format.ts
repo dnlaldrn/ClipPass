@@ -9,6 +9,7 @@ export function xlm(stroops: string): string {
 }
 
 export const txLink = (hash: string) => `https://stellar.expert/explorer/testnet/tx/${hash}`
+export const accountLink = (address: string) => `https://stellar.expert/explorer/testnet/account/${address}`
 
 export type LaneState = { action: DecisionAction; count: number }
 

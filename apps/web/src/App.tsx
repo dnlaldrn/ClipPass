@@ -17,6 +17,7 @@ export function App() {
       <footer>
         <p>Stellar Testnet only, so no real money moves. The agent pays artists through Noir; the project fee goes through Velo.</p>
         <p>The media is mocked by design: 14 fictional assets from 4 studios. The payments are real Testnet transactions.</p>
+        <p>Reels live in the server’s memory, so a restart clears them. Their payments stay on Testnet.</p>
       </footer>
     </>
   )

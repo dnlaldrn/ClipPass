@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { Router } from 'express'
-import { Velo, VeloWebhookSignatureVerificationError } from '@carts1024/velo-sdk'
+import { Velo, VeloAuthError, VeloWebhookSignatureVerificationError } from '@carts1024/velo-sdk'
 import { toStroops } from '@noirx402/agent-sdk'
 import { JOB_FEE, MAX_JOB_BUDGET, MIN_JOB_BUDGET, MOODS, type Mood } from '@clippass/shared'
 import type { JobStore } from './jobs'
@@ -17,7 +17,7 @@ export type VeloLike = {
   paymentIntents: { retrieve(id: string): Promise<{ status: string }> }
 }
 
-function parseBudget(raw: unknown): bigint | null {
+export function parseBudget(raw: unknown): bigint | null {
   if (typeof raw !== 'string') return null
   try {
     const b = toStroops(raw)
@@ -50,16 +50,27 @@ export function veloRouter(d: {
     if (budget === null) return res.status(400).json({ error: 'Budget must be an XLM amount from 2 to 5.' })
 
     const jobId = randomUUID()
-    const session = await d.velo.checkout.sessions.create(
-      {
-        amount: JOB_FEE,
-        asset: VELO_ASSET,
-        description: `ClipPass reel project: ${script.slice(0, 80)}`,
-        successUrl: `${d.webOrigin}/jobs/${jobId}`,
-        cancelUrl: `${d.webOrigin}/`,
-      },
-      { idempotencyKey: `job:${jobId}` },
-    )
+    let session: Awaited<ReturnType<VeloLike['checkout']['sessions']['create']>>
+    try {
+      session = await d.velo.checkout.sessions.create(
+        {
+          amount: JOB_FEE,
+          asset: VELO_ASSET,
+          description: `ClipPass reel project: ${script.slice(0, 80)}`,
+          successUrl: `${d.webOrigin}/jobs/${jobId}`,
+          cancelUrl: `${d.webOrigin}/`,
+        },
+        { idempotencyKey: `job:${jobId}` },
+      )
+    } catch (e) {
+      // Our upstream failed, so never echo Velo's status (a 401 here isn't the visitor's) or its details.
+      console.error('velo checkout failed', e)
+      return res.status(502).json({
+        error: e instanceof VeloAuthError
+          ? 'Velo rejected this server’s API key, so no checkout opened. You were not charged.'
+          : 'Velo could not open the checkout. You were not charged. Try again.',
+      })
+    }
     if (!session.checkoutUrl) return res.status(502).json({ error: 'Velo returned no checkout URL.' })
     d.jobs.create({ jobId, script, mood, budget, paymentIntentId: session.paymentIntentId, checkoutUrl: session.checkoutUrl })
     res.json({ jobId, checkoutUrl: session.checkoutUrl })

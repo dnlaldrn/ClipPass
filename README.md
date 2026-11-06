@@ -88,9 +88,9 @@ We use `watch`, so `startWebhookRelay` and `verifyWebhookSignature` aren't neede
 ## Velo integration
 
 - **SDK:** `@carts1024/velo-sdk` pinned to exactly `0.1.0-alpha.4`, server side only.
-- **Checkout:** `velo.checkout.sessions.create` for the 1 XLM reel project fee, with an idempotency key per reel ([velo.ts:53](apps/server/src/velo.ts#L53)).
-- **Status:** `velo.paymentIntents.retrieve`, used as a fallback when the webhook is late ([velo.ts:73](apps/server/src/velo.ts#L73)).
-- **Webhooks:** `Velo.webhooks.verify` on the raw body. Bad signatures get a 400, and duplicates are dropped by `x-velo-delivery` and by event id ([velo.ts:86](apps/server/src/velo.ts#L86)). The client is constructed in [index.ts:36](apps/server/src/index.ts#L36).
+- **Checkout:** `velo.checkout.sessions.create` for the 1 XLM reel project fee, with an idempotency key per reel ([velo.ts:55](apps/server/src/velo.ts#L55)).
+- **Status:** `velo.paymentIntents.retrieve`, used as a fallback when the webhook is late ([velo.ts:84](apps/server/src/velo.ts#L84)).
+- **Webhooks:** `Velo.webhooks.verify` on the raw body. Bad signatures get a 400, and duplicates are dropped by `x-velo-delivery` and by event id ([velo.ts:97](apps/server/src/velo.ts#L97)). The client is constructed in [index.ts:36](apps/server/src/index.ts#L36).
 
 ## Testnet proof
 
@@ -148,14 +148,16 @@ You need Node 24.22.1 or newer (`.nvmrc`). The Noir SDK refuses older versions.
 ```bash
 npm install
 npm run setup        # creates and funds the owner, agent and 4 artist accounts, registers the card, funds escrow; writes .env
-npm test             # 74 unit tests
+npm test             # 82 unit tests
 npm run demo         # one reel end to end on Testnet, then artist payouts; prints every link
 npm run claim        # pay out every artist with pending earnings
 npm run dev:server   # API on :8787 (needs VELO_* and WEB_ORIGIN in .env)
 npm run dev:web      # site on :5173 (set VITE_API_URL=http://localhost:8787)
 ```
 
-`npm run setup` is idempotent. Rerun it after a Testnet reset. To try the site locally without a Velo checkout, set `DEV_ROUTES=1` in `.env` and start a reel with `curl -X POST localhost:8787/api/dev/jobs -H 'content-type: application/json' -d '{"mood":"chill","budget":"2.5"}'` (the script defaults to the demo script). Reels run one at a time because they all pay with the same agent key.
+On a fresh clone, set your own `DEVICE_UID` in `.env` before `npm run setup` (any new string works). The default `TOLLBOOTH-DEMO-0001` is registered to the original card's owner, so setup stops with `device hash owned by another wallet` when it creates new keys.
+
+`npm run setup` is idempotent. Rerun it after a Testnet reset. To try the site locally without a Velo checkout, set `DEV_ROUTES=1` in `.env`, give `VELO_API_KEY` and `VELO_WEBHOOK_SECRET` any placeholder value (the server won't start without them, and only the Velo checkout needs real ones), and click **Run test reel without Velo (local only)** on the start page. That button exists only in the `npm run dev:web` build, never in production. You can also start a reel with `curl -X POST localhost:8787/api/dev/jobs -H 'content-type: application/json' -d '{"mood":"chill","budget":"2.5"}'` (the script defaults to the demo script). Reels run one at a time because they all pay with the same agent key.
 
 ## Environment variables
 
@@ -164,7 +166,7 @@ npm run dev:web      # site on :5173 (set VITE_API_URL=http://localhost:8787)
 | `OWNER_SECRET` | Card owner's Testnet secret key | Written by `npm run setup` |
 | `AGENT_SECRET` | The agent's constrained key (server only) | Written by `npm run setup` |
 | `ARTIST_LOWTIDE_SECRET`, `ARTIST_LANTERN_SECRET`, `ARTIST_KESTREL_SECRET`, `ARTIST_FERN_SECRET` | Each artist's account, which receives license payments and claims them (server only) | Written by `npm run setup` |
-| `DEVICE_UID` | Demo card UID (no NFC hardware) | Defaults to `TOLLBOOTH-DEMO-0001` |
+| `DEVICE_UID` | Demo card UID (no NFC hardware) | Defaults to `TOLLBOOTH-DEMO-0001`, which only the original owner key can use. Set your own on a fresh clone |
 | `DEVICE_HASH` | SHA-256 of `DEVICE_UID`, the card's Noir ID | Written by `npm run setup` |
 | `VELO_API_KEY` | Velo API key (server only) | Velo dashboard |
 | `VELO_WEBHOOK_SECRET` | Velo webhook signing secret (server only) | Velo dashboard, webhook settings |

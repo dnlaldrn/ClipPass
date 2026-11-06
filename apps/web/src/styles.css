@@ -114,6 +114,8 @@ button:disabled { opacity: 0.6; cursor: progress; }
 .leader-form .error, .leader-form .hint { grid-column: 1 / -1; }
 .hint { margin: 0; font-size: 0.9375rem; color: var(--ink-2); }
 .error { margin: 0; font-weight: 700; color: var(--pencil); }
+.dev-reel { grid-column: 1 / -1; justify-self: start; min-height: 44px; font-size: 0.9375rem; color: var(--acetate-deep); background: none; border: 2px solid var(--acetate-deep); }
+.dev-reel:hover { color: #fff; background: var(--acetate-deep); }
 
 /* Lane gauge: each lane's top price against the card's per-payment limit */
 .gauge { margin: 48px 0 0; max-width: 820px; }

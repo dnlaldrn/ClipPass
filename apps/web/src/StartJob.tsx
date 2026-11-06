@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react'
-import { createJob } from './api'
+import { useState, type FormEvent, type MouseEvent } from 'react'
+import { createDevJob, createJob } from './api'
 import { Lanes } from './Lanes'
 import { MOODS } from './mirror'
 import { Reel } from './reel/Reel'
@@ -21,6 +21,18 @@ export function StartJob() {
     setError(null)
     try {
       location.href = (await createJob(script, mood, budget)).checkoutUrl
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+      setBusy(false)
+    }
+  }
+
+  async function startTestReel(e: MouseEvent<HTMLButtonElement>) {
+    if (!e.currentTarget.form?.reportValidity()) return
+    setBusy(true)
+    setError(null)
+    try {
+      location.href = `/jobs/${(await createDevJob(script, mood, budget)).jobId}`
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
       setBusy(false)
@@ -69,6 +81,9 @@ export function StartJob() {
         <button type="submit" disabled={busy}>{busy ? 'Opening checkout…' : 'Pay reel project fee (1 XLM) with Velo'}</button>
         {error && <p className="error" role="alert">{error}</p>}
         <p className="hint">You pay the project fee once at checkout. After that, the agent decides every license itself.</p>
+        {import.meta.env.DEV && (
+          <button type="button" className="dev-reel" onClick={startTestReel} disabled={busy}>Run test reel without Velo (local only)</button>
+        )}
       </form>
 
       <Lanes />
