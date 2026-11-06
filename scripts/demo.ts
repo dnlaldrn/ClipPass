@@ -4,7 +4,7 @@ import type { AddressInfo } from 'node:net'
 import { Keypair } from '@stellar/stellar-sdk'
 import { NoirAgentClient, keypairSigner, toStroops, fromStroops } from '@noirx402/agent-sdk'
 import { assertTestnetContracts, readEnv, XLM_SAC, POLICY_MAX, txLink } from '@tollbooth/shared'
-import { runAgent } from '@tollbooth/agent'
+import { runAgent, ollamaPlanner } from '@tollbooth/agent'
 import { createApp } from '../apps/server/src/app'
 import { QuoteStore } from '../apps/server/src/quotes'
 import { createVerifier } from '../apps/server/src/verifier'
@@ -41,6 +41,7 @@ const baseUrl = `http://127.0.0.1:${(server.address() as AddressInfo).port}`
 // 3. One job
 const { payments, summary } = await runAgent({
   topic: 'stellar weather', budget: toStroops('2.5'), baseUrl, noir, agent, deviceHash: env.DEVICE_HASH,
+  planner: process.env.AGENT_LLM ? ollamaPlanner({ model: process.env.AGENT_LLM, url: process.env.OLLAMA_URL }) : undefined,
   log: (d) => console.log(`  ${d.action.padEnd(8)} ${(d.endpoint ?? '').padEnd(8)} ${d.reason.split('\n')[0]}`),
 })
 stopWatch()

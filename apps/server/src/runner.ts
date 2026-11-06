@@ -1,5 +1,5 @@
 import type { NoirSigner } from '@noirx402/agent-sdk'
-import { runAgent, type NoirPort } from '@tollbooth/agent'
+import { runAgent, type NoirPort, type Planner } from '@tollbooth/agent'
 import type { JobStore } from './jobs'
 
 /**
@@ -14,7 +14,7 @@ export function createJobQueue(run: (jobId: string) => Promise<void>): (jobId: s
 /** Runs the agent for a paid job, streaming its decisions into the job so polling shows progress. Never rejects. */
 export async function runJob(
   jobId: string,
-  d: { jobs: JobStore; noir: NoirPort; agent: NoirSigner; deviceHash: string; baseUrl: string; delayMs?: number },
+  d: { jobs: JobStore; noir: NoirPort; agent: NoirSigner; deviceHash: string; baseUrl: string; delayMs?: number; planner?: Planner },
 ): Promise<void> {
   const job = d.jobs.get(jobId)
   if (!job) return
@@ -22,7 +22,7 @@ export async function runJob(
   try {
     const result = await runAgent({
       topic: job.topic, budget: job.budget, baseUrl: d.baseUrl, noir: d.noir, agent: d.agent,
-      deviceHash: d.deviceHash, log: (dec) => job.trace.push(dec), delayMs: d.delayMs,
+      deviceHash: d.deviceHash, log: (dec) => job.trace.push(dec), delayMs: d.delayMs, planner: d.planner,
     })
     job.payments = result.payments
     job.summary = result.summary

@@ -21,7 +21,7 @@ The demo job always tries the 2 XLM deep report, which is above the card's 1 XLM
 ## How the agentic payment works
 
 1. **A human pays for the job, not the data.** `POST /api/jobs` creates a Velo checkout session for a 1 XLM job fee. When Velo's signed `payment.succeeded` webhook arrives, the server starts the agent. No human click ever triggers a Noir payment.
-2. **The agent plans.** It turns the topic into a list of candidate calls, each with an estimated value ([plan.ts](packages/agent/src/plan.ts#L12)).
+2. **The agent plans.** It turns the topic into a list of candidate calls, each with an estimated value ([plan.ts](packages/agent/src/plan.ts#L12)). With `AGENT_LLM` set, a local Ollama model re-scores what each call is worth for the topic ([llm.ts](packages/agent/src/llm.ts#L15)); the over-cap report keeps its fixed value so the card refusal always shows.
 3. **Each call starts with a 402.** The merchant answers `{ quoteId, price, asset, merchant, network, expiresAt }`. The quote is random, single use and valid for 2 minutes ([merchant.ts](apps/server/src/merchant.ts#L20)).
 4. **The agent decides.** It skips calls that are over the remaining budget or worth less than their price ([decide.ts](packages/agent/src/decide.ts#L5)). Otherwise it asks Noir `checkPayment`. If the card would refuse (`over_limit`, `expired`, `insufficient_escrow`, ...), it logs the reason and does not pay.
 5. **The agent pays with its own key.** It calls `authorizePayment` with `keypairSigner(AGENT_SECRET)` and retries the request with `X-Payment: <tx hash>` and `X-Quote-Id`.
@@ -143,8 +143,8 @@ npm run dev:web      # site on :5173 (set VITE_API_URL=http://localhost:8787)
 | `VITE_API_URL` | API URL baked into the site at build time | Your Render URL |
 | `DEV_ROUTES` | `1` turns on `POST /api/dev/jobs`, which starts a job without a Velo checkout. Local only. Never set it on Render, because anyone could spend the card's escrow | Set it yourself in your local `.env` |
 | `NODE_ENV` | Set to `production` on Render so error responses don't include stack traces | Render environment settings |
-| `AGENT_LLM` | Reserved for an optional LLM planner (unused; rules run by default) | Leave empty |
-| `ANTHROPIC_API_KEY` | Reserved for the optional planner | Leave empty |
+| `AGENT_LLM` | Ollama model that scores each data call for the topic (e.g. `qwen2.5:3b-instruct`). Empty: rules only. If Ollama is down, the agent falls back to the rules | `ollama pull qwen2.5:3b-instruct` |
+| `OLLAMA_URL` | Ollama address | Defaults to `http://localhost:11434` |
 
 ## Screenshots
 

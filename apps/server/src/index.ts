@@ -14,6 +14,7 @@ import { createVerifier } from './verifier'
 import { merchantRouter } from './merchant'
 import { startPaymentWatch } from './noirWatch'
 import { runJob, createJobQueue } from './runner'
+import { ollamaPlanner } from '@tollbooth/agent'
 import { devRoutesEnabled } from './dev'
 import { claimRouter } from './claim'
 import { restoreSuccessFlag } from './rpcShim'
@@ -41,7 +42,8 @@ startPaymentWatch(noir, verifier, merchant)
 const port = Number(process.env.PORT ?? 8787)
 const agent = keypairSigner(env.AGENT_SECRET) // the agent key lives only on the server
 // The agent buys from our own merchant API over real HTTP, so the full 402 path runs.
-const enqueue = createJobQueue((id) => runJob(id, { jobs, noir, agent, deviceHash: env.DEVICE_HASH, baseUrl: `http://127.0.0.1:${port}` }))
+const planner = process.env.AGENT_LLM ? ollamaPlanner({ model: process.env.AGENT_LLM, url: process.env.OLLAMA_URL }) : undefined
+const enqueue = createJobQueue((id) => runJob(id, { jobs, noir, agent, deviceHash: env.DEVICE_HASH, baseUrl: `http://127.0.0.1:${port}`, planner }))
 const startAgent = (id: string) => void enqueue(id)
 
 const routers = [

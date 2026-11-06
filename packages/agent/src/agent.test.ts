@@ -99,3 +99,14 @@ test('declined quote makes no proof request', async () => {
   expect(await paidFetch('http://merchant/api/data/quote', async () => null, { fetch: m.fetch })).toEqual({ status: 'declined' })
   expect(m.proofs).toHaveLength(0)
 })
+
+test('planner values drive decisions', async () => {
+  const log: Decision[] = []
+  const m = fakeMerchant(), n = fakeNoir()
+  await runAgent({
+    topic: 'stellar fees', budget: 50_000_000n, baseUrl: 'http://merchant', noir: n.noir, agent: signer, deviceHash: 'ab'.repeat(32),
+    log: (d) => log.push(d), fetch: m.fetch, delayMs: 0,
+    planner: async (_t, plan) => plan.map((p) => (p.endpoint === 'weather' ? { ...p, value: 10_000_000n } : p)),
+  })
+  expect(log.find((d) => d.endpoint === 'weather')!.action).toBe('paid')
+})

@@ -3,6 +3,7 @@ import { CATALOG, type Decision, type PaymentRecord } from '@tollbooth/shared'
 import { makePlan } from './plan'
 import { decide } from './decide'
 import { paidFetch } from './paidFetch'
+import type { Planner } from './llm'
 
 export type NoirPort = {
   checkPayment: NoirAgentClient['checkPayment']
@@ -20,9 +21,11 @@ export async function runAgent(p: {
   log: (d: Decision) => void
   fetch?: typeof fetch
   delayMs?: number
+  /** Optional model that re-scores the rule plan for this topic. */
+  planner?: Planner
 }): Promise<{ payments: PaymentRecord[]; spent: bigint; summary: string }> {
   const log = (d: Omit<Decision, 'at'>) => p.log({ at: new Date().toISOString(), ...d })
-  const plan = makePlan(p.topic)
+  const plan = p.planner ? await p.planner(p.topic, makePlan(p.topic)) : makePlan(p.topic)
   const payments: PaymentRecord[] = []
   const refusals: string[] = []
   let spent = 0n
