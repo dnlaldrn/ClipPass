@@ -1,10 +1,11 @@
 // Rebuilds ClipPass's Testnet state. Idempotent: safe to rerun, including after a Testnet reset.
-import { createHash } from 'node:crypto'
+import { createHash, randomBytes } from 'node:crypto'
 import { Keypair } from '@stellar/stellar-sdk'
 import { NoirAgentClient, keypairSigner, toStroops, fromStroops } from '@noirx402/agent-sdk'
 import { assertTestnetContracts, XLM_SAC, POLICY_MAX, ARTISTS, accountLink, txLink, type ArtistId } from '@clippass/shared'
 import { artistEnvKey } from '../apps/server/src/artists'
 import { loadDotEnv, upsertDotEnv } from './env-file'
+import { chooseDeviceUid } from './device-uid'
 
 const ESCROW_TOPUP = toStroops('20')
 const ESCROW_FLOOR = toStroops('10')
@@ -30,11 +31,11 @@ async function friendbot(g: string): Promise<void> {
 
 async function main() {
   loadDotEnv()
+  const ownerIsNew = !process.env.OWNER_SECRET
   const owner = keypair('OWNER_SECRET')
   const agent = keypair('AGENT_SECRET')
   const artists = (Object.keys(ARTISTS) as ArtistId[]).map((id) => ({ name: ARTISTS[id].name, kp: keypair(artistEnvKey(id)) }))
-  // keep the Tollbooth-era UID: a new one registers a new device and escrow
-  const uid = process.env.DEVICE_UID || 'TOLLBOOTH-DEMO-0001'
+  const uid = chooseDeviceUid({ configured: process.env.DEVICE_UID, ownerIsNew, random: () => randomBytes(4).toString('hex') })
   const deviceHash = createHash('sha256').update(uid).digest('hex')
   upsertDotEnv({ DEVICE_UID: uid, DEVICE_HASH: deviceHash })
 
