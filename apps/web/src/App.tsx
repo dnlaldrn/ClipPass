@@ -28,6 +28,9 @@ function Page({ route, navigate }: { route: Route; navigate: (url: string) => vo
 
 export function App() {
   const [path, setPath] = useState(location.pathname)
+  const [lightTheme, setLightTheme] = useState(() => {
+    try { return localStorage.getItem('clippass.homeTheme') === 'light' } catch { return false }
+  })
   const navigate = useCallback((url: string) => { history.pushState(null, '', url); setPath(location.pathname); window.scrollTo(0, 0) }, [])
   useEffect(() => {
     const change = () => setPath(location.pathname)
@@ -43,11 +46,21 @@ export function App() {
     return () => { window.removeEventListener('popstate', change); document.removeEventListener('click', click) }
   }, [navigate])
   const route = matchRoute(path)
+  useEffect(() => {
+    document.documentElement.classList.toggle('music-dark', !lightTheme)
+    return () => document.documentElement.classList.remove('music-dark')
+  }, [lightTheme])
   return <>
     <header className="top">
       <a href="/" className="wordmark" aria-label="ClipPass home">Clip<span>Pass</span></a>
       <Nav path={path} />
-      <div className="header-tools"><p className="network"><span className="live-dot" aria-hidden="true" /><Edge>STELLAR TESTNET</Edge></p><SoundToggle jobPage={route.name === 'job'} /></div>
+      <div className="header-tools"><p className="network"><span className="live-dot" aria-hidden="true" /><Edge>STELLAR TESTNET</Edge></p>
+        <button className="theme-toggle" type="button" onClick={() => {
+          setLightTheme(!lightTheme)
+          try { localStorage.setItem('clippass.homeTheme', lightTheme ? 'dark' : 'light') } catch {}
+        }}>{lightTheme ? 'Dark mode' : 'Light mode'}</button>
+        <SoundToggle jobPage={route.name === 'job'} />
+      </div>
     </header>
     <ErrorBoundary key={path}><main><Page route={route} navigate={navigate} /></main></ErrorBoundary>
     <footer><Edge>TESTNET ONLY · MOCKED MEDIA · REELS RESET ON RESTART · NOIR + VELO</Edge></footer>

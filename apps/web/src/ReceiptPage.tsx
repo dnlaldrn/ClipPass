@@ -46,6 +46,7 @@ export function Receipt({ job, backHref }: { job: JobView; backHref: string }) {
       </tr>)}</tbody>
     </table> : <p className="sheet-empty receipt-empty">No licenses on this reel.</p>}
     <p className="receipt-total"><span>Total spent</span><strong>{xlm(totalSpent(job).toString())} XLM</strong></p>
+    {!!job.licenses.length && <p className="receipt-note">These transactions authorize license payments into the artists’ pending balances. Artists claim those funds in separate transactions.</p>}
     {!!refused.length && <section className="receipt-refused">
       <h2>Refused</h2>
       <ul>{refused.map((d, i) => <li key={i}><span>{d.title ?? d.assetId}{d.price && ', ' + xlm(d.price) + ' XLM'}</span><span className="refusal-reason"><PencilMark><Edge>{d.reason}</Edge></PencilMark></span></li>)}</ul>

@@ -7,12 +7,13 @@ import { DEMO_REEL } from './reel/demo'
 import { MOODS } from './mirror'
 import { txLink, xlm } from './format'
 
-test('console keeps the exact hero and checkout copy and native keyboard controls', () => {
+test('the composer comes before the replay and explains the fee alongside native controls', () => {
   const html = renderToStaticMarkup(createElement(StartJob, { navigate: () => {} }))
-  expect(html).toContain('<h1>Your reel, licensed by an agent.</h1>')
-  expect(html).toContain('Set a budget. It pays every artist per use.')
-  expect(html).toContain('Start reel · 1 XLM')
-  expect(html).toContain('CHECKOUT BY VELO')
+  expect(html).toContain('<h1 id="composer-title">Describe your reel</h1>')
+  expect(html).toContain('Continue to Velo checkout · 1 XLM')
+  expect(html).toContain('You pay the 1 XLM project fee.')
+  expect(html.indexOf('Continue to Velo checkout')).toBeLessThan(html.indexOf('Recorded Testnet run'))
+  expect(html.indexOf('Continue to Velo checkout')).toBeLessThan(html.indexOf('Midnight Market'))
   expect(html).not.toContain('<select')
   expect(html).not.toContain('class="intro"')
   expect(html.match(/type="radio"/g)).toHaveLength(4)

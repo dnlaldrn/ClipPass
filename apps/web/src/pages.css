@@ -23,7 +23,10 @@
 .lane-segments label { position: relative; display: block; }
 .lane-segments input { position: absolute; width: 1px; height: 1px; min-height: 0; padding: 0; margin: 0; opacity: 0; }
 .lane-segments label > span { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 14px; border: 1px solid var(--rule); font-size: .875rem; font-weight: 600; cursor: pointer; }
-.lane-segments input:checked + span { color: #fff; background: var(--acetate-deep); border-color: var(--acetate-deep); }
+.lane-segments input:checked + span { color: var(--on-acetate); background: var(--acetate-deep); border-color: var(--acetate-deep); }
+@media screen {
+  .music-dark .catalog-gauge { background: var(--glass); }
+}
 .lane-segments input:focus-visible + span { outline: 3px solid var(--acetate-deep); outline-offset: 3px; z-index: 1; position: relative; }
 .library-search { flex: 1 1 180px; min-width: 0; }
 .library-search input { width: 100%; min-width: 0; min-height: 44px; padding: 9px 12px; font-size: .9375rem; }

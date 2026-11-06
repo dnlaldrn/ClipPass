@@ -55,6 +55,7 @@ export function Library() {
       <button type="button" className="page-action" onClick={retry}>Retry</button>
     </div>}
     {!loading && !error && data && <>
+      <p className="hint">Demo media catalog. License payments use Stellar Testnet.</p>
       <div className="directory-rule-heading"><span>{lane === 'all' ? 'All lanes' : LANE_LABELS[lane]}</span>
         <span>Card limit · {xlm(data.cardLimit)} XLM</span>
       </div>
