@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: clippass-server
+    runtime: node
+    buildCommand: npm ci
+    startCommand: npm -w @clippass/server start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 24.22.1
+      - key: NODE_ENV
+        value: production
+      - key: VELO_API_KEY
+        sync: false
+      - key: VELO_WEBHOOK_SECRET
+        sync: false
+      - key: AGENT_SECRET
+        sync: false
+      - key: ARTIST_LOWTIDE_SECRET
+        sync: false
+      - key: ARTIST_LANTERN_SECRET
+        sync: false
+      - key: ARTIST_KESTREL_SECRET
+        sync: false
+      - key: ARTIST_FERN_SECRET
+        sync: false
+      - key: DEVICE_HASH
+        sync: false
+      - key: WEB_ORIGIN
+        sync: false
+      - key: PUBLIC_SERVER_URL
+        sync: false
