@@ -172,7 +172,7 @@ docs/            architecture, screenshots, design specs and plans
    Other commands:
 
    ```bash
-   npm test             # 83 unit tests
+   npm test             # 87 unit tests
    npm run demo         # one reel end to end on Testnet, then artist payouts; prints every link
    npm run claim        # pay out every artist with pending earnings
    ```
@@ -199,7 +199,7 @@ docs/            architecture, screenshots, design specs and plans
 | `AGENT_LLM` | Ollama model that reads the script and tags each slot (e.g. `qwen2.5:3b-instruct`). Empty: rules only. If Ollama is down, the agent falls back to the rules | `ollama pull qwen2.5:3b-instruct` |
 | `OLLAMA_URL` | Ollama address | Defaults to `http://localhost:11434` |
 
-**Deploying:** see `docs/deploy.md`.
+**Deploying:** see [docs/deploy.md](docs/deploy.md).
 
 ## Screenshots
 
@@ -220,4 +220,4 @@ A finished reel, started locally with the dev trigger: the license sheet with Te
 
 ## Credits
 
-Built on [Noir](https://github.com/rylsherdamz-rgb/Noir_Wallet) (`@noirx402/agent-sdk`), Velo (`@carts1024/velo-sdk`), the Stellar SDK (`@stellar/stellar-sdk`) and Stellar Testnet. x402 is the payment pattern. The site uses React, Vite and three.js, with Archivo and DotGothic16 from Fontsource. The server uses Express. Tooling: tsx and Vitest. The repo began as Tollbooth, a pay-per-call data agent; the demo card's `DEVICE_UID` keeps that name on purpose, because changing it would register a new device and escrow.
+Built on [Noir](https://github.com/noirx402/noir) (`@noirx402/agent-sdk`), Velo (`@carts1024/velo-sdk`), the Stellar SDK (`@stellar/stellar-sdk`) and Stellar Testnet. x402 is the payment pattern. The site uses React, Vite and three.js, with Archivo and DotGothic16 from Fontsource. The server uses Express. Tooling: tsx and Vitest. The repo began as Tollbooth, a pay-per-call data agent; the demo card's `DEVICE_UID` keeps that name on purpose, because changing it would register a new device and escrow.
