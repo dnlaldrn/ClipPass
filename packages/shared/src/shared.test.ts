@@ -1,6 +1,6 @@
 import { TESTNET } from '@noirx402/agent-sdk'
 import {
-  assertTestnetContracts, NOIR_TESTNET_CONTRACTS, CATALOG, POLICY_MAX, readEnv, XLM_SAC, txLink,
+  assertTestnetContracts, NOIR_TESTNET_CONTRACTS, POLICY_MAX, MIN_JOB_BUDGET, ASSETS, ARTISTS, MOODS, assetById, readEnv, XLM_SAC, txLink,
 } from './index'
 
 test('SDK TESTNET defaults equal our pinned IDs', () => {
@@ -12,9 +12,27 @@ test('mismatch throws naming the key', () => {
     .toThrow('paymentEscrow')
 })
 
-test('report is above the policy cap, the rest below', () => {
-  expect(CATALOG.report.price > POLICY_MAX).toBe(true)
-  for (const k of ['quote', 'weather', 'news'] as const) expect(CATALOG[k].price <= POLICY_MAX).toBe(true)
+test('asset ids are unique and every artist exists', () => {
+  expect(new Set(ASSETS.map((a) => a.id)).size).toBe(ASSETS.length)
+  for (const a of ASSETS) expect(ARTISTS[a.artist], a.id).toBeDefined()
+  expect(ASSETS).toHaveLength(14)
+})
+
+test('only the exclusive is over the card limit, and every budget can reach it', () => {
+  const [ex] = ASSETS.filter((a) => a.type === 'exclusive')
+  expect(ex.price > POLICY_MAX).toBe(true)
+  expect(MIN_JOB_BUDGET >= ex.price).toBe(true)
+  for (const a of ASSETS.filter((a) => a.type !== 'exclusive')) expect(a.price < POLICY_MAX, a.id).toBe(true)
+})
+
+test('music tags are exactly the moods', () => {
+  const music = new Set(ASSETS.filter((a) => a.type === 'music').flatMap((a) => a.tags))
+  expect([...music].sort()).toEqual([...MOODS].sort())
+})
+
+test('assetById', () => {
+  expect(assetById('s-sizzle')).toMatchObject({ title: 'Wok Sizzle', artist: 'fern', price: 500_000n })
+  expect(assetById('nope')).toBeUndefined()
 })
 
 test('readEnv names all missing keys', () => {

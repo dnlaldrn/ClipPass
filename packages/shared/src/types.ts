@@ -1,4 +1,4 @@
-import type { EndpointName } from './catalog'
+import type { AssetType, Mood } from './catalog'
 
 export type Quote402 = {
   quoteId: string
@@ -18,24 +18,36 @@ export type DecisionAction = 'plan' | 'skip' | 'refused' | 'paid' | 'failed' | '
 export type Decision = {
   at: string
   action: DecisionAction
-  endpoint?: EndpointName
+  assetId?: string
+  assetType?: AssetType
   price?: string
   reason: string
   hash?: string
 }
 
-export type PaymentRecord = { endpoint: EndpointName; price: string; hash: string; decision: string }
+/** One licensed asset: `artist` is the display name, `artistAddress` the account the agent paid. */
+export type License = {
+  assetId: string
+  assetType: AssetType
+  title: string
+  artist: string
+  artistAddress: string
+  price: string
+  hash: string
+  decision: string
+}
 
 export type JobStatus = 'awaiting_payment' | 'paid' | 'running' | 'done' | 'failed'
 
 export type JobView = {
   jobId: string
-  topic: string
+  script: string
+  mood: Mood
   budget: string
   status: JobStatus
   veloStatus: string | null
   checkoutUrl: string
   trace: Decision[]
-  payments: PaymentRecord[]
+  licenses: License[]
   summary: string | null
 }
