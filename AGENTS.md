@@ -60,6 +60,7 @@ Tested on Nov 6. Each tool answered a one-line prompt from an empty folder.
 
 Newest first.
 
+- **Nov 7:** The owner overrode "never deploy" and "without going live". The site is public at `https://clippass.vercel.app` (Vercel project `clippass`, root `apps/web`), and the API runs on Render at `https://clippass-server-20ll.onrender.com`. Render's `WEB_ORIGIN` must match the Vercel origin exactly. Deploy from a `git archive HEAD` export so `.env` is never uploaded.
 - **Nov 6:** Sol cannot run vitest or vite in its sandbox (esbuild `spawn EPERM`). It writes tests and runs `tsc`; the orchestrator runs the rest. It also cannot open a browser, so the orchestrator reviews every screen.
 - **Nov 6:** Scope for F2 is in `docs/team/f2-spec.md`. Code freeze is 8:00 AM.
 
