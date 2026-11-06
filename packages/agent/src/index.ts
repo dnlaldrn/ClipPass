@@ -1,4 +1,5 @@
 export * from './plan'
+export * from './pick'
 export * from './decide'
 export * from './paidFetch'
 export * from './run'

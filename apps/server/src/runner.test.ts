@@ -1,6 +1,6 @@
 import type { AddressInfo } from 'node:net'
 import type { NoirSigner } from '@noirx402/agent-sdk'
-import { NOIR_TESTNET_CONTRACTS, POLICY_MAX } from '@clippass/shared'
+import { DEMO_SCRIPT, NOIR_TESTNET_CONTRACTS, POLICY_MAX } from '@clippass/shared'
 import type { NoirPort } from '@clippass/agent'
 import { createApp } from './app'
 import { JobStore } from './jobs'
@@ -9,14 +9,14 @@ import { createVerifier } from './verifier'
 import { merchantRouter } from './merchant'
 import { runJob, createJobQueue } from './runner'
 
-const MERCHANT = 'GMERCHANT'
+const PAYEES = { lowtide: 'GLOW', lantern: 'GLAN', kestrel: 'GKES', fern: 'GFERN' }
 const DEVICE = 'ab'.repeat(32)
 const agent: NoirSigner = { publicKey: 'GAGENT', signTransaction: async () => '' }
 
 async function setup(noirOverride?: Partial<NoirPort>) {
   const quotes = new QuoteStore()
-  const verifier = createVerifier({ quotes, merchant: MERCHANT, deviceHash: DEVICE })
-  const server = createApp({ webOrigin: '*', routers: [merchantRouter({ quotes, verifier, merchant: MERCHANT })] }).listen(0)
+  const verifier = createVerifier({ quotes, deviceHash: DEVICE })
+  const server = createApp({ webOrigin: '*', routers: [merchantRouter({ quotes, verifier, payees: PAYEES })] }).listen(0)
   await new Promise((r) => server.once('listening', r))
   const baseUrl = `http://127.0.0.1:${(server.address() as AddressInfo).port}`
   let n = 0
@@ -31,7 +31,7 @@ async function setup(noirOverride?: Partial<NoirPort>) {
     ...noirOverride,
   }
   const jobs = new JobStore()
-  jobs.create({ jobId: 'j1', topic: 'stellar fees', budget: 25_000_000n, paymentIntentId: 'pi', checkoutUrl: 'c' })
+  jobs.create({ jobId: 'j1', script: DEMO_SCRIPT, mood: 'chill', budget: 25_000_000n, paymentIntentId: 'pi', checkoutUrl: 'c' })
   jobs.markPaid('j1')
   return { jobs, noir, baseUrl, close: () => server.close() }
 }
@@ -42,9 +42,9 @@ test('runJob marks done and stores trace', async () => {
   s.close()
   const job = s.jobs.get('j1')!
   expect(job.status).toBe('done')
-  expect(job.payments.map((p) => p.endpoint)).toEqual(['quote', 'news'])
-  expect(job.trace.find((d) => d.endpoint === 'report')!.action).toBe('refused')
-  expect(job.summary).toMatch(/Bought 2/)
+  expect(job.licenses.map((l) => l.assetId)).toEqual(['m-lofi', 'b-market', 'b-food', 'b-glass', 's-sizzle', 's-crowd'])
+  expect(job.trace.find((d) => d.assetId === 'x-crown')!.action).toBe('refused')
+  expect(job.summary).toMatch(/^Licensed 6 assets from 4 artists/)
 })
 
 test('runJob marks failed on crash', async () => {
@@ -58,7 +58,7 @@ test('runJob marks failed on crash', async () => {
 
 test('queued jobs never pay concurrently (one agent key = one sequence number)', async () => {
   const s = await setup()
-  s.jobs.create({ jobId: 'j2', topic: 'stellar fees', budget: 25_000_000n, paymentIntentId: 'pi2', checkoutUrl: 'c' })
+  s.jobs.create({ jobId: 'j2', script: DEMO_SCRIPT, mood: 'chill', budget: 25_000_000n, paymentIntentId: 'pi2', checkoutUrl: 'c' })
   s.jobs.markPaid('j2')
   let inFlight = 0
   const authorize = s.noir.authorizePayment

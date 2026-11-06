@@ -1,28 +1,32 @@
-import { fromStroops, toStroops } from '@noirx402/agent-sdk'
-import { CATALOG, type EndpointName } from '@clippass/shared'
-import type { PlanItem } from './plan'
+import type { Mood } from '@clippass/shared'
+import { laneTags, type Slot } from './plan'
 
-export type Planner = (topic: string, plan: PlanItem[]) => Promise<PlanItem[]>
-
-const SCORED: EndpointName[] = ['quote', 'weather', 'news']
-const MAX_VALUE = toStroops('5')
+export type Planner = (script: string, mood: Mood, slots: Slot[]) => Promise<Slot[]>
 
 /**
- * Local model (Ollama) that rewrites how much each data call is worth for the topic.
- * The report keeps its rule value so every job still reaches the card's over-limit refusal.
- * Any failure (Ollama down, timeout, bad JSON) returns the rule plan unchanged.
+ * Local model (Ollama) that reads the script and picks one tag per music, b-roll and sfx slot.
+ * Tags are limited to each lane's vocabulary (schema enum, re-checked on the reply). The exclusive slot is never
+ * sent, so every reel still reaches the card's over-limit refusal. Any failure returns the rule slots unchanged.
  */
 export function ollamaPlanner(o: { model: string; url?: string; timeoutMs?: number; fetch?: typeof fetch }): Planner {
   const url = (o.url ?? 'http://localhost:11434').replace(/\/$/, '')
   const doFetch = o.fetch ?? fetch
-  return async (topic, plan) => {
+  return async (script, mood, slots) => {
+    const seen: Record<string, number> = {}
+    // schema keys: music, broll1..3, sfx1..2; null for the exclusive
+    const keys = slots.map((s) => (s.type === 'exclusive' ? null : s.type === 'music' ? 'music' : `${s.type}${(seen[s.type] = (seen[s.type] ?? 0) + 1)}`))
+    const props = Object.fromEntries(keys.flatMap((k, i) => (k ? [[k, {
+      type: 'object',
+      properties: { tag: { type: 'string', enum: laneTags(slots[i].type) }, why: { type: 'string' } },
+      required: ['tag', 'why'],
+    }]] : [])))
+    const lanes = [...new Set(slots.filter((s) => s.type !== 'exclusive').map((s) => s.type))]
     const prompt = [
-      `You are a research agent with a small XLM budget. Topic: "${topic.slice(0, 200)}".`,
-      'For each paid data call, say how much it is worth to THIS topic in XLM (0 to 5) and why, in under 15 words.',
-      ...SCORED.map((e) => `- ${e}: ${CATALOG[e].description}, costs ${fromStroops(CATALOG[e].price)} XLM`),
-      'Rate a call below its cost if it would not help this topic.',
+      `You pick stock media for a short video reel. Mood: ${mood}. Script: "${script.slice(0, 500)}".`,
+      'For each slot, choose the one tag that best fits the script, and say why in under 15 words.',
+      ...lanes.map((t) => `- ${t} tags: ${laneTags(t).join(', ')}`),
+      'Use different b-roll and sfx tags where the script allows.',
     ].join('\n')
-    const item = { type: 'object', properties: { value: { type: 'number' }, why: { type: 'string' } }, required: ['value', 'why'] }
     try {
       const res = await doFetch(`${url}/api/chat`, {
         method: 'POST',
@@ -32,21 +36,20 @@ export function ollamaPlanner(o: { model: string; url?: string; timeoutMs?: numb
           model: o.model,
           stream: false,
           options: { temperature: 0 },
-          format: { type: 'object', properties: Object.fromEntries(SCORED.map((e) => [e, item])), required: SCORED },
+          format: { type: 'object', properties: props, required: Object.keys(props) },
           messages: [{ role: 'user', content: prompt }],
         }),
       })
       if (!res.ok) throw new Error(`ollama ${res.status}`)
-      const scores = JSON.parse(((await res.json()) as { message?: { content?: string } }).message?.content ?? '')
-      return plan.map((p) => {
-        const s = scores?.[p.endpoint]
-        if (!SCORED.includes(p.endpoint) || typeof s?.value !== 'number' || !Number.isFinite(s.value) || typeof s.why !== 'string') return p
-        const value = toStroops(Math.min(Math.max(s.value, 0), 5).toFixed(7))
-        return { ...p, value: value > MAX_VALUE ? MAX_VALUE : value, why: `${o.model}: ${s.why.slice(0, 120)}` }
+      const out = JSON.parse(((await res.json()) as { message?: { content?: string } }).message?.content ?? '')
+      return slots.map((s, i) => {
+        const r = keys[i] ? out?.[keys[i]!] : undefined
+        if (typeof r?.tag !== 'string' || !laneTags(s.type).includes(r.tag) || typeof r.why !== 'string') return s
+        return { ...s, tags: [r.tag], why: `${o.model}: ${r.why.slice(0, 120)}` }
       })
     } catch (e) {
       console.warn(`planner fell back to rules: ${e instanceof Error ? e.message : String(e)}`)
-      return plan
+      return slots
     }
   }
 }

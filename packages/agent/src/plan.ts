@@ -1,22 +1,28 @@
-import { toStroops } from '@noirx402/agent-sdk'
-import type { EndpointName } from '@clippass/shared'
+import { ASSETS, type AssetType, type Mood } from '@clippass/shared'
 
-export type PlanItem = { endpoint: EndpointName; value: bigint; why: string }
+export type Slot = { type: AssetType; tags: string[]; why: string }
 
-const WEATHERISH = /weather|travel|climate|farm/i
+/** A lane's tag vocabulary: every tag its assets carry, in first-seen order. */
+export const laneTags = (type: AssetType): string[] =>
+  [...new Set(ASSETS.filter((a) => a.type === type).flatMap((a) => a.tags))]
 
 /**
- * Deterministic plan: what to try buying and what each call is worth to this topic.
- * report goes first so the over-cap policy refusal is reached before the budget is spent.
+ * Deterministic plan for one reel: exclusive, music, 3 b-roll, 2 sfx.
+ * The exclusive goes first so the card refusal is reached before any budget is spent.
  */
-export function makePlan(topic: string): PlanItem[] {
-  const weatherMatters = WEATHERISH.test(topic)
+export function makePlan(script: string, mood: Mood): Slot[] {
+  const words = script.toLowerCase().split(/[^a-z]+/).filter(Boolean)
+  // a tag matches a word that starts with it: rainy → rain, markets → market
+  const lane = (type: 'broll' | 'sfx'): Slot => {
+    const tags = laneTags(type).filter((t) => words.some((w) => w.startsWith(t)))
+    return tags.length
+      ? { type, tags, why: `script mentions ${tags.join(', ')}` }
+      : { type, tags: [mood], why: `no ${type} tags in the script; using mood ${mood}` }
+  }
   return [
-    { endpoint: 'report', value: toStroops('3'), why: 'a deep report would answer the whole topic' },
-    { endpoint: 'quote', value: toStroops('1.5'), why: 'market price is core to any research brief' },
-    weatherMatters
-      ? { endpoint: 'weather', value: toStroops('0.5'), why: 'the topic depends on weather' }
-      : { endpoint: 'weather', value: toStroops('0.02'), why: 'weather is barely relevant to this topic' },
-    { endpoint: 'news', value: toStroops('0.5'), why: 'recent headlines add context' },
+    { type: 'exclusive', tags: [mood], why: `exclusive rights to a ${mood} track would cover the whole reel` },
+    { type: 'music', tags: [mood], why: `mood ${mood}` },
+    lane('broll'), lane('broll'), lane('broll'),
+    lane('sfx'), lane('sfx'),
   ]
 }

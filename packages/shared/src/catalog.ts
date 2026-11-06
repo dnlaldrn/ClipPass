@@ -38,21 +38,11 @@ export const assetById = (id: string): Asset | undefined => ASSETS.find((a) => a
 
 export const DEMO_SCRIPT = 'Rain at a night market in Manila, street food sizzle, crowd chatter'
 
-// shortcut: kept only until the agent moves to ASSETS (plan Task 5), then deleted.
-export type EndpointName = 'quote' | 'weather' | 'news' | 'report'
-
-export const CATALOG: Record<EndpointName, { path: string; price: bigint; description: string }> = {
-  quote: { path: '/api/data/quote', price: 1_000_000n, description: 'mock market quote' },
-  weather: { path: '/api/data/weather', price: 500_000n, description: 'mock weather' },
-  news: { path: '/api/data/news', price: 2_000_000n, description: 'mock headlines' },
-  report: { path: '/api/data/report', price: 20_000_000n, description: 'deep report (above the 1 XLM cap)' },
-}
-
 /** Per-payment cap set on the agent's Noir policy: 1 XLM. */
 export const POLICY_MAX = 10_000_000n
 /** Flat Velo job fee. */
 export const JOB_FEE = '1.00'
-/** Smallest job budget: the report price, so every job reaches the over-cap policy refusal. */
+/** Smallest job budget: the exclusive's price, so every reel reaches the over-cap policy refusal. */
 export const MIN_JOB_BUDGET = 20_000_000n
 /** Largest job budget a user may ask for: 5 XLM. */
 export const MAX_JOB_BUDGET = 50_000_000n

@@ -1,6 +1,7 @@
 import { NoirContractError, fromStroops, type NoirAgentClient, type NoirSigner } from '@noirx402/agent-sdk'
-import { CATALOG, type Decision, type PaymentRecord } from '@clippass/shared'
+import { ARTISTS, type Decision, type License, type Mood } from '@clippass/shared'
 import { makePlan } from './plan'
+import { pick } from './pick'
 import { decide } from './decide'
 import { paidFetch } from './paidFetch'
 import type { Planner } from './llm'
@@ -10,9 +11,10 @@ export type NoirPort = {
   authorizePayment: NoirAgentClient['authorizePayment']
 }
 
-/** The agent: decides on its own what to buy and pays each call through its Noir agent key. */
+/** The agent: picks each asset for the reel on its own and pays its artist through its Noir agent key. */
 export async function runAgent(p: {
-  topic: string
+  script: string
+  mood: Mood
   budget: bigint
   baseUrl: string
   noir: NoirPort
@@ -21,30 +23,37 @@ export async function runAgent(p: {
   log: (d: Decision) => void
   fetch?: typeof fetch
   delayMs?: number
-  /** Optional model that re-scores the rule plan for this topic. */
+  /** Optional model that re-tags the rule plan from the script. */
   planner?: Planner
-}): Promise<{ payments: PaymentRecord[]; spent: bigint; summary: string }> {
+}): Promise<{ licenses: License[]; spent: bigint; summary: string }> {
   const log = (d: Omit<Decision, 'at'>) => p.log({ at: new Date().toISOString(), ...d })
-  const plan = p.planner ? await p.planner(p.topic, makePlan(p.topic)) : makePlan(p.topic)
-  const payments: PaymentRecord[] = []
+  const rules = makePlan(p.script, p.mood)
+  const slots = p.planner ? await p.planner(p.script, p.mood, rules) : rules
+  const licenses: License[] = []
   const refusals: string[] = []
+  const tried = new Set<string>() // paid or not, an asset is tried once per reel
   let spent = 0n
 
-  log({ action: 'plan', reason: `budget ${fromStroops(p.budget)} XLM; plan: ${plan.map((i) => `${i.endpoint} (${i.why})`).join('; ')}` })
+  log({ action: 'plan', reason: `budget ${fromStroops(p.budget)} XLM; plan: ${slots.map((s) => `${s.type} (${s.why})`).join('; ')}` })
 
-  for (const item of plan) {
-    const endpoint = item.endpoint
+  for (const slot of slots) {
+    const picked = pick(slot, tried)
+    if (!picked) { log({ action: 'skip', assetType: slot.type, reason: `no unused ${slot.type} left` }); continue }
+    const { asset, why } = picked
+    tried.add(asset.id)
+    const at = { assetId: asset.id, assetType: asset.type }
     let price = 0n
+    let payee = ''
     try {
-      const result = await paidFetch(`${p.baseUrl}${CATALOG[endpoint].path}`, async (q) => {
+      const result = await paidFetch(`${p.baseUrl}/api/assets/${asset.id}`, async (q) => {
         price = BigInt(q.price)
-        const shown = q.price
-        const d = decide(item, price, p.budget - spent)
-        if (!d.pay) { log({ action: 'skip', endpoint, price: shown, reason: d.reason }); return null }
+        payee = q.merchant
+        const d = decide(asset, price, p.budget - spent)
+        if (!d.pay) { log({ action: 'skip', ...at, price: q.price, reason: d.reason }); return null }
         const check = await p.noir.checkPayment({ deviceHash: p.deviceHash, agent: p.agent.publicKey, asset: q.asset, amount: price })
         if (!check.ok) {
-          log({ action: 'refused', endpoint, price: shown, reason: check.reason })
-          refusals.push(`${endpoint}: ${check.reason}`)
+          log({ action: 'refused', ...at, price: q.price, reason: check.reason })
+          refusals.push(`${asset.title} (${asset.type}, ${check.reason})`)
           return null
         }
         const { hash } = await p.noir.authorizePayment({ agent: p.agent, deviceHash: p.deviceHash, merchant: q.merchant, asset: q.asset, amount: price })
@@ -53,23 +62,27 @@ export async function runAgent(p: {
       }, { fetch: p.fetch, delayMs: p.delayMs })
 
       if (result.status === 'paid') {
-        const decision = `worth ${fromStroops(item.value)} ≥ price ${fromStroops(price)} XLM, within budget and policy`
-        payments.push({ endpoint, price: price.toString(), hash: result.hash!, decision })
-        log({ action: 'paid', endpoint, price: price.toString(), reason: decision, hash: result.hash })
+        const decision = `${why}; ${fromStroops(price)} XLM within budget and card policy`
+        licenses.push({
+          assetId: asset.id, assetType: asset.type, title: asset.title, artist: ARTISTS[asset.artist].name,
+          artistAddress: payee, price: price.toString(), hash: result.hash!, decision,
+        })
+        log({ action: 'paid', ...at, price: price.toString(), reason: decision, hash: result.hash })
       } else if (result.status === 'rejected') {
-        log({ action: 'failed', endpoint, price: price.toString(), reason: `merchant rejected proof: ${result.reason}`, hash: result.hash })
+        log({ action: 'failed', ...at, price: price.toString(), reason: `merchant rejected proof: ${result.reason}`, hash: result.hash })
       }
     } catch (e) {
       if (!(e instanceof NoirContractError)) throw e
-      log({ action: 'failed', endpoint, price: price.toString(), reason: `Noir contract error: ${e.errorName}` })
+      log({ action: 'failed', ...at, price: price.toString(), reason: `Noir contract error: ${e.errorName}` })
     }
   }
 
+  const artists = new Set(licenses.map((l) => l.artistAddress)).size
   const summary = [
-    `Bought ${payments.length} data call(s): ${payments.map((x) => x.endpoint).join(', ') || 'none'}.`,
+    `Licensed ${licenses.length} assets from ${artists} artists: ${licenses.map((l) => l.title).join(', ') || 'none'}.`,
     `Spent ${fromStroops(spent)} of ${fromStroops(p.budget)} XLM.`,
-    refusals.length ? `Refused by Noir policy: ${refusals.join('; ')}.` : 'No policy refusals.',
+    refusals.length ? `Refused by card: ${refusals.join('; ')}.` : 'No card refusals.',
   ].join('\n')
   log({ action: 'done', reason: summary })
-  return { payments, spent, summary }
+  return { licenses, spent, summary }
 }
