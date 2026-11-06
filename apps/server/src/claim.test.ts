@@ -20,7 +20,7 @@ function setup(pending: Record<ArtistId, bigint>, fail?: { id: ArtistId; error: 
     },
   }
   const app = createApp({ webOrigin: '*', routers: [claimRouter({ noir: noir as any, artists, deviceHash: 'ab'.repeat(32) })] })
-  return { app, claimed }
+  return { app, claimed, noir, pending }
 }
 
 test('pays out every artist with earnings and skips NothingToClaim', async () => {
@@ -59,4 +59,118 @@ test('balances list escrow and each artist', async () => {
     { id: 'kestrel', name: 'Kestrel Studio', address: 'G-kestrel', pending: '0' },
     { id: 'fern', name: 'Foley Fern', address: 'G-fern', pending: '700000' },
   ])
+})
+
+function deferred<T>() {
+  let resolve!: (value: T) => void
+  let reject!: (error: Error) => void
+  const promise = new Promise<T>((yes, no) => { resolve = yes; reject = no })
+  return { promise, resolve, reject }
+}
+
+test('cold concurrent balance requests share one read and cache for 10 seconds', async () => {
+  const { app, noir } = setup({ lowtide: 1n, lantern: 0n, kestrel: 0n, fern: 0n })
+  const gate = deferred<bigint>()
+  const started = deferred<void>()
+  const read = vi.spyOn(noir, 'getEscrowBalance').mockImplementationOnce(() => { started.resolve(); return gate.promise })
+  const pending = vi.spyOn(noir, 'getPendingBalance')
+  const now = vi.spyOn(Date, 'now').mockReturnValue(1000)
+  try {
+    const first = request(app).get('/api/balances').then((res) => res)
+    const second = request(app).get('/api/balances').then((res) => res)
+    await started.promise
+    gate.resolve(123n)
+    const [a, b] = await Promise.all([first, second])
+    expect(a.body).toEqual(b.body)
+    expect(a.body.escrow).toBe('123')
+    expect(read).toHaveBeenCalledTimes(1)
+    expect(pending).toHaveBeenCalledTimes(4)
+    now.mockReturnValue(10_999)
+    expect((await request(app).get('/api/balances')).body).toEqual(a.body)
+    expect(read).toHaveBeenCalledTimes(1)
+  } finally { now.mockRestore() }
+})
+
+test('stale balances return immediately during one refresh and survive refresh failure', async () => {
+  const { app, noir } = setup({ lowtide: 1n, lantern: 0n, kestrel: 0n, fern: 0n })
+  const read = vi.spyOn(noir, 'getEscrowBalance')
+  const now = vi.spyOn(Date, 'now').mockReturnValue(1000)
+  const quiet = vi.spyOn(console, 'error').mockImplementation(() => {})
+  try {
+    const initial = await request(app).get('/api/balances')
+    now.mockReturnValue(11_000)
+    const gate = deferred<bigint>()
+    read.mockImplementationOnce(() => gate.promise)
+    // These responses must finish before the slow refresh is released.
+    expect((await request(app).get('/api/balances')).body).toEqual(initial.body)
+    expect((await request(app).get('/api/balances')).body).toEqual(initial.body)
+    expect(read).toHaveBeenCalledTimes(2)
+    gate.reject(new Error('rpc down'))
+    await vi.waitFor(() => expect(quiet).toHaveBeenCalledWith('balance refresh failed', expect.any(Error)))
+    const recovery = deferred<bigint>()
+    read.mockImplementationOnce(() => recovery.promise)
+    expect((await request(app).get('/api/balances')).body).toEqual(initial.body)
+    recovery.resolve(99n)
+    await vi.waitFor(async () => expect((await request(app).get('/api/balances')).body.escrow).toBe('99'))
+    expect(read).toHaveBeenCalledTimes(3)
+  } finally { now.mockRestore(); quiet.mockRestore() }
+})
+
+test('a cold balance failure reaches JSON middleware and can be retried', async () => {
+  const { app, noir } = setup({ lowtide: 0n, lantern: 0n, kestrel: 0n, fern: 0n })
+  vi.spyOn(noir, 'getEscrowBalance').mockRejectedValueOnce(new Error('rpc detail'))
+  const quiet = vi.spyOn(console, 'error').mockImplementation(() => {})
+  try {
+    const failed = await request(app).get('/api/balances')
+    expect(failed.status).toBe(500)
+    expect(failed.body).toEqual({ error: 'Something went wrong on the server. Try again.' })
+    expect((await request(app).get('/api/balances')).status).toBe(200)
+  } finally { quiet.mockRestore() }
+})
+
+test('a claim invalidates balances and an older refresh cannot repopulate the cache', async () => {
+  const { app, noir, pending } = setup({ lowtide: 5n, lantern: 0n, kestrel: 0n, fern: 0n })
+  const read = vi.spyOn(noir, 'getEscrowBalance')
+  const claim = noir.claim
+  vi.spyOn(noir, 'claim').mockImplementation(async (p) => {
+    const result = await claim(p)
+    pending.lowtide = 0n
+    return result
+  })
+  const now = vi.spyOn(Date, 'now').mockReturnValue(1000)
+  try {
+    await request(app).get('/api/balances')
+    now.mockReturnValue(11_000)
+    const old = deferred<bigint>()
+    read.mockImplementationOnce(() => old.promise)
+    expect((await request(app).get('/api/balances')).body.artists[0].pending).toBe('5')
+    expect((await request(app).post('/api/claim')).status).toBe(200)
+    const fresh = await request(app).get('/api/balances')
+    expect(fresh.body.artists[0].pending).toBe('0')
+    old.resolve(1n)
+    await new Promise((resolve) => setImmediate(resolve))
+    expect((await request(app).get('/api/balances')).body).toEqual(fresh.body)
+    expect(read).toHaveBeenCalledTimes(3)
+  } finally { now.mockRestore() }
+})
+
+test('a successful claim still invalidates cache if a later artist claim fails', async () => {
+  const { app, noir, pending } = setup(
+    { lowtide: 5n, lantern: 2n, kestrel: 0n, fern: 0n },
+    { id: 'lantern', error: new Error('rpc down') },
+  )
+  const claim = noir.claim
+  vi.spyOn(noir, 'claim').mockImplementation(async (p) => {
+    const result = await claim(p)
+    pending.lowtide = 0n
+    return result
+  })
+  const read = vi.spyOn(noir, 'getEscrowBalance')
+  const quiet = vi.spyOn(console, 'error').mockImplementation(() => {})
+  try {
+    await request(app).get('/api/balances')
+    expect((await request(app).post('/api/claim')).status).toBe(500)
+    expect((await request(app).get('/api/balances')).body.artists[0].pending).toBe('0')
+    expect(read).toHaveBeenCalledTimes(2)
+  } finally { quiet.mockRestore() }
 })

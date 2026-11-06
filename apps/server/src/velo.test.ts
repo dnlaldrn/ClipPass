@@ -7,7 +7,7 @@ import { veloRouter, type VeloLike } from './velo'
 
 const WEB = 'https://web.example'
 
-function setup(status = 'pending') {
+function setup(status = 'pending', canStart?: () => Promise<boolean>) {
   const jobs = new JobStore()
   const creates: { p: any; o: any }[] = []
   let n = 0
@@ -30,7 +30,7 @@ function setup(status = 'pending') {
   }
   const app = createApp({
     webOrigin: WEB,
-    routers: [veloRouter({ velo, jobs, webOrigin: WEB, secret: 's', verify: verify as any, onPaid: (id) => paid.push(id) })],
+    routers: [veloRouter({ velo, jobs, webOrigin: WEB, secret: 's', verify: verify as any, onPaid: (id) => paid.push(id), canStart })],
   })
   return { app, jobs, creates, paid }
 }
@@ -54,6 +54,37 @@ test('POST /api/jobs creates a session', async () => {
     successUrl: `${WEB}/jobs/${res.body.jobId}`, cancelUrl: `${WEB}/`,
   })
   expect(o).toEqual({ idempotencyKey: `job:${res.body.jobId}` })
+})
+
+test('low escrow returns 503 without opening checkout', async () => {
+  const canStart = vi.fn(async () => false)
+  const { app, creates } = setup('pending', canStart)
+  const res = await newJob(app)
+  expect(res.status).toBe(503)
+  expect(res.body).toEqual({ error: 'The card is out of funds right now, so no checkout opened. You were not charged.' })
+  expect(canStart).toHaveBeenCalledTimes(1)
+  expect(creates).toEqual([])
+})
+
+test('escrow read failure returns 503 without opening checkout', async () => {
+  const quiet = vi.spyOn(console, 'error').mockImplementation(() => {})
+  try {
+    const { app, creates } = setup('pending', async () => { throw new Error('rpc detail') })
+    const res = await newJob(app)
+    expect(res.status).toBe(503)
+    expect(res.body).toEqual({ error: 'Stellar Testnet is not responding, so no checkout opened. You were not charged.' })
+    expect(creates).toEqual([])
+  } finally { quiet.mockRestore() }
+})
+
+test('escrow check runs after validation and allows funded checkout', async () => {
+  const canStart = vi.fn(async () => true)
+  const { app, creates } = setup('pending', canStart)
+  expect((await request(app).post('/api/jobs').send({ script: '', mood: 'chill', budget: '2.5' })).status).toBe(400)
+  expect(canStart).not.toHaveBeenCalled()
+  expect((await newJob(app)).status).toBe(200)
+  expect(canStart).toHaveBeenCalledTimes(1)
+  expect(creates).toHaveLength(1)
 })
 
 test('a failed Velo checkout is a plain 502, never Velo’s status or a stack trace', async () => {

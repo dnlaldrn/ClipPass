@@ -6,7 +6,7 @@ const signer: NoirSigner = { publicKey: 'GAGENT', signTransaction: async () => '
 const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status })
 
 /** Plays the stock library: 402 quote payable to the artist without proof, a license with one. */
-function fakeMerchant(o: { notFound?: boolean; markup?: bigint } = {}) {
+function fakeMerchant(o: { notFound?: boolean; markup?: bigint; licenseBody?: unknown } = {}) {
   const proofs: string[] = []
   const fakeFetch = (async (url: string, init?: RequestInit) => {
     const id = url.split('/').pop()!
@@ -18,7 +18,7 @@ function fakeMerchant(o: { notFound?: boolean; markup?: bigint } = {}) {
       return json(402, { quoteId: `q-${id}`, price, asset: 'CSAC', merchant: `G-${asset.artist}`, network: 'testnet', expiresAt: '' })
     }
     proofs.push(proof)
-    return o.notFound ? json(402, { reason: 'not_found' }) : json(200, { assetId: id, licenseId: proof })
+    return o.notFound ? json(402, { reason: 'not_found' }) : json(200, o.licenseBody === undefined ? { assetId: id, licenseId: proof } : o.licenseBody)
   }) as typeof globalThis.fetch
   return { fetch: fakeFetch, proofs }
 }
@@ -48,6 +48,23 @@ async function run(budget: bigint, m = fakeMerchant(), n = fakeNoir(), script = 
 }
 
 const runWith = (o: { budget: bigint; planner?: Planner }) => run(o.budget, fakeMerchant(), fakeNoir(), DEMO_SCRIPT, 'chill', o.planner)
+
+test('licenses retain the paid response licenseId and terms', async () => {
+  const { result } = await run(25_000_000n, fakeMerchant({ licenseBody: { licenseId: 'license-from-merchant', terms: 'merchant terms' } }))
+  expect(result.licenses).toHaveLength(6)
+  for (const license of result.licenses) expect(license).toMatchObject({ licenseId: 'license-from-merchant', terms: 'merchant terms' })
+})
+
+test('missing or invalid license fields fall back to the hash and reel terms', async () => {
+  for (const licenseBody of [null, {}, { licenseId: 42, terms: false }]) {
+    const { result } = await run(25_000_000n, fakeMerchant({ licenseBody }))
+    expect(result.licenses).toHaveLength(6)
+    for (const license of result.licenses) {
+      expect(license.licenseId).toBe(license.hash)
+      expect(license.terms).toBe('single use in one reel')
+    }
+  }
+})
 
 test('plan: exclusive first, then music, 3 b-roll, 2 sfx', () => {
   expect(makePlan(DEMO_SCRIPT, 'chill').map((s) => s.type)).toEqual(['exclusive', 'music', 'broll', 'broll', 'broll', 'sfx', 'sfx'])

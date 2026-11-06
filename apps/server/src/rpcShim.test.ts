@@ -2,6 +2,8 @@ import { Contract, xdr } from '@stellar/stellar-sdk'
 import { NoirAgentClient } from '@noirx402/agent-sdk'
 import { NOIR_TESTNET_CONTRACTS } from '@clippass/shared'
 import { restoreSuccessFlag } from './rpcShim'
+import { backfillPayments } from './noirWatch'
+import { ActivityLog } from './activity'
 
 // The real payment.authorized event from Testnet tx 2a19e1e2…, exactly as RPC v30 returns it:
 // no inSuccessfulContractCall field.
@@ -18,7 +20,7 @@ function clientWithRpc() {
   const noir = new NoirAgentClient()
   Object.assign(noir.server, {
     getLatestLedger: async () => ({ sequence: 5575112 }),
-    getEvents: async () => ({ events: [{ ...raw }], cursor: 'c', latestLedger: 5575138 }),
+    getEvents: async () => ({ events: [{ ...raw }], cursor: (5575138n << 32n).toString(), latestLedger: 5575138 }),
   })
   return noir
 }
@@ -35,4 +37,14 @@ test('with the shim the SDK decodes payment.authorized', async () => {
     merchant: 'GA2XOLCQB5P5I4YISPPWAXN2FP5WLDDCTDZZ3IYTB7HPWFSC5RE5EMUC',
     deviceHash: '1c35ab411eb7db2a9749e2f0b517b98042a262c63c0915037b3e0f0a3da21fd0',
   })
+})
+
+test('activity backfill uses the restored SDK client and deduplicates decoded RPC events', async () => {
+  const noir = restoreSuccessFlag(clientWithRpc())
+  const activity = new ActivityLog()
+  const payees = { lowtide: 'GA2XOLCQB5P5I4YISPPWAXN2FP5WLDDCTDZZ3IYTB7HPWFSC5RE5EMUC', lantern: 'GLAN', kestrel: 'GKES', fern: 'GFERN' }
+  await backfillPayments(noir, '1c35ab411eb7db2a9749e2f0b517b98042a262c63c0915037b3e0f0a3da21fd0', (event) => activity.recordPayment(event, payees))
+  expect(activity.list()).toEqual([expect.objectContaining({
+    id: raw.txHash, hash: raw.txHash, at: raw.ledgerClosedAt, kind: 'paid', amount: '1000000', artist: 'Lowtide Loops',
+  })])
 })

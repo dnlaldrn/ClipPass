@@ -1,6 +1,8 @@
 import type { NoirSigner } from '@noirx402/agent-sdk'
 import { runAgent, type NoirPort, type Planner } from '@clippass/agent'
+import { ARTISTS, assetById } from '@clippass/shared'
 import type { JobStore } from './jobs'
+import type { ActivityLog } from './activity'
 
 /**
  * Runs jobs one at a time. Every job pays with the same agent key, and concurrent transactions from one
@@ -14,7 +16,7 @@ export function createJobQueue(run: (jobId: string) => Promise<void>): (jobId: s
 /** Runs the agent for a paid job, streaming its decisions into the job so polling shows progress. Never rejects. */
 export async function runJob(
   jobId: string,
-  d: { jobs: JobStore; noir: NoirPort; agent: NoirSigner; deviceHash: string; baseUrl: string; delayMs?: number; planner?: Planner },
+  d: { jobs: JobStore; noir: NoirPort; agent: NoirSigner; deviceHash: string; baseUrl: string; delayMs?: number; planner?: Planner; activity?: ActivityLog },
 ): Promise<void> {
   const job = d.jobs.get(jobId)
   if (!job) return
@@ -22,8 +24,21 @@ export async function runJob(
   try {
     const result = await runAgent({
       script: job.script, mood: job.mood, budget: job.budget, baseUrl: d.baseUrl, noir: d.noir, agent: d.agent,
-      deviceHash: d.deviceHash, log: (dec) => job.trace.push(dec), delayMs: d.delayMs, planner: d.planner,
-      onLicense: (l) => job.licenses.push(l), // live, so the sheet fills while polling and survives a crash
+      deviceHash: d.deviceHash, log: (dec) => {
+        job.trace.push(dec)
+        if (dec.action === 'refused') {
+          const asset = dec.assetId ? assetById(dec.assetId) : undefined
+          d.activity?.record({
+            id: `${jobId}:refused:${job.trace.length}`, at: dec.at, kind: 'refused',
+            amount: dec.price ?? '0', title: dec.title, reason: dec.reason,
+            ...(asset ? { artist: ARTISTS[asset.artist].name } : {}),
+          })
+        }
+      }, delayMs: d.delayMs, planner: d.planner,
+      onLicense: (l) => {
+        job.licenses.push(l) // live, so the sheet fills while polling and survives a crash
+        d.activity?.recordLicense(l)
+      },
     })
     job.summary = result.summary
     job.status = 'done'

@@ -1,23 +1,23 @@
 import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { Velo } from '@carts1024/velo-sdk'
-import { randomUUID } from 'node:crypto'
-import { NoirAgentClient, keypairSigner } from '@noirx402/agent-sdk'
-import { Router } from 'express'
-import { assertTestnetContracts, readEnv, XLM_SAC, DEMO_SCRIPT, MOODS, type Mood } from '@clippass/shared'
+import { NoirAgentClient, keypairSigner, toStroops } from '@noirx402/agent-sdk'
+import { assertTestnetContracts, readEnv, XLM_SAC } from '@clippass/shared'
 import { createApp } from './app'
 import { JobStore } from './jobs'
-import { parseBudget, veloRouter } from './velo'
+import { veloRouter } from './velo'
 import { QuoteStore } from './quotes'
 import { createVerifier } from './verifier'
 import { merchantRouter } from './merchant'
 import { startPaymentWatch } from './noirWatch'
 import { runJob, createJobQueue } from './runner'
 import { ollamaPlanner } from '@clippass/agent'
-import { devRoutesEnabled } from './dev'
+import { devRouter, devRoutesEnabled } from './dev'
 import { claimRouter } from './claim'
 import { restoreSuccessFlag } from './rpcShim'
 import { loadArtists, payees } from './artists'
+import { catalogRouter } from './catalog'
+import { ActivityLog, activityRouter } from './activity'
 
 const rootEnv = fileURLToPath(new URL('../../../.env', import.meta.url))
 if (existsSync(rootEnv)) process.loadEnvFile(rootEnv) // local dev only; Render sets real env vars
@@ -37,35 +37,28 @@ const velo = new Velo({ apiKey: env.VELO_API_KEY, environment: 'testnet' })
 const jobs = new JobStore()
 const quotes = new QuoteStore()
 const verifier = createVerifier({ quotes, deviceHash: env.DEVICE_HASH })
-startPaymentWatch(noir, verifier, env.DEVICE_HASH)
+const activity = new ActivityLog()
+const artistPayees = payees(artists)
+startPaymentWatch(noir, verifier, env.DEVICE_HASH, (event) => activity.recordPayment(event, artistPayees))
+const canStart = async () => await noir.getEscrowBalance(env.DEVICE_HASH) >= toStroops('2')
 
 const port = Number(process.env.PORT ?? 8787)
 const agent = keypairSigner(env.AGENT_SECRET) // the agent key lives only on the server
 // The agent buys from our own merchant API over real HTTP, so the full 402 path runs.
 const planner = process.env.AGENT_LLM ? ollamaPlanner({ model: process.env.AGENT_LLM, url: process.env.OLLAMA_URL }) : undefined
-const enqueue = createJobQueue((id) => runJob(id, { jobs, noir, agent, deviceHash: env.DEVICE_HASH, baseUrl: `http://127.0.0.1:${port}`, planner }))
+const enqueue = createJobQueue((id) => runJob(id, { jobs, noir, agent, deviceHash: env.DEVICE_HASH, baseUrl: `http://127.0.0.1:${port}`, planner, activity }))
 const startAgent = (id: string) => void enqueue(id)
 
 const routers = [
-  veloRouter({ velo, jobs, webOrigin: env.WEB_ORIGIN, secret: env.VELO_WEBHOOK_SECRET, onPaid: startAgent }),
-  merchantRouter({ quotes, verifier, payees: payees(artists) }),
+  veloRouter({ velo, jobs, webOrigin: env.WEB_ORIGIN, secret: env.VELO_WEBHOOK_SECRET, onPaid: startAgent, canStart }),
+  merchantRouter({ quotes, verifier, payees: artistPayees }),
   claimRouter({ noir, artists, deviceHash: env.DEVICE_HASH }),
+  catalogRouter({ payees: artistPayees }),
+  activityRouter({ activity }),
 ]
 if (devRoutesEnabled(process.env)) {
   // Local dev only (DEV_ROUTES=1): create and start a job without a Velo checkout. Never set it on Render.
-  const dev = Router()
-  dev.post('/api/dev/jobs', (req, res) => {
-    const jobId = randomUUID()
-    const script = String(req.body?.script ?? DEMO_SCRIPT)
-    const mood: Mood = MOODS.includes(req.body?.mood) ? req.body.mood : 'chill'
-    const budget = parseBudget(String(req.body?.budget ?? '2.5'))
-    if (budget === null) return res.status(400).json({ error: 'Budget must be an XLM amount from 2 to 5.' })
-    jobs.create({ jobId, script, mood, budget, paymentIntentId: `dev-${jobId}`, checkoutUrl: '' })
-    jobs.markPaid(jobId)
-    startAgent(jobId)
-    res.json({ jobId })
-  })
-  routers.push(dev)
+  routers.push(devRouter({ jobs, canStart, onPaid: startAgent }))
 }
 
 const app = createApp({
