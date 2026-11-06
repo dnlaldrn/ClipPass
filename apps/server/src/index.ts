@@ -2,12 +2,12 @@ import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { Velo } from '@carts1024/velo-sdk'
 import { randomUUID } from 'node:crypto'
-import { NoirAgentClient, keypairSigner, toStroops } from '@noirx402/agent-sdk'
+import { NoirAgentClient, keypairSigner } from '@noirx402/agent-sdk'
 import { Router } from 'express'
 import { assertTestnetContracts, readEnv, XLM_SAC, DEMO_SCRIPT, MOODS, type Mood } from '@clippass/shared'
 import { createApp } from './app'
 import { JobStore } from './jobs'
-import { veloRouter } from './velo'
+import { parseBudget, veloRouter } from './velo'
 import { QuoteStore } from './quotes'
 import { createVerifier } from './verifier'
 import { merchantRouter } from './merchant'
@@ -58,7 +58,9 @@ if (devRoutesEnabled(process.env)) {
     const jobId = randomUUID()
     const script = String(req.body?.script ?? DEMO_SCRIPT)
     const mood: Mood = MOODS.includes(req.body?.mood) ? req.body.mood : 'chill'
-    jobs.create({ jobId, script, mood, budget: toStroops(String(req.body?.budget ?? '2.5')), paymentIntentId: `dev-${jobId}`, checkoutUrl: '' })
+    const budget = parseBudget(String(req.body?.budget ?? '2.5'))
+    if (budget === null) return res.status(400).json({ error: 'Budget must be an XLM amount from 2 to 5.' })
+    jobs.create({ jobId, script, mood, budget, paymentIntentId: `dev-${jobId}`, checkoutUrl: '' })
     jobs.markPaid(jobId)
     startAgent(jobId)
     res.json({ jobId })

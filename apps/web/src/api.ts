@@ -18,6 +18,12 @@ export type Payout = { artist: string; name: string; amount: string; hash: strin
 
 export const createJob = (script: string, mood: string, budget: string) =>
   call<{ jobId: string; checkoutUrl: string }>('/api/jobs', { method: 'POST', body: JSON.stringify({ script, mood, budget }) })
+/** Local test reel without Velo. The route answers 404 unless the server runs with DEV_ROUTES=1. */
+export const createDevJob = (script: string, mood: string, budget: string) =>
+  call<{ jobId: string }>('/api/dev/jobs', { method: 'POST', body: JSON.stringify({ script, mood, budget }) }).catch((e) => {
+    if (e instanceof ApiError && e.status === 404) throw new ApiError(404, 'Test reels are off. Set DEV_ROUTES=1 in .env and restart the server.')
+    throw e
+  })
 export const getJob = (id: string) => call<JobView>(`/api/jobs/${id}`)
 export const getBalances = () => call<Balances>('/api/balances')
 export const claim = () => call<{ claims: Payout[] }>('/api/claim', { method: 'POST' })

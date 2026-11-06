@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import type { AssetType, DecisionAction, JobView } from '@clippass/shared'
 import { ApiError, claim, getBalances, getJob, type Balances, type Payout } from './api'
 import { Lanes } from './Lanes'
-import { laneStates, txLink, xlm } from './format'
+import { accountLink, laneStates, txLink, xlm } from './format'
 import { LANES } from './mirror'
 import { Reel } from './reel/Reel'
 import { reelFrames } from './reel/frames'
@@ -99,7 +99,7 @@ export function JobPage({ jobId }: { jobId: string }) {
                   <tr key={l.hash}>
                     <td className="asset">{l.title}</td>
                     <td className="lane"><Edge>{LANE_LABEL[l.assetType]}</Edge></td>
-                    <td>{l.artist}</td>
+                    <td><a href={accountLink(l.artistAddress)} target="_blank" rel="noreferrer">{l.artist}</a></td>
                     <td className="amt">{xlm(l.price)} XLM</td>
                     <td className="proof"><a href={txLink(l.hash)} target="_blank" rel="noreferrer">tx {l.hash.slice(0, 8)}…</a></td>
                   </tr>
