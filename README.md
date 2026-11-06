@@ -69,15 +69,15 @@ There's a sequence diagram of one licensed asset in [docs/architecture.md](docs/
 
 | SDK call | Where |
 |---|---|
-| `execute` → `registerDevice` | [scripts/setup.ts:54](scripts/setup.ts#L54) |
-| `execute` → `registerAgent` (XLM SAC, 1 XLM cap, 30-day expiry) | [scripts/setup.ts:67](scripts/setup.ts#L67) |
-| `execute` → `fundEscrow` | [scripts/setup.ts:76](scripts/setup.ts#L76) |
+| `execute` → `registerDevice` | [scripts/setup.ts:55](scripts/setup.ts#L55) |
+| `execute` → `registerAgent` (XLM SAC, 1 XLM cap, 30-day expiry) | [scripts/setup.ts:69](scripts/setup.ts#L69) |
+| `execute` → `fundEscrow` | [scripts/setup.ts:77](scripts/setup.ts#L77) |
 | `checkPayment` | [packages/agent/src/run.ts:55](packages/agent/src/run.ts#L55) |
 | `authorizePayment` (payee = the quote's artist) | [packages/agent/src/run.ts:61](packages/agent/src/run.ts#L61) |
-| `claim` (one per artist, signed by that artist) | [apps/server/src/claim.ts:17](apps/server/src/claim.ts#L17), used by [scripts/claim.ts:13](scripts/claim.ts#L13) and `scripts/demo.ts` |
+| `claim` (one per artist, signed by that artist) | [apps/server/src/claim.ts:18](apps/server/src/claim.ts#L18), used by [scripts/claim.ts:13](scripts/claim.ts#L13) and `scripts/demo.ts` |
 | `getEscrowToken` (startup asset check) | [apps/server/src/index.ts:32](apps/server/src/index.ts#L32) |
-| `getPendingBalance`, `getEscrowBalance` | [apps/server/src/claim.ts:31](apps/server/src/claim.ts#L31) |
-| `watch` (`payment.authorized`, filtered by `deviceHash`) | [apps/server/src/noirWatch.ts:6](apps/server/src/noirWatch.ts#L6) |
+| `getPendingBalance`, `getEscrowBalance` | [apps/server/src/claim.ts:56](apps/server/src/claim.ts#L56) |
+| `watch` (`payment.authorized`, filtered by `deviceHash`) | [apps/server/src/noirWatch.ts:19](apps/server/src/noirWatch.ts#L19) |
 
 We use `watch`, so `startWebhookRelay` and `verifyWebhookSignature` aren't needed.
 
@@ -87,9 +87,9 @@ We use `watch`, so `startWebhookRelay` and `verifyWebhookSignature` aren't neede
 
 - **SDK:** `@carts1024/velo-sdk` pinned to exactly `0.1.0-alpha.4`, server side only.
 - **What Velo does:** it takes the human's 1 XLM reel project fee and tells the server when it is paid. It never touches the agent's license payments.
-- **Checkout:** `velo.checkout.sessions.create` for the 1 XLM reel project fee, with an idempotency key per reel ([velo.ts:55](apps/server/src/velo.ts#L55)).
-- **Status:** `velo.paymentIntents.retrieve`, used as a fallback when the webhook is late ([velo.ts:84](apps/server/src/velo.ts#L84)).
-- **Webhooks:** `Velo.webhooks.verify` on the raw body. Bad signatures get a 400, and duplicates are dropped by `x-velo-delivery` and by event id ([velo.ts:97](apps/server/src/velo.ts#L97)). The client is constructed in [index.ts:36](apps/server/src/index.ts#L36).
+- **Checkout:** `velo.checkout.sessions.create` for the 1 XLM reel project fee, with an idempotency key per reel ([velo.ts:72](apps/server/src/velo.ts#L72)).
+- **Status:** `velo.paymentIntents.retrieve`, used as a fallback when the webhook is late ([velo.ts:101](apps/server/src/velo.ts#L101)).
+- **Webhooks:** `Velo.webhooks.verify` on the raw body. Bad signatures get a 400, and duplicates are dropped by `x-velo-delivery` and by event id ([velo.ts:114](apps/server/src/velo.ts#L114)). The client is constructed in [index.ts:36](apps/server/src/index.ts#L36).
 
 ## Testnet proof
 
@@ -172,7 +172,7 @@ docs/            architecture, screenshots, design specs and plans
    Other commands:
 
    ```bash
-   npm test             # 161 unit tests
+   npm test             # 163 unit tests
    npm run demo         # one reel end to end on Testnet, then artist payouts; prints every link
    npm run claim        # pay out every artist with pending earnings
    ```
@@ -191,7 +191,6 @@ docs/            architecture, screenshots, design specs and plans
 | `VELO_API_KEY` | Velo API key (server only) | Velo dashboard |
 | `VELO_WEBHOOK_SECRET` | Velo webhook signing secret (server only) | Velo dashboard, webhook settings |
 | `WEB_ORIGIN` | Public URL of the site (CORS, checkout return URLs) | `http://localhost:5173` locally, your Vercel URL when deployed |
-| `PUBLIC_SERVER_URL` | Public URL of the API | Your Render URL |
 | `VITE_API_URL` | API URL baked into the site at build time | Your Render URL. Without it the site calls `http://localhost:8787` |
 | `DEV_ROUTES` | `1` turns on `POST /api/dev/jobs`, which starts a reel without a Velo checkout. Local only. Never set it on Render, because anyone could spend the card's escrow | Set it yourself in your local `.env` |
 | `PORT` | Port the API listens on | Defaults to `8787` |

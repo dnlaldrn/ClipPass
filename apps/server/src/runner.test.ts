@@ -55,7 +55,7 @@ test('runJob records refusals and enriches paid activity as licenses arrive', as
       })
     }
     expect(items.filter((item) => item.kind === 'refused')).toEqual([expect.objectContaining({
-      id: expect.stringMatching(/^j1:refused:/), title: 'Neon Crown (exclusive rights)',
+      id: expect.not.stringContaining('j1'), title: 'Neon Crown (exclusive rights)',
       amount: '20000000', reason: 'over_limit', artist: 'Kestrel Studio',
     })])
     expect(items.find((item) => item.kind === 'refused')!.hash).toBeUndefined()

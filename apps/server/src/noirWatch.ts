@@ -23,8 +23,8 @@ export function startPaymentWatch(
     onError: (e) => console.error('noir watch error', e),
     onEvent,
   })
-  // Use this same restored client. Backfill runs independently of HTTP startup and live polling.
-  void backfillPayments(noir, deviceHash, onEvent)
+  // Backfill feeds Activity only. Never the verifier: its used-hash set is empty after a restart, so old hashes could be replayed.
+  void backfillPayments(noir, deviceHash, (event) => onPayment?.(event))
   return stop
 }
 

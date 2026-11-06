@@ -1,5 +1,6 @@
 import type { NoirSigner } from '@noirx402/agent-sdk'
 import { runAgent, type NoirPort, type Planner } from '@clippass/agent'
+import { randomUUID } from 'node:crypto'
 import { ARTISTS, assetById } from '@clippass/shared'
 import type { JobStore } from './jobs'
 import type { ActivityLog } from './activity'
@@ -29,7 +30,8 @@ export async function runJob(
         if (dec.action === 'refused') {
           const asset = dec.assetId ? assetById(dec.assetId) : undefined
           d.activity?.record({
-            id: `${jobId}:refused:${job.trace.length}`, at: dec.at, kind: 'refused',
+            id: randomUUID(), // the feed is public and the job id is the only key to a reel
+            at: dec.at, kind: 'refused',
             amount: dec.price ?? '0', title: dec.title, reason: dec.reason,
             ...(asset ? { artist: ARTISTS[asset.artist].name } : {}),
           })

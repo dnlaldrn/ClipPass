@@ -70,3 +70,15 @@ test('live watch feeds verifier and callback immediately while backfill is pendi
     expect(stop).not.toHaveBeenCalled()
   } finally { quiet.mockRestore(); log.mockRestore() }
 })
+
+test('backfilled payments reach activity but never the verifier, so old hashes cannot be replayed', async () => {
+  const watch = vi.fn<NoirAgentClient['watch']>().mockReturnValue(vi.fn())
+  const getEvents = vi.fn<NoirAgentClient['getEvents']>().mockResolvedValue(page([event('old')]))
+  const quotes = new QuoteStore()
+  const verifier = createVerifier({ quotes, deviceHash: DEVICE })
+  const received = vi.fn()
+  startPaymentWatch({ watch, getEvents }, verifier, DEVICE, received)
+  await vi.waitFor(() => expect(received).toHaveBeenCalled())
+  const q = quotes.issue('m-lofi', 1_800_000n, 'GLOW')
+  expect(verifier.verify('old', q.quoteId, 'm-lofi')).toEqual({ ok: false, reason: 'not_found' })
+})

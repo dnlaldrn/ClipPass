@@ -26,7 +26,13 @@ export async function payOutArtists(
 }
 
 /** Escrow and per-artist balances, and "Pay out artists". */
-export function claimRouter(d: { noir: NoirAgentClient; artists: Record<ArtistId, NoirSigner>; deviceHash: string }): Router {
+export function claimRouter(d: {
+  noir: NoirAgentClient
+  artists: Record<ArtistId, NoirSigner>
+  deviceHash: string
+  /** Hands the caller a way to drop cached balances when a payment lands. */
+  exposeInvalidate?: (invalidate: () => void) => void
+}): Router {
   const r = Router()
   type Balances = { escrow: string; artists: { id: ArtistId; name: string; address: string; pending: string }[] }
   let cached: Balances | undefined
@@ -44,6 +50,7 @@ export function claimRouter(d: { noir: NoirAgentClient; artists: Record<ArtistId
     return request
   }
   const invalidate = () => { generation++; cached = undefined; inFlight = undefined }
+  d.exposeInvalidate?.(invalidate)
   async function readBalances(): Promise<Balances> {
     const [escrow, ...pending] = await Promise.all([
       d.noir.getEscrowBalance(d.deviceHash),

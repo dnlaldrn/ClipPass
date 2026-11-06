@@ -2,6 +2,7 @@ services:
   - type: web
     name: clippass-server
     runtime: node
+    plan: free
     buildCommand: npm ci
     startCommand: npm -w @clippass/server start
     healthCheckPath: /health
@@ -27,6 +28,4 @@ services:
       - key: DEVICE_HASH
         sync: false
       - key: WEB_ORIGIN
-        sync: false
-      - key: PUBLIC_SERVER_URL
         sync: false
