@@ -14,6 +14,14 @@ const license: License = {
   artistAddress: PAYEES.lowtide, price: '1800000', hash: 'tx1', licenseId: 'license1', terms: 'single use in one reel', decision: 'within policy',
 }
 
+test('a backfilled payment recovers its title from artist and price', () => {
+  const activity = new ActivityLog()
+  activity.recordPayment(event, PAYEES)
+  expect(activity.list()[0]).toMatchObject({ title: 'Low Tide Lo-fi', artist: 'Lowtide Loops' })
+  activity.recordPayment({ ...event, txHash: 'tx2', amount: 1n }, PAYEES)
+  expect(activity.list().find((item) => item.id === 'tx2')?.title).toBeUndefined()
+})
+
 test('activity keeps at most 100 items, newest first, deduplicated by id', () => {
   const activity = new ActivityLog()
   for (let i = 104; i >= 0; i--) {
