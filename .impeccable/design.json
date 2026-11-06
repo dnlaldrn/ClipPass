@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-06T08:47:00+00:00",
+  "title": "Design System: ClipPass",
+  "extensions": {
+    "colorMeta": {
+      "lightbox": {
+        "role": "neutral",
+        "displayName": "Lightbox Glass",
+        "canonical": "#e9eef0",
+        "oklch": "oklch(94.6% 0.006 223)",
+        "tonalRamp": [
+          "oklch(15% 0.002 223)",
+          "oklch(25% 0.004 223)",
+          "oklch(36% 0.006 223)",
+          "oklch(48% 0.006 223)",
+          "oklch(60% 0.006 223)",
+          "oklch(72% 0.006 223)",
+          "oklch(84% 0.004 223)",
+          "oklch(95% 0.002 223)"
+        ]
+      },
+      "glass": {
+        "role": "neutral",
+        "displayName": "Glass Grid",
+        "canonical": "#dbe3e7",
+        "oklch": "oklch(91.1% 0.010 229)",
+        "tonalRamp": [
+          "oklch(15% 0.003 229)",
+          "oklch(25% 0.006 229)",
+          "oklch(36% 0.010 229)",
+          "oklch(48% 0.010 229)",
+          "oklch(60% 0.010 229)",
+          "oklch(72% 0.010 229)",
+          "oklch(84% 0.007 229)",
+          "oklch(95% 0.003 229)"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Cool Rule",
+        "canonical": "#c3ccd1",
+        "oklch": "oklch(84.0% 0.012 232)",
+        "tonalRamp": [
+          "oklch(15% 0.003 232)",
+          "oklch(25% 0.007 232)",
+          "oklch(36% 0.012 232)",
+          "oklch(48% 0.012 232)",
+          "oklch(60% 0.012 232)",
+          "oklch(72% 0.012 232)",
+          "oklch(84% 0.008 232)",
+          "oklch(95% 0.003 232)"
+        ]
+      },
+      "field-white": {
+        "role": "neutral",
+        "displayName": "Field White",
+        "canonical": "#f7f9fa",
+        "oklch": "oklch(98.1% 0.003 229)",
+        "tonalRamp": [
+          "oklch(15% 0.001 229)",
+          "oklch(25% 0.002 229)",
+          "oklch(36% 0.003 229)",
+          "oklch(48% 0.003 229)",
+          "oklch(60% 0.003 229)",
+          "oklch(72% 0.003 229)",
+          "oklch(84% 0.002 229)",
+          "oklch(95% 0.001 229)"
+        ]
+      },
+      "acetate": {
+        "role": "primary",
+        "displayName": "Orange-Mask Acetate",
+        "canonical": "#c75f2a",
+        "oklch": "oklch(60.4% 0.148 45)",
+        "tonalRamp": [
+          "oklch(15% 0.037 45)",
+          "oklch(25% 0.089 45)",
+          "oklch(36% 0.148 45)",
+          "oklch(48% 0.148 45)",
+          "oklch(60% 0.148 45)",
+          "oklch(72% 0.148 45)",
+          "oklch(84% 0.095 45)",
+          "oklch(95% 0.037 45)"
+        ]
+      },
+      "acetate-deep": {
+        "role": "primary",
+        "displayName": "Deep Acetate",
+        "canonical": "#a84a1c",
+        "oklch": "oklch(52.4% 0.136 43)",
+        "tonalRamp": [
+          "oklch(15% 0.034 43)",
+          "oklch(25% 0.082 43)",
+          "oklch(36% 0.136 43)",
+          "oklch(48% 0.136 43)",
+          "oklch(60% 0.136 43)",
+          "oklch(72% 0.136 43)",
+          "oklch(84% 0.087 43)",
+          "oklch(95% 0.034 43)"
+        ]
+      },
+      "acetate-press": {
+        "role": "primary",
+        "displayName": "Pressed Acetate",
+        "canonical": "#8c3d15",
+        "oklch": "oklch(45.9% 0.119 44)",
+        "tonalRamp": [
+          "oklch(15% 0.030 44)",
+          "oklch(25% 0.071 44)",
+          "oklch(36% 0.119 44)",
+          "oklch(48% 0.119 44)",
+          "oklch(60% 0.119 44)",
+          "oklch(72% 0.119 44)",
+          "oklch(84% 0.076 44)",
+          "oklch(95% 0.030 44)"
+        ]
+      },
+      "frame": {
+        "role": "neutral",
+        "displayName": "Frame Black",
+        "canonical": "#1a120d",
+        "oklch": "oklch(19.1% 0.017 53)",
+        "tonalRamp": [
+          "oklch(15% 0.004 53)",
+          "oklch(25% 0.010 53)",
+          "oklch(36% 0.017 53)",
+          "oklch(48% 0.017 53)",
+          "oklch(60% 0.017 53)",
+          "oklch(72% 0.017 53)",
+          "oklch(84% 0.011 53)",
+          "oklch(95% 0.004 53)"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Secondary Ink",
+        "canonical": "#5a4a40",
+        "oklch": "oklch(42.3% 0.027 54)",
+        "tonalRamp": [
+          "oklch(15% 0.007 54)",
+          "oklch(25% 0.016 54)",
+          "oklch(36% 0.027 54)",
+          "oklch(48% 0.027 54)",
+          "oklch(60% 0.027 54)",
+          "oklch(72% 0.027 54)",
+          "oklch(84% 0.017 54)",
+          "oklch(95% 0.007 54)"
+        ]
+      },
+      "unexposed": {
+        "role": "neutral",
+        "displayName": "Unexposed Stock",
+        "canonical": "#0d0907",
+        "oklch": "oklch(14.4% 0.009 51)",
+        "tonalRamp": [
+          "oklch(15% 0.002 51)",
+          "oklch(25% 0.005 51)",
+          "oklch(36% 0.009 51)",
+          "oklch(48% 0.009 51)",
+          "oklch(60% 0.009 51)",
+          "oklch(72% 0.009 51)",
+          "oklch(84% 0.006 51)",
+          "oklch(95% 0.002 51)"
+        ]
+      },
+      "print": {
+        "role": "secondary",
+        "displayName": "Edge-Print Yellow",
+        "canonical": "#f1bd45",
+        "oklch": "oklch(82.5% 0.145 85)",
+        "tonalRamp": [
+          "oklch(15% 0.036 85)",
+          "oklch(25% 0.087 85)",
+          "oklch(36% 0.145 85)",
+          "oklch(48% 0.145 85)",
+          "oklch(60% 0.145 85)",
+          "oklch(72% 0.145 85)",
+          "oklch(84% 0.093 85)",
+          "oklch(95% 0.036 85)"
+        ]
+      },
+      "fog": {
+        "role": "neutral",
+        "displayName": "Fog",
+        "canonical": "#f3ece4",
+        "oklch": "oklch(94.6% 0.013 71)",
+        "tonalRamp": [
+          "oklch(15% 0.003 71)",
+          "oklch(25% 0.008 71)",
+          "oklch(36% 0.013 71)",
+          "oklch(48% 0.013 71)",
+          "oklch(60% 0.013 71)",
+          "oklch(72% 0.013 71)",
+          "oklch(84% 0.008 71)",
+          "oklch(95% 0.003 71)"
+        ]
+      },
+      "pencil": {
+        "role": "tertiary",
+        "displayName": "Grease Pencil",
+        "canonical": "#c42a24",
+        "oklch": "oklch(53.6% 0.191 28)",
+        "tonalRamp": [
+          "oklch(15% 0.048 28)",
+          "oklch(25% 0.115 28)",
+          "oklch(36% 0.191 28)",
+          "oklch(48% 0.191 28)",
+          "oklch(60% 0.191 28)",
+          "oklch(72% 0.191 28)",
+          "oklch(84% 0.122 28)",
+          "oklch(95% 0.048 28)"
+        ]
+      },
+      "pencil-deep": {
+        "role": "tertiary",
+        "displayName": "Deep Pencil",
+        "canonical": "#8f1d18",
+        "oklch": "oklch(42.6% 0.150 28)",
+        "tonalRamp": [
+          "oklch(15% 0.038 28)",
+          "oklch(25% 0.090 28)",
+          "oklch(36% 0.150 28)",
+          "oklch(48% 0.150 28)",
+          "oklch(60% 0.150 28)",
+          "oklch(72% 0.150 28)",
+          "oklch(84% 0.096 28)",
+          "oklch(95% 0.038 28)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Start-page headline only; condensed width 86."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Job page and notice headlines."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section heads on the license sheet and sidebar."
+      },
+      "wordmark": {
+        "displayName": "Wordmark",
+        "purpose": "ClipPass wordmark, expanded width 125."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Reading text, max 75ch."
+      },
+      "body-small": {
+        "displayName": "Body Small",
+        "purpose": "Taglines, captions, hints."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Form labels and outcome tags."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Primary button text, width 108."
+      },
+      "edge": {
+        "displayName": "Edge Print",
+        "purpose": "DotGothic16 uppercase for lanes, hashes, network status and refusal notes; I set narrower."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Button background and press transitions, 0.2s."
+      },
+      {
+        "name": "pull-down-spring",
+        "value": "stiffness 70, damping ratio 0.72",
+        "purpose": "Reel advances one frame, overshoots slightly and locks onto the pin."
+      },
+      {
+        "name": "replay-cadence",
+        "value": "2.4s per frame, 3.6s hold at loop end",
+        "purpose": "Start-page replay of the real Testnet reel."
+      },
+      {
+        "name": "develop",
+        "value": "1 - exp(-3.2 * dt); fog at 0.8x",
+        "purpose": "A frame develops from unexposed stock, or fogs on refusal."
+      },
+      {
+        "name": "flash-decay",
+        "value": "exp(-2.4 * dt); grain steps at 12fps while live",
+        "purpose": "One warm flare on a paid frame, then gone."
+      },
+      {
+        "name": "reel-tilt",
+        "value": "rotation (-0.14, 0.05, -0.052) rad",
+        "purpose": "Strip tipped back on the lightbox, about -3 degrees across the page."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "transitions off; reel fully developed, parked on the refusal",
+        "purpose": "Stillness, with every fact still present."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "collapse",
+        "value": "1080px"
+      },
+      {
+        "name": "phone",
+        "value": "640px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one action per surface: heavy, wide, square Deep Acetate.",
+      "html": "<button class=\"ds-btn-primary\">Pay reel project fee (1 XLM) with Velo</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 54px; padding: 0 26px; font-family: 'Archivo Variable', 'Archivo', system-ui, sans-serif; font-weight: 800; font-stretch: 108%; font-size: 1.0625rem; color: #fff; background: var(--acetate-deep, #a84a1c); border: 0; border-radius: 0; cursor: pointer; transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-primary:hover { background: #8c3d15; } .ds-btn-primary:active { transform: translateY(1px); } .ds-btn-primary:focus-visible { outline: 3px solid var(--acetate-deep, #a84a1c); outline-offset: 3px; } .ds-btn-primary:disabled { opacity: 0.6; cursor: progress; }"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Ordinary input or select: Field White, 2px Frame Black border, square.",
+      "html": "<label class=\"ds-label\">License budget in XLM (2 to 5)<input class=\"ds-field\" value=\"2.5\"></label>",
+      "css": ".ds-label { display: grid; gap: 8px; font-family: 'Archivo Variable', 'Archivo', system-ui, sans-serif; font-weight: 700; font-size: 0.875rem; color: #1a120d; } .ds-field { font: inherit; font-weight: 500; font-size: 1.0625rem; min-height: 54px; padding: 13px 14px; color: #1a120d; background: #f7f9fa; border: 2px solid #1a120d; border-radius: 0; caret-color: #a84a1c; } .ds-field:focus-visible { outline: 3px solid #a84a1c; outline-offset: 2px; }"
+    },
+    {
+      "name": "Black Leader Field",
+      "kind": "input",
+      "refersTo": "field-leader",
+      "description": "The script textarea, written on black leader in edge-print yellow.",
+      "html": "<textarea class=\"ds-leader\" rows=\"2\">Rain at a night market in Manila, street food sizzle, crowd chatter</textarea>",
+      "css": ".ds-leader { width: 100%; resize: vertical; font-family: 'Archivo Variable', 'Archivo', system-ui, sans-serif; font-size: 1.0625rem; font-weight: 600; line-height: 1.45; min-height: 54px; padding: 13px 14px; color: #f1bd45; background: #1a120d; border: 2px solid #1a120d; border-radius: 0; caret-color: #f1bd45; } .ds-leader::selection { background: #f1bd45; color: #1a120d; } .ds-leader:focus-visible { outline: 3px solid #a84a1c; outline-offset: 2px; }"
+    },
+    {
+      "name": "Header and Network Badge",
+      "kind": "nav",
+      "refersTo": "network-badge",
+      "description": "Wordmark with tagline left, edge-print network badge right.",
+      "html": "<header class=\"ds-top\"><div><a class=\"ds-wordmark\" href=\"#\">Clip<span>Pass</span></a><p class=\"ds-tagline\">An AI agent that licenses stock media for each reel.</p></div><p class=\"ds-network\">STELLAR TESTNET · NO REAL MONEY MOVES</p></header>",
+      "css": ".ds-top { display: flex; justify-content: space-between; align-items: baseline; gap: 32px; font-family: 'Archivo Variable', 'Archivo', system-ui, sans-serif; } .ds-wordmark { font-weight: 900; font-stretch: 125%; font-size: 1.75rem; letter-spacing: -0.02em; color: #1a120d; text-decoration: none; } .ds-wordmark span { color: #a84a1c; } .ds-wordmark:focus-visible { outline: 3px solid #a84a1c; outline-offset: 3px; } .ds-tagline { margin: 4px 0 0; font-size: 0.9375rem; color: #5a4a40; } .ds-network { margin: 0; align-self: center; padding: 7px 12px 6px; white-space: nowrap; font-family: 'DotGothic16', ui-monospace, monospace; font-size: 0.875rem; letter-spacing: 0.04em; color: #1a120d; border: 2px solid #1a120d; }"
+    },
+    {
+      "name": "Grease-Pencil Mark",
+      "kind": "custom",
+      "refersTo": "pencil",
+      "description": "Hand-drawn red ring around a refusal; used only for refusals, and it stays.",
+      "html": "<span class=\"ds-pencil\">NEON CROWN, 2 XLM: REFUSED BY CARD<svg class=\"ds-pencil-ring\" viewBox=\"0 0 120 44\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path d=\"M18 6 C 60 1, 104 3, 114 14 C 121 24, 112 37, 88 40 C 60 43, 22 42, 8 33 C -1 26, 4 12, 20 6 C 34 2, 52 3, 64 4\"/></svg></span>",
+      "css": ".ds-pencil { position: relative; display: inline-block; padding: 3px 1.4em; font-family: 'DotGothic16', ui-monospace, monospace; font-size: 0.875rem; letter-spacing: 0.03em; color: #c42a24; white-space: nowrap; } .ds-pencil-ring { position: absolute; left: -6px; top: -7px; width: calc(100% + 12px); height: calc(100% + 14px); overflow: visible; fill: none; stroke: #c42a24; stroke-width: 2.4; stroke-linecap: round; vector-effect: non-scaling-stroke; pointer-events: none; }"
+    },
+    {
+      "name": "Film Frame (flat fallback)",
+      "kind": "card",
+      "refersTo": "film-frame",
+      "description": "A frame on the acetate strip as drawn without WebGL; paid, refused and empty states.",
+      "html": "<ul class=\"ds-strip\"><li class=\"ds-frame\"><span class=\"ds-frame-lane\">MUSIC</span><strong>Low Tide Lo-fi</strong><span class=\"ds-frame-price\">0.18 XLM</span></li><li class=\"ds-frame is-refused\"><span class=\"ds-frame-lane\">EXCLUSIVE</span><strong>Neon Crown</strong><span class=\"ds-frame-price\">2 XLM</span></li><li class=\"ds-frame is-empty\"></li></ul>",
+      "css": ".ds-strip { list-style: none; margin: 0; padding: 28px 32px; display: flex; gap: 10px; overflow-x: auto; background: #c75f2a; } .ds-frame { flex: 0 0 210px; min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; padding: 14px; background: #1a120d; color: #f3ece4; font-family: 'Archivo Variable', 'Archivo', system-ui, sans-serif; } .ds-frame strong { font-weight: 800; line-height: 1.15; } .ds-frame-lane { font-family: 'DotGothic16', ui-monospace, monospace; font-size: 0.875rem; color: #f1bd45; } .ds-frame-price { font-weight: 700; font-size: 0.9375rem; color: #f1bd45; } .ds-frame.is-empty { background: #0d0907; } .ds-frame.is-refused { background: #f3ece4; color: #1a120d; outline: 3px solid #c42a24; outline-offset: -3px; } .ds-frame.is-refused .ds-frame-lane, .ds-frame.is-refused .ds-frame-price { color: #c42a24; }"
+    },
+    {
+      "name": "Lane Gauge",
+      "kind": "custom",
+      "refersTo": "gauge-track",
+      "description": "Each lane's top price against the card's per-payment limit tick.",
+      "html": "<div class=\"ds-gauge\" style=\"--cap: 50%\"><div class=\"ds-row\"><span class=\"ds-name\">MUSIC</span><span class=\"ds-track\"><span class=\"ds-bar\" style=\"width:20%\"></span></span><span class=\"ds-price\">up to 0.2 XLM</span></div><div class=\"ds-row\"><span class=\"ds-name\">EXCLUSIVE</span><span class=\"ds-track\"><span class=\"ds-bar over\" style=\"width:100%\"></span></span><span class=\"ds-price ds-red\">2 XLM</span></div></div>",
+      "css": ".ds-gauge { display: grid; gap: 10px; font-family: 'Archivo Variable', 'Archivo', system-ui, sans-serif; color: #1a120d; } .ds-row { display: grid; grid-template-columns: 92px minmax(0, 1fr) 118px; gap: 16px; align-items: center; } .ds-name { font-family: 'DotGothic16', ui-monospace, monospace; font-size: 1rem; } .ds-track { position: relative; height: 24px; background: rgba(26, 18, 13, 0.07); } .ds-track::after { content: ''; position: absolute; left: var(--cap); top: -6px; bottom: -6px; width: 2px; background: #1a120d; } .ds-bar { position: absolute; inset: 0 auto 0 0; background: #c75f2a; } .ds-bar.over { background: repeating-linear-gradient(135deg, #c42a24 0 7px, #8f1d18 7px 14px); } .ds-price { font-size: 0.9375rem; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; } .ds-red { color: #c42a24; }"
+    },
+    {
+      "name": "License Sheet",
+      "kind": "custom",
+      "refersTo": "license-sheet",
+      "description": "Rule-drawn table, not cards: 2px frame-black head rule, 1px cool row rules.",
+      "html": "<table class=\"ds-sheet\"><thead><tr><th>Asset</th><th>Lane</th><th>Paid</th><th>Proof</th></tr></thead><tbody><tr><td class=\"ds-asset\">Low Tide Lo-fi</td><td class=\"ds-edge\">MUSIC</td><td>0.18 XLM</td><td class=\"ds-edge\"><a href=\"#\">5E2C...90D</a></td></tr></tbody></table>",
+      "css": ".ds-sheet { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-family: 'Archivo Variable', 'Archivo', system-ui, sans-serif; font-size: 1.0625rem; color: #1a120d; } .ds-sheet th { padding: 0 14px 8px 0; text-align: left; font-size: 0.8125rem; font-weight: 600; color: #5a4a40; border-bottom: 2px solid #1a120d; } .ds-sheet td { padding: 13px 14px 13px 0; border-bottom: 1px solid #c3ccd1; } .ds-asset { font-weight: 700; } .ds-edge { font-family: 'DotGothic16', ui-monospace, monospace; } .ds-sheet a { color: #a84a1c; text-decoration-thickness: 1px; text-underline-offset: 0.22em; } .ds-sheet a:hover { text-decoration-thickness: 2px; } .ds-sheet a:focus-visible { outline: 3px solid #a84a1c; outline-offset: 3px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Edge-Code Reel",
+    "overview": "The product is read as a strip of 35mm film laid on an editor's lightbox. The ground is cool lightbox glass with a faint 48px grid; the strip is orange-mask acetate with round sprocket perforations; each license is a frame, and the edge print beside it carries the lane, the price and the Stellar transaction. Light is the state: a frame develops from unexposed black when its license is paid, and a refused frame overexposes to fog and takes a grease-pencil cross that stays.\n\nThe system is a strict three-colour commitment (acetate orange, frame black, edge-print yellow) on a cool neutral ground, with grease-pencil red held back for refusals alone. Archivo's width axis does the typographic work: condensed and heavy for headlines, expanded for the wordmark, plain for reading. DotGothic16 is the edge print, the machine voice for codes, lanes and network status. Corners are square, depth is flat, and there are no cards: content sits on rules and on the film itself.\n\nMotion belongs to the reel. The strip pulls down one frame at a time on an underdamped spring, holds, and registers; film artifacts (develop, warm flash, fog) fire on exact events, never as an ambient filter. Under reduced motion the reel is fully developed and parked on the refusal.",
+    "keyCharacteristics": [
+      "Cool lightbox ground with a 48px glass grid; film is the only warm surface.",
+      "Three colours plus a refusal red; red never decorates.",
+      "Archivo width axis as hierarchy; DotGothic16 as edge print.",
+      "Square corners everywhere; the only curves are sprocket holes and the hand-drawn pencil ring.",
+      "Flat surfaces separated by 2px frame-black rules and 1px cool rules, never shadows.",
+      "Every fact (price, refusal reason, tx link) lives in the DOM; the WebGL reel only restates it."
+    ],
+    "rules": [
+      {
+        "name": "The Red Means No Rule",
+        "body": "Grease pencil appears only where the card or the agent refused or failed something. If nothing was refused, the screen has no red.",
+        "section": "colors"
+      },
+      {
+        "name": "The Print Stays On Film Rule",
+        "body": "Edge-print yellow is legible only on black; it never sits on the lightbox.",
+        "section": "colors"
+      },
+      {
+        "name": "The Acetate Splits Rule",
+        "body": "Raw acetate is a fill; any acetate that carries or is text uses Deep Acetate.",
+        "section": "colors"
+      },
+      {
+        "name": "The Width Is Hierarchy Rule",
+        "body": "Headlines condense (width 86 to 88), the wordmark expands (125), buttons widen slightly (108). Change width and weight before reaching for size.",
+        "section": "typography"
+      },
+      {
+        "name": "The Edge Print Is Data Rule",
+        "body": "DotGothic16 sets codes, lanes, hashes and status, always uppercase. Each letter I is set narrower so words do not open a gap; screen readers get the plain words from a hidden copy. It never sets sentences of prose or headings.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Money Rule",
+        "body": "Prices, amounts and facts use tabular numerals.",
+        "section": "typography"
+      },
+      {
+        "name": "The Light Is The State Rule",
+        "body": "On the reel, state is exposure: unexposed black, developed with one warm flash when paid, overexposed to fog with a pencil cross when refused. Artifacts fire on that event and settle; there is no constant grain or glow filter.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Rules Not Shadows Rule",
+        "body": "Separate content with Frame Black and Cool Rules; never lift it with a shadow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do put the page on Lightbox Glass with the 48px Glass Grid, and keep warmth to the film.",
+      "Do use Deep Acetate for every acetate-coloured text, link, button and focus ring (4.5:1 or better on the lightbox).",
+      "Do mark every refusal with Grease Pencil, in text and with the pencil ring, and keep the mark visible.",
+      "Do set lanes, hashes and network status in uppercase DotGothic16 through the edge-print treatment.",
+      "Do build hierarchy with Archivo's width axis and weight 800 to 900.",
+      "Do separate content with a 2px Frame Black rule above and 1px Cool Rules between rows.",
+      "Do keep every price, refusal reason and transaction link in the DOM next to the reel, and give the reel a still state under reduced motion."
+    ],
+    "donts": [
+      "Don't use Grease Pencil for emphasis, branding or anything that was not refused or failed.",
+      "Don't put Edge-Print Yellow on the lightbox or any light ground.",
+      "Don't round corners on buttons, fields, frames or bars; perforations and the pencil ring are the only curves.",
+      "Don't add box shadows or wrap content in cards.",
+      "Don't run film grain, flicker or glow as a constant filter; artifacts fire on a paid or refused event and settle.",
+      "Don't set prose or headings in DotGothic16."
+    ]
+  }
+}
