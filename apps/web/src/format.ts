@@ -1,3 +1,4 @@
+import { BROLL_TAGS, SFX_TAGS } from './mirror'
 import type { AssetType, Decision, DecisionAction } from '@clippass/shared'
 
 /** Stroop string → exact XLM string (7 decimals, trailing zeros trimmed). Kept local so the page doesn't bundle the Stellar SDK. */
@@ -23,4 +24,10 @@ export function laneStates(trace: Decision[]): Partial<Record<AssetType, LaneSta
     else if (cur?.action !== 'paid') out[d.assetType] = { action: d.action, count: 0 }
   }
   return out
+}
+
+/** Same prefix match and vocabulary order as the rule planner, without its server imports. */
+export function matchTags(script: string): string[] {
+  const words = script.toLowerCase().split(/[^a-z]+/).filter(Boolean)
+  return [...new Set([...BROLL_TAGS, ...SFX_TAGS])].filter(tag => words.some(word => word.startsWith(tag)))
 }

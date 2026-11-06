@@ -1,24 +1,23 @@
+import { useEffect, useState } from 'react'
 import { StartJob } from './StartJob'
 import { JobPage } from './JobPage'
 import { Edge } from './Edge'
-
+import { SoundToggle } from './SoundToggle'
 export function App() {
-  const jobId = location.pathname.match(/^\/jobs\/([\w-]+)$/)?.[1]
-  return (
-    <>
-      <header className="top">
-        <div className="brand">
-          <a href="/" className="wordmark" aria-label="ClipPass home">Clip<span>Pass</span></a>
-          <p className="tagline">An AI agent that licenses stock media for each reel and pays every artist per use, inside a card limit it can’t exceed.</p>
-        </div>
-        <p className="network"><Edge>Stellar Testnet · no real money moves</Edge></p>
-      </header>
-      <main>{jobId ? <JobPage jobId={jobId} /> : <StartJob />}</main>
-      <footer>
-        <p>Stellar Testnet only, so no real money moves. The agent pays artists through Noir; the project fee goes through Velo.</p>
-        <p>The media is mocked by design: 14 fictional assets from 4 studios. The payments are real Testnet transactions.</p>
-        <p>Reels live in the server’s memory, so a restart clears them. Their payments stay on Testnet.</p>
-      </footer>
-    </>
-  )
+  const [path, setPath] = useState(location.pathname)
+  useEffect(() => {
+    const change = () => setPath(location.pathname)
+    window.addEventListener('popstate', change)
+    return () => window.removeEventListener('popstate', change)
+  }, [])
+  const navigate = (url: string) => { history.pushState(null, '', url); setPath(location.pathname); window.scrollTo(0, 0) }
+  const jobId = path.match(/^\/jobs\/([\w-]+)$/)?.[1]
+  return <>
+    <header className="top">
+      <a href="/" className="wordmark" aria-label="ClipPass home">Clip<span>Pass</span></a>
+      <div className="header-tools"><p className="network"><span className="live-dot" aria-hidden="true" /><Edge>STELLAR TESTNET</Edge></p><SoundToggle jobPage={!!jobId} /></div>
+    </header>
+    <main>{jobId ? <JobPage key={jobId} jobId={jobId} /> : <StartJob navigate={navigate} />}</main>
+    <footer><Edge>TESTNET ONLY · MOCKED MEDIA · REELS RESET ON RESTART · NOIR + VELO</Edge></footer>
+  </>
 }
