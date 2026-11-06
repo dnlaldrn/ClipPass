@@ -93,27 +93,24 @@ We use `watch`, so `startWebhookRelay` and `verifyWebhookSignature` aren't neede
 
 ## Testnet proof
 
-One reel from `npm run demo` (script "Rain at a night market in Manila, street food sizzle, crowd chatter", mood chill, budget 2.5 XLM). This run had `AGENT_LLM=qwen2.5:3b-instruct`, so the model tagged the slots. It was recorded under the earlier plan of six paid slots. Reels now make three payments: with rules only, this script licenses Low Tide Lo-fi, Night Market Lights and Wok Sizzle for 0.35 XLM.
+One reel from `npm run demo` (script "Rain at a night market in Manila, street food sizzle, crowd chatter", mood chill, budget 2.5 XLM), recorded on Nov 7 with the rules planner.
 
-License sheet, 6 assets from 4 artists, 0.63 XLM:
+License sheet, 3 assets from 3 artists, 0.35 XLM:
 
 | Asset | Artist | Price | License tx |
 |---|---|---|---|
-| Low Tide Lo-fi (music) | Lowtide Loops | 0.18 XLM | [30f92754…](https://stellar.expert/explorer/testnet/tx/30f927544cf0d4bab369d1ad8f6210e9a24da0ccda39d297bc47acb48dfda5b1) |
-| Rain on Glass (b-roll) | Paper Lantern Films | 0.10 XLM | [ef7c8d3a…](https://stellar.expert/explorer/testnet/tx/ef7c8d3ac60d234297f5787a0bb82da4021afa7dc3cba5642fa60a25ac201836) |
-| Night Market Lights (b-roll) | Paper Lantern Films | 0.12 XLM | [5e22b03d…](https://stellar.expert/explorer/testnet/tx/5e22b03d5f1f8d8a6e0ad266df82f515805e96691fadce44758c3738a95781a1) |
-| Street Food Close-ups (b-roll) | Kestrel Studio | 0.15 XLM | [a00a7b5b…](https://stellar.expert/explorer/testnet/tx/a00a7b5b2cdbe3116fda8d9beaa85f7ab5cd40f571b769033c038690a3b2de32) |
-| Rain on Tin Roof (SFX) | Foley Fern | 0.03 XLM | [99d4995a…](https://stellar.expert/explorer/testnet/tx/99d4995a8624cdf9218690aaa58e981dc7dba2bbcd98fcdb517bcf81b3f6aaa2) |
-| Wok Sizzle (SFX) | Foley Fern | 0.05 XLM | [950dbd8c…](https://stellar.expert/explorer/testnet/tx/950dbd8cad6f4414129bde098a45be971fb45675ce09e07efaa2bdea90aa7e58) |
+| Low Tide Lo-fi (music) | Lowtide Loops | 0.18 XLM | [70bbd504…](https://stellar.expert/explorer/testnet/tx/70bbd5046ad853e82ec58cfec9d9eb739caa67e30244c3f1c82af9ec73823b29) |
+| Night Market Lights (b-roll) | Paper Lantern Films | 0.12 XLM | [c447ac39…](https://stellar.expert/explorer/testnet/tx/c447ac39ac2554ea62965895dbe3f93e000aee6e94b7e7a8abd2539364ed8da5) |
+| Wok Sizzle (SFX) | Foley Fern | 0.05 XLM | [ebe9a228…](https://stellar.expert/explorer/testnet/tx/ebe9a228a72ac51437f3f60957b3536b6d8f7bcabf6ba8d6b80b75e1c6a119ba) |
 
 Neon Crown (exclusive rights, 2 XLM) was refused by the card policy (`over_limit`), so no transaction exists for it.
 
-Artist payouts, each signed by the artist's own key:
+Artist payouts, each signed by the artist's own key. Each claim also collected earnings from earlier reels, so the amounts are larger than this reel's licenses:
 
-- Lowtide Loops, 0.18 XLM: https://stellar.expert/explorer/testnet/tx/a238e4c9b0d42fdc41e97abcf025c3cf1008537495119783e67b21706069d2ff
-- Paper Lantern Films, 0.22 XLM: https://stellar.expert/explorer/testnet/tx/bec18e2bdfe884d4ebc829e5ecdb6708c93561319e662ef9e8e3bbb5d3d72a6f
-- Kestrel Studio, 0.15 XLM: https://stellar.expert/explorer/testnet/tx/92ed0458cc7ad17d63413daffd5fc3737fedd6049339878a138b78d5e5d94bdd
-- Foley Fern, 0.08 XLM: https://stellar.expert/explorer/testnet/tx/045cfcfb2dfca52d1fc66a1940bc0fa3ac37957baa8f29cd65524c0c6a0e541d
+- Lowtide Loops, 0.9 XLM: https://stellar.expert/explorer/testnet/tx/73afc85ed40164a9b658fa0fa4b6dd59460411b9cb8c86b9cfdad48489060683
+- Paper Lantern Films, 0.45 XLM: https://stellar.expert/explorer/testnet/tx/7815d7e87fcc188b0833764309b35d254f9b8450d8c19e52c19959cd2b94fbb0
+- Kestrel Studio, 0.08 XLM: https://stellar.expert/explorer/testnet/tx/ed06740e1436dab9a7584819167b34eb1489bd29b1bebeaf0da4900c14410292
+- Foley Fern, 0.13 XLM: https://stellar.expert/explorer/testnet/tx/96029a4bd6285aab0ad390244d43613b0c0918630f69ccf897f66892ea8b5286
 
 Artist accounts:
 

@@ -55,7 +55,7 @@ test('a paid reel in the queue says it is waiting', () => {
 test('the receipt lists each asset, the total, the refusal and the mocked-media line', () => {
   const html = renderToStaticMarkup(createElement(Receipt, { job: SAMPLE_JOB, backHref: '/sample' }))
   for (const l of SAMPLE_JOB.licenses) for (const text of [l.title, l.artist, l.terms, l.hash]) expect(html).toContain(text)
-  for (const text of ['Nov 6, 2026', '0.63 XLM', 'chill', 'over_limit', MEDIA_NOTE, 'Save as PDF', 'Download JSON', 'href="/sample"']) expect(html).toContain(text)
+  for (const text of ['Nov 7, 2026', '0.35 XLM', 'chill', 'over_limit', MEDIA_NOTE, 'Save as PDF', 'Download JSON', 'href="/sample"']) expect(html).toContain(text)
   expect(html.split(MEDIA_NOTE)).toHaveLength(2)
 })
 

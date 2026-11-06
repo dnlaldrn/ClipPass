@@ -45,7 +45,7 @@ The agent spends on its own, inside limits it cannot exceed. Each 402 quote name
 
 ## Evidence on Hand
 
-- Real Testnet run (README "Testnet proof"), recorded under the earlier six-slot plan: 6 licenses from 4 artists, 0.63 XLM, Neon Crown refused `over_limit`, 4 artist payouts, all with stellar.expert links.
+- Real Testnet run (README "Testnet proof"): 3 licenses from 3 artists, 0.35 XLM, Neon Crown refused `over_limit`, 4 artist payouts, all with stellar.expert links.
 - Card setup transactions and the four artist account links (README).
 - No testimonials, users, customers, press, pricing or metrics exist. Do not invent any.
 

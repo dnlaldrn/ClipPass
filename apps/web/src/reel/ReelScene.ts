@@ -5,7 +5,7 @@ import {
 import { CELL_H, CELL_W, FRAME, PITCH_RATIO, drawAtlas, fontsReady } from './atlas'
 import type { FrameSpec } from './frames'
 
-const MAX = 8 // frames the shader holds; the plan has 4 slots, the recorded sample 7
+const MAX = 8 // frames the shader holds; the plan has 4 slots
 
 const vertex = /* glsl */ `
 uniform float uTime;

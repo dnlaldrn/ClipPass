@@ -120,7 +120,7 @@ export function StartJob({ navigate }: { navigate: (url: string) => void }) {
         <div><p className="section-kicker"><Edge>Payment proof</Edge></p><h2 id="recorded-title">Recorded Testnet run</h2></div>
         <span className="reel-links"><a href="/sample">View sample reel</a><a href={txLink(DEMO_REEL[1].hash!)} target="_blank" rel="noreferrer">View on Stellar <Icon name="external" /></a></span>
       </div>
-      <Reel frames={DEMO_REEL} mode="replay" label="Recorded Testnet reel with six licensed assets and one refused purchase" />
+      <Reel frames={DEMO_REEL} mode="replay" label="Recorded Testnet reel with three licensed assets and one refused purchase" />
       <div className="recorded-proof">
         <p className="reel-refusal"><PencilMark><Edge>Neon Crown, 2 XLM: refused by card, over_limit</Edge></PencilMark></p>
         <ChainStrip />

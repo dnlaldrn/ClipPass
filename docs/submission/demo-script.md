@@ -36,6 +36,5 @@
   - **Who pays the Velo fee?** The creator, once per reel.
   - **What stops the agent overspending?** The per-payment cap in the Noir contract, plus its own budget check.
   - **Why does a reel take a few minutes?** It makes three real payments in order, and each waits for Stellar to confirm. They can't run in parallel because they all come from one agent account.
-  - **Why does the sample reel show six assets?** It was recorded before we cut each reel to three payments to make it faster.
   - **Does only the artist hold their key?** Not in the demo. The server keeps a copy so Pay out artists works for every artist. In the real product, each artist would claim from their own wallet only.
   - **Why does `rpcShim.ts` exist?** The Noir SDK dropped events on current Stellar RPC, so we restore one field on the response. All payments still go through the SDK.

@@ -22,9 +22,7 @@ const STATE: Partial<Record<Decision['action'], FrameState>> = { paid: 'paid', r
 /** Each slot logs exactly one decision with an asset type, in plan order; unreached slots stay unexposed. */
 export function reelFrames(trace: Decision[], licenses: License[]): FrameSpec[] {
   const decided = trace.filter((d) => d.assetType && STATE[d.action])
-  // a reel recorded under the earlier seven-slot plan keeps every decided frame
-  const lanes = decided.length > SLOTS.length ? decided.map((d) => d.assetType!) : SLOTS
-  return lanes.map((type, i): FrameSpec => {
+  return SLOTS.map((type, i): FrameSpec => {
     const d = decided[i]
     if (!d) return { key: `slot-${i}`, type, state: 'empty', title: '' }
     const state = STATE[d.action]!

@@ -4,7 +4,7 @@ import { Lanes } from './Lanes'
 import { laneStates, txLink, xlm } from './format'
 import { LANES } from './mirror'
 import { Reel } from './reel/Reel'
-import { reelFrames } from './reel/frames'
+import { reelFrames, SLOTS } from './reel/frames'
 import type { ReelMode } from './reel/ReelScene'
 import { PencilMark } from './PencilMark'
 import { Edge } from './Edge'
@@ -86,7 +86,7 @@ export function ReelView({ job, balances, payout, finished = false, receiptHref,
           <ol className="trace">{job.trace.map((d, i) => <li key={i} className={'line is-' + d.action}>
             <span className="timeline-icon"><Icon name={d.action} /></span>
             <div className="line-head"><span className="act">{ACTION_TEXT[d.action]}</span>{d.assetId && <span className="ep">/api/assets/{d.assetId}</span>}{d.price && <span className="amt">{xlm(d.price)} XLM</span>}</div>
-            {d.action === 'plan' ? <><div className="slot-chips" aria-label="Planned lanes in order">{reelFrames(job.trace, job.licenses).map((f, n) => <span className="tag-chip" key={n}><Edge>{LANE_LABEL[f.type]}</Edge></span>)}</div><details><summary>Full plan</summary><p className="why">{d.reason}</p></details></>
+            {d.action === 'plan' ? <><div className="slot-chips" aria-label="Planned lanes in order">{SLOTS.map((type, n) => <span className="tag-chip" key={n}><Edge>{LANE_LABEL[type]}</Edge></span>)}</div><details><summary>Full plan</summary><p className="why">{d.reason}</p></details></>
               : d.action === 'refused' ? <p className="why refusal-reason"><PencilMark><Edge>{d.reason}</Edge></PencilMark></p>
               : d.action === 'done' ? <div className="trace-result">{d.reason.split('\n').map((line, n) => <p key={n}>{line}</p>)}</div>
               : <p className="why">{d.action === 'paid' ? d.reason.replace(/; [\d.]+ XLM within budget and card policy$/, '') : d.reason}</p>}

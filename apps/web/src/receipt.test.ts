@@ -5,10 +5,10 @@ import { SAMPLE_JOB } from './sample'
 test('receipt JSON carries the reel, every license, the total and the refusal', () => {
   const r = JSON.parse(receiptJson(SAMPLE_JOB))
   expect(r).toMatchObject({
-    jobId: 'sample', network: 'stellar-testnet', script: SAMPLE_JOB.script, mood: 'chill', date: '2026-11-06', status: 'done',
-    budget: { stroops: '25000000', xlm: '2.5' }, totalSpent: { stroops: '6300000', xlm: '0.63' }, note: MEDIA_NOTE,
+    jobId: 'sample', network: 'stellar-testnet', script: SAMPLE_JOB.script, mood: 'chill', date: '2026-11-07', status: 'done',
+    budget: { stroops: '25000000', xlm: '2.5' }, totalSpent: { stroops: '3500000', xlm: '0.35' }, note: MEDIA_NOTE,
   })
-  expect(r.licenses).toHaveLength(6)
+  expect(r.licenses).toHaveLength(3)
   expect(r.licenses[0]).toEqual({
     licenseId: SAMPLE_JOB.licenses[0].hash, assetId: 'm-lofi', type: 'music', title: 'Low Tide Lo-fi', artist: 'Lowtide Loops',
     artistAddress: SAMPLE_JOB.licenses[0].artistAddress, price: { stroops: '1800000', xlm: '0.18' }, terms: 'single use in one reel',

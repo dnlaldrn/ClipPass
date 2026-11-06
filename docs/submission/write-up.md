@@ -24,4 +24,4 @@ Every reel also tries a 2 XLM exclusive track. That's above the card's 1 XLM per
 
 ## Proof
 
-A reel licenses 3 assets from 3 artists on Stellar Testnet, with a link to every transaction. The recorded run in the README predates the cut to three payments and licensed 6 assets from 4 artists. The media is mocked by design, and the payments are real Testnet transactions. See the Testnet proof section in the README.
+A reel licenses 3 assets from 3 artists on Stellar Testnet, with a link to every transaction. The media is mocked by design, and the payments are real Testnet transactions. See the Testnet proof section in the README.
