@@ -39,7 +39,7 @@ export function StartJob({ navigate }: { navigate: (url: string) => void }) {
     <section className="hero"><h1>Your reel, licensed by an agent.</h1><p>Set a budget. It pays every artist per use.</p></section>
     <Reel frames={DEMO_REEL} mode="replay" label="A replay of a real Testnet reel: six licensed frames and the exclusive track refused by the card" />
     <div className="reel-notes">
-      <a className="replay-link" href={txLink(DEMO_REEL[1].hash!)} target="_blank" rel="noreferrer">Real Testnet replay <Icon name="external" /></a>
+      <span className="reel-links"><a className="replay-link" href={txLink(DEMO_REEL[1].hash!)} target="_blank" rel="noreferrer">Real Testnet replay <Icon name="external" /></a><a className="replay-link" href="/sample">Open the sample reel</a></span>
       <p className="reel-refusal"><PencilMark><Edge>Neon Crown, 2 XLM: refused by card, over_limit</Edge></PencilMark></p>
     </div>
     <ChainStrip />

@@ -5,13 +5,14 @@ import { Edge } from './Edge'
 export function ChainStrip() {
   const [artists, setArtists] = useState(4)
   const [escrow, setEscrow] = useState<string | null>(null)
+  const [failed, setFailed] = useState(false)
   useEffect(() => {
     let alive = true, pending = false, last = -Infinity
     const tick = async () => {
       if (document.hidden || pending || Date.now() - last < 10_000) return
       pending = true; last = Date.now()
-      try { const b = await getBalances(); if (alive) { setEscrow(b.escrow); setArtists(b.artists.length) } }
-      catch { if (alive) setEscrow(null) }
+      try { const b = await getBalances(); if (alive) { setEscrow(b.escrow); setArtists(b.artists.length); setFailed(false) } }
+      catch { if (alive) { setEscrow(null); setFailed(true) } }
       finally { pending = false }
     }
     void tick()
@@ -21,7 +22,7 @@ export function ChainStrip() {
     return () => { alive = false; clearInterval(timer); document.removeEventListener('visibilitychange', visible) }
   }, [])
   return <dl className="chain-strip">
-    <div><dt><Edge>CARD ESCROW</Edge></dt><dd>{escrow === null ? '—' : <><CountUp value={escrow} /> XLM</>}</dd></div>
+    <div><dt><Edge>CARD ESCROW</Edge></dt><dd>{escrow !== null ? <><CountUp value={escrow} /> XLM</> : failed ? '—' : '…'}</dd></div>
     <div><dt><Edge>CARD LIMIT</Edge></dt><dd>1 XLM</dd></div>
     <div><dt><Edge>ARTISTS</Edge></dt><dd><CountUp value={String(artists)} count /></dd></div>
   </dl>

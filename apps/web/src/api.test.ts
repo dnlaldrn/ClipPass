@@ -1,4 +1,4 @@
-import { ApiError, createDevJob } from './api'
+import { ApiError, createDevJob, createJob, getJob } from './api'
 
 const reply = (status: number, body?: object) =>
   new Response(body ? JSON.stringify(body) : 'Cannot POST', { status })
@@ -25,4 +25,17 @@ test('createDevJob explains how to turn the dev route on', async () => {
 test('createDevJob keeps the server’s message for other errors', async () => {
   vi.stubGlobal('fetch', async () => reply(400, { error: 'Budget must be an XLM amount from 2 to 5.' }))
   await expect(createDevJob('a reel', 'chill', 'abc')).rejects.toThrow('Budget must be an XLM amount from 2 to 5.')
+})
+
+test('a dead server becomes a plain message', async () => {
+  vi.stubGlobal('fetch', async () => { throw new TypeError('Failed to fetch') })
+  const err = await getJob('j1').catch((e) => e)
+  expect(err).toBeInstanceOf(ApiError)
+  expect(err.status).toBe(0)
+  expect(err.message).toBe('The server isn’t answering. Try again.')
+})
+
+test('createJob keeps the 503 message', async () => {
+  vi.stubGlobal('fetch', async () => reply(503, { error: 'The card is out of funds right now, so no checkout opened. You were not charged.' }))
+  await expect(createJob('a reel', 'chill', '2.5')).rejects.toThrow('You were not charged.')
 })
