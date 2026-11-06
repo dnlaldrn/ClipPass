@@ -51,7 +51,7 @@ test('POST /api/jobs creates a session', async () => {
   const { p, o } = creates[0]
   expect(p).toMatchObject({
     amount: '1.00', asset: 'native', description: `ClipPass reel project: ${DEMO_SCRIPT}`,
-    successUrl: `${WEB}/jobs/${res.body.jobId}`, cancelUrl: `${WEB}/`,
+    successUrl: `${WEB}/jobs/${res.body.jobId}`, cancelUrl: `${WEB}/?checkout-cancelled`,
   })
   expect(o).toEqual({ idempotencyKey: `job:${res.body.jobId}` })
 })

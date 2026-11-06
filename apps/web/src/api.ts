@@ -1,6 +1,6 @@
 import type { Activity, Catalog, JobView } from '@clippass/shared'
 
-const API = import.meta.env.VITE_API_URL ?? 'http://localhost:8787'
+const API = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? '' : 'http://localhost:8787')
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) { super(message) }

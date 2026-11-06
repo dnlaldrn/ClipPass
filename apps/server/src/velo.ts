@@ -75,7 +75,7 @@ export function veloRouter(d: {
           asset: VELO_ASSET,
           description: `ClipPass reel project: ${script.slice(0, 80)}`,
           successUrl: `${d.webOrigin}/jobs/${jobId}`,
-          cancelUrl: `${d.webOrigin}/`,
+          cancelUrl: `${d.webOrigin}/?checkout-cancelled`,
         },
         { idempotencyKey: `job:${jobId}` },
       )

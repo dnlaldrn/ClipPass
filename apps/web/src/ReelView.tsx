@@ -1,7 +1,7 @@
 import type { AssetType, DecisionAction, JobView } from '@clippass/shared'
 import type { Balances, Payout } from './api'
 import { Lanes } from './Lanes'
-import { laneStates, xlm } from './format'
+import { laneStates, txLink, xlm } from './format'
 import { LANES } from './mirror'
 import { Reel } from './reel/Reel'
 import { reelFrames, SLOTS } from './reel/frames'
@@ -44,6 +44,9 @@ export function ReelView({ job, balances, payout, finished = false, receiptHref,
   const payoutArtists = balances?.artists.filter(a => BigInt(a.pending) > 0n || payouts?.some(p => p.artist === a.id)) ?? []
   const ended = checkoutEnded(job)
   const working = job.status === 'running'
+  const latestLicense = job.licenses.at(-1)
+  const latestPurchase = job.trace.find(d => d.hash === latestLicense?.hash && d.action === 'paid')
+  const cardRefusal = job.trace.find(d => d.action === 'refused' && d.reason.includes('over_limit') && d.price)
   return <div className="job">
     <Reel frames={reelFrames(job.trace, job.licenses)} mode={mode} label="The reel: one frame per asset the agent planned, filled as each license is paid" />
     <header className="job-head">
@@ -59,6 +62,12 @@ export function ReelView({ job, balances, payout, finished = false, receiptHref,
           <div><dt>Artists can claim</dt><dd>{owed !== undefined ? <><CountUp value={owed.toString()} /> XLM</> : '…'}</dd></div>
         </>}
       </dl>
+      {job.status === 'awaiting_payment' && !ended && <p className="hint">If you just paid, keep this page open while Velo checks the Testnet payment.</p>}
+      {(latestLicense || cardRefusal) && <div className="job-proof" aria-live="polite">
+        {latestLicense && <p><strong>{latestLicense.title}</strong> · {latestLicense.artist} · {xlm(latestLicense.price)} XLM · <a href={txLink(latestLicense.hash)} target="_blank" rel="noreferrer">View on Stellar</a></p>}
+        {latestPurchase && <p>{latestPurchase.reason}</p>}
+        {cardRefusal?.price && <p><strong>Refused by Noir.</strong> {cardRefusal.title ?? cardRefusal.assetId} costs {xlm(cardRefusal.price)} XLM. The demo card allows 1 XLM per purchase.</p>}
+      </div>}
       <div className="budget-meter"><span><CountUp value={spent.toString()} /> of <CountUp value={job.budget} /> XLM spent</span><div role="meter" aria-label="License budget spent" aria-valuenow={Math.min(100, percent)} aria-valuemin={0} aria-valuemax={100} aria-valuetext={xlm(spent.toString()) + ' of ' + xlm(job.budget) + ' XLM'}><span style={{ width: Math.min(100, percent) + '%' }} /></div></div>
     </header>
     <div className="job-grid">
