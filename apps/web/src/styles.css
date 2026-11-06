@@ -349,7 +349,7 @@ footer .edge { white-space: normal; }
 .composer-hero { padding-top: 0; text-align: center; }
 .composer-hero h1 { margin-inline: auto; }
 .composer-hero p { font-size: 1rem; }
-.composer-hero .studio-kicker { margin: 0 0 14px; color: var(--acetate-deep); font-size: .75rem; letter-spacing: .08em; }
+.composer-hero .studio-kicker { margin: 0 0 14px; color: var(--acetate-deep); font: .75rem var(--edge); letter-spacing: .08em; }
 .composer-hero .score-title {
   --headline-cycle: 15s;
   --headline-ease: cubic-bezier(.55, 0, .25, 1);

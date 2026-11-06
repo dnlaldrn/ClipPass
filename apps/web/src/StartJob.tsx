@@ -68,7 +68,7 @@ export function StartJob({ navigate }: { navigate: (url: string) => void }) {
   return <div className="start" ref={homepage}>
     <section className="studio-hero" aria-labelledby="composer-title">
       <header className="hero composer-hero">
-        <p className="studio-kicker"><Edge>ClipPass Studio</Edge></p>
+        <p className="studio-kicker">ClipPass Studio</p>
         <h1 id="composer-title" className="score-title" aria-label="Score your reel">
           {HEADLINES.map((headline, phrase) => <span key={headline} className="score-label" data-transition={HEADLINE_TRANSITIONS[phrase]} style={{ '--phrase-delay': `${phrase * 5 - 16}s` } as CSSProperties} aria-hidden="true">
             {headline.split(' ').map((word, wordIndex) => <span className="score-token" key={wordIndex}>
