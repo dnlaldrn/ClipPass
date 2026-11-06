@@ -34,7 +34,7 @@ Tested on Nov 6. Each tool answered a one-line prompt from an empty folder.
 | Role | Model | Runs through |
 |---|---|---|
 | Orchestrator, UI Director, Asset Orchestrator | Claude Opus 5.5 | Claude Code session |
-| UI Engineer, Feature Developer | OpenAI Sol 6.1 | `codex exec -m gpt-6.1-sol --sandbox workspace-write` |
+| UI Engineer, Feature Developer | OpenAI Sol 6.1 | `codex exec -m gpt-6.1-sol -c 'windows.sandbox="unelevated"' --sandbox workspace-write` with stdin closed |
 | Feature Developer, independent reviewer | Claude subagents | Claude Code Agent tool |
 | E2E Tester | OpenAI Terra 6.1 | `codex exec -m gpt-6.1-terra` |
 | Repo Architect, Validator | Gemini 4 Argon | `agy --model gemini-4-argon-medium` |
@@ -45,7 +45,7 @@ Tested on Nov 6. Each tool answered a one-line prompt from an empty folder.
 
 | ID | Task | Owner | Status | Files owned |
 |---|---|---|---|---|
-| B1 | Fresh-clone setup picks a unique `DEVICE_UID`; add `PORT` to `.env.example` | Sol 6.1 | Queued | `scripts/setup.ts`, new test in `scripts/`, `.env.example` |
+| B1 | Fresh-clone setup picks a unique `DEVICE_UID`; add `PORT` to `.env.example` | Sol 6.1 | Merged | `scripts/setup.ts`, new test in `scripts/`, `.env.example` |
 | B2 | Deploy readiness, no deploying | Gemini 4 Argon | Queued | `render.yaml`, `docs/deploy.md` |
 | D1 | README in the handbook format | Claude | Queued | `README.md`, `scripts/readme-links.test.ts` |
 | F1 | Site redesign: far less copy, more real UI, motion, sound | Claude directs, Sol 6.1 builds | Queued | `apps/web/**`, `DESIGN.md` |
@@ -57,6 +57,7 @@ Tested on Nov 6. Each tool answered a one-line prompt from an empty folder.
 
 Newest first.
 
+- **Nov 6:** Codex can exit with code 0 having done nothing. The default Windows sandbox failed to start on this machine, so use the unelevated setting and always check the diff, not the exit code.
 - **Nov 6:** The owner asked for a less wordy site with more UI, motion and sound, so F1 grew from visual QA to a redesign pass inside the existing Edge-Code Reel world.
 - **Nov 6:** `node_modules` must be reinstalled after moving a checkout, because npm's workspace links store absolute paths.
 - **Nov 6:** No Gemini API, by request. The Gemini CLI has only the API key, so Gemini runs through `agy`.
