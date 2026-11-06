@@ -132,7 +132,7 @@ Card setup:
 ## Repo structure
 
 ```
-apps/web/        Vite + React site: describe a reel, watch the agent, license sheet, pay out artists
+apps/web/        Vite + React site: start a reel, Library, Artists, Activity, Sample reel, license sheet, receipts, artist payouts
 apps/server/     Express: stock library 402 API, Velo checkout + webhook, Noir watch, agent runner, artist payouts
 packages/agent/  plan, pick, decide, paidFetch, runAgent (all Noir payment calls), optional Ollama planner
 packages/shared/ asset catalog, artists, moods, contract IDs + assertion, XLM SAC, types, env reader

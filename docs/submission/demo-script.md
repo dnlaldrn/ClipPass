@@ -4,6 +4,7 @@
 - Deploy the site and use the live URL, not localhost.
 - Start with a real Velo checkout if it's working. If not, record locally with the test reel button and say so.
 - Check the card has at least 3 XLM in escrow.
+- Judges with no Testnet wallet can use the Sample reel page.
 - A reel takes about a minute on Testnet. Speed that section up in editing and say so on screen.
 - Keep sound on. The sound design carries part of this.
 
@@ -15,7 +16,7 @@
 | 0:42 to 1:05 | Job page, frames developing, first paid rows | "Each asset answers 402 with its price and the artist's own address. The agent picks the cheapest match, checks the card, and pays that artist directly." |
 | 1:05 to 1:22 | The refused frame and pencil ring | "Here's the part I care about. The agent tried a 2 XLM exclusive track. The card said no. That limit lives in the Noir contract, so the agent can't get around it." |
 | 1:22 to 1:40 | Finished license sheet, click one transaction to Stellar Expert | "Six assets from four artists. Every license is a real Testnet transaction, and here's the proof." |
-| 1:40 to 1:52 | Click Pay out artists, payout links appear | "Artists collect with their own keys." |
+| 1:40 to 1:52 | Open the receipt, then click Pay out artists | "The creator keeps a receipt for every license, and artists collect with their own keys." |
 | 1:52 to 2:00 | Reel on screen | "ClipPass. The agent spends on its own, inside limits it can't exceed." |
 
 ## Live pitch backup (5 minutes plus 3 of Q&A)

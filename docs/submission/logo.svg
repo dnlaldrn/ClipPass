@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="ClipPass">
+  <rect width="512" height="512" fill="#c75f2a"/>
+  <rect x="128" y="72" width="256" height="368" fill="#1a120d"/>
+  <g fill="#e9eef0">
+    <rect x="40" y="84" width="52" height="64"/><rect x="40" y="224" width="52" height="64"/><rect x="40" y="364" width="52" height="64"/>
+    <rect x="420" y="84" width="52" height="64"/><rect x="420" y="224" width="52" height="64"/><rect x="420" y="364" width="52" height="64"/>
+  </g>
+  <path d="M188 262l48 48 88-104" fill="none" stroke="#f1bd45" stroke-width="34" stroke-linecap="square"/>
+</svg>
