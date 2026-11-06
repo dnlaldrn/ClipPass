@@ -1,28 +1,26 @@
 # ClipPass
 
-An AI agent that licenses stock media for each reel. A creator describes the reel and sets a budget. The agent picks the background music, b-roll and sound effects, then pays each artist per use on Stellar Testnet, inside a card spending limit it cannot exceed. Every asset arrives with a license tied to a Stellar transaction.
+An AI agent for short-form creators that licenses stock media for each reel and pays every artist per use on Stellar Testnet, inside a card limit it cannot exceed.
 
-**Live website:** _to fill after deploy: https://&lt;your-app&gt;.vercel.app_
+**Live website:** _to fill: https://..._
 
-**Demo video (2 min):** _to fill: link_
+**Demo video (2 min):** _to fill: https://..._
 
-**Team:** _to fill: names and roles_
+**Pitch deck:** _to fill: https://..._
+
+**Team:** _to fill: Name (Discord handle), Name (Discord handle)_
 
 ## Problem
 
-- **Creators overpay.** Stock music and footage are sold as monthly subscriptions, but many short-form creators need only two or three assets a month.
-- **Copyright claims hurt.** Reels get muted or demonetized over music claims, and a creator rarely has clean proof of what they paid for and when.
-- **Small artists get paid last.** Musicians and videographers earn tiny pooled royalties instead of being paid for each use.
+Short-form creators pay monthly stock media subscriptions, but many need only two or three assets a month. When a reel gets muted or demonetized over a music claim, they rarely have clean proof of what they paid for and when. Small artists earn tiny pooled royalties instead of being paid for each use.
 
 ## Solution
 
-ClipPass gives an agent a constrained key on a Noir card. The owner sets the policy once: which key may spend, which asset, a cap per payment (1 XLM) and an expiry, all backed by an escrow. The creator pays a flat 1 XLM reel project fee through a Velo checkout, then the agent does the rest. It reads the script, plans one music track, three b-roll clips and two sound effects, and buys each one from a stock library that answers `402 Payment Required` with that asset's price. Each payment goes straight to the artist's own Stellar account, and the transaction is the license receipt.
+ClipPass gives an agent a constrained key on a Noir card. The owner sets the policy once: which key may spend, which asset, a cap per payment (1 XLM) and an expiry, all backed by an escrow. The creator pays a flat 1 XLM reel project fee through a Velo checkout, then the agent does the rest. It reads the script, plans one music track, three b-roll clips and two sound effects, and buys each one from a stock library that answers `402 Payment Required` with that asset's price. Each payment is made out to the artist's own Stellar account, and the transaction is the license receipt.
 
 Every reel also tries a 2 XLM exclusive-rights track. That is above the card's 1 XLM cap, so you can watch the card refuse the agent.
 
-## Pitch
-
-"This reel uses 6 assets from 4 artists. Here is the payment proof for every one. The agent tried an exclusive track and the card said no."
+The demo in one line: "This reel uses 6 assets from 4 artists. Here is the payment proof for every one. The agent tried an exclusive track and the card said no."
 
 ## How the agentic payment works
 
@@ -88,6 +86,7 @@ We use `watch`, so `startWebhookRelay` and `verifyWebhookSignature` aren't neede
 ## Velo integration
 
 - **SDK:** `@carts1024/velo-sdk` pinned to exactly `0.1.0-alpha.4`, server side only.
+- **What Velo does:** it takes the human's 1 XLM reel project fee and tells the server when it is paid. It never touches the agent's license payments.
 - **Checkout:** `velo.checkout.sessions.create` for the 1 XLM reel project fee, with an idempotency key per reel ([velo.ts:55](apps/server/src/velo.ts#L55)).
 - **Status:** `velo.paymentIntents.retrieve`, used as a fallback when the webhook is late ([velo.ts:84](apps/server/src/velo.ts#L84)).
 - **Webhooks:** `Velo.webhooks.verify` on the raw body. Bad signatures get a 400, and duplicates are dropped by `x-velo-delivery` and by event id ([velo.ts:97](apps/server/src/velo.ts#L97)). The client is constructed in [index.ts:36](apps/server/src/index.ts#L36).
@@ -143,21 +142,42 @@ docs/            architecture, screenshots, design specs and plans
 
 ## Run it locally
 
-You need Node 24.22.1 or newer (`.nvmrc`). The Noir SDK refuses older versions.
+1. **Prerequisites.**
+   - Node 24.22.1 or a later 24.x (`.nvmrc`).
+   - Wallet: none to install. `npm run setup` creates the owner, agent and artist keys. To pay a real Velo checkout, you also need a Stellar Testnet wallet that holds the 1 XLM fee.
+   - Testnet XLM: `npm run setup` gets it from friendbot.
 
-```bash
-npm install
-npm run setup        # creates and funds the owner, agent and 4 artist accounts, registers the card, funds escrow; writes .env
-npm test             # 82 unit tests
-npm run demo         # one reel end to end on Testnet, then artist payouts; prints every link
-npm run claim        # pay out every artist with pending earnings
-npm run dev:server   # API on :8787 (needs VELO_* and WEB_ORIGIN in .env)
-npm run dev:web      # site on :5173 (set VITE_API_URL=http://localhost:8787)
-```
+2. **Install at the root.**
 
-On a fresh clone, set your own `DEVICE_UID` in `.env` before `npm run setup` (any new string works). The default `TOLLBOOTH-DEMO-0001` is registered to the original card's owner, so setup stops with `device hash owned by another wallet` when it creates new keys.
+   ```bash
+   npm install
+   ```
 
-`npm run setup` is idempotent. Rerun it after a Testnet reset. To try the site locally without a Velo checkout, set `DEV_ROUTES=1` in `.env`, give `VELO_API_KEY` and `VELO_WEBHOOK_SECRET` any placeholder value (the server won't start without them, and only the Velo checkout needs real ones), and click **Run test reel without Velo (local only)** on the start page. That button exists only in the `npm run dev:web` build, never in production. You can also start a reel with `curl -X POST localhost:8787/api/dev/jobs -H 'content-type: application/json' -d '{"mood":"chill","budget":"2.5"}'` (the script defaults to the demo script). Reels run one at a time because they all pay with the same agent key.
+3. **Copy `.env.example` to `.env` and fill it in.**
+
+   ```bash
+   cp .env.example .env
+   npm run setup        # creates and funds the owner, agent and 4 artist accounts, registers the card, funds escrow; writes .env
+   ```
+
+   Then set `WEB_ORIGIN=http://localhost:5173` and add `VELO_API_KEY` and `VELO_WEBHOOK_SECRET`. The table below says where each value comes from. `npm run setup` is idempotent. Rerun it after a Testnet reset.
+
+4. **Start it.**
+
+   ```bash
+   npm run dev:server   # API on :8787 (needs VELO_* and WEB_ORIGIN in .env)
+   npm run dev:web      # site on :5173 (calls http://localhost:8787 unless VITE_API_URL is set)
+   ```
+
+   Other commands:
+
+   ```bash
+   npm test             # 83 unit tests
+   npm run demo         # one reel end to end on Testnet, then artist payouts; prints every link
+   npm run claim        # pay out every artist with pending earnings
+   ```
+
+   To try the site locally without a Velo checkout, set `DEV_ROUTES=1` in `.env`, give `VELO_API_KEY` and `VELO_WEBHOOK_SECRET` any placeholder value (the server won't start without them, and only the Velo checkout needs real ones), and click **Run test reel without Velo (local only)** on the start page. That button exists only in the `npm run dev:web` build, never in production. You can also start a reel with `curl -X POST localhost:8787/api/dev/jobs -H 'content-type: application/json' -d '{"mood":"chill","budget":"2.5"}'` (the script defaults to the demo script). Reels run one at a time because they all pay with the same agent key.
 
 ## Environment variables
 
@@ -166,19 +186,20 @@ On a fresh clone, set your own `DEVICE_UID` in `.env` before `npm run setup` (an
 | `OWNER_SECRET` | Card owner's Testnet secret key | Written by `npm run setup` |
 | `AGENT_SECRET` | The agent's constrained key (server only) | Written by `npm run setup` |
 | `ARTIST_LOWTIDE_SECRET`, `ARTIST_LANTERN_SECRET`, `ARTIST_KESTREL_SECRET`, `ARTIST_FERN_SECRET` | Each artist's account, which receives license payments and claims them (server only) | Written by `npm run setup` |
-| `DEVICE_UID` | Demo card UID (no NFC hardware) | Defaults to `TOLLBOOTH-DEMO-0001`, which only the original owner key can use. Set your own on a fresh clone |
+| `DEVICE_UID` | Demo card UID (no NFC hardware) | `npm run setup` picks one on a fresh clone and writes it to `.env` |
 | `DEVICE_HASH` | SHA-256 of `DEVICE_UID`, the card's Noir ID | Written by `npm run setup` |
 | `VELO_API_KEY` | Velo API key (server only) | Velo dashboard |
 | `VELO_WEBHOOK_SECRET` | Velo webhook signing secret (server only) | Velo dashboard, webhook settings |
-| `WEB_ORIGIN` | Public URL of the site (CORS, checkout return URLs) | Your Vercel URL |
+| `WEB_ORIGIN` | Public URL of the site (CORS, checkout return URLs) | `http://localhost:5173` locally, your Vercel URL when deployed |
 | `PUBLIC_SERVER_URL` | Public URL of the API | Your Render URL |
-| `VITE_API_URL` | API URL baked into the site at build time | Your Render URL |
+| `VITE_API_URL` | API URL baked into the site at build time | Your Render URL. Without it the site calls `http://localhost:8787` |
 | `DEV_ROUTES` | `1` turns on `POST /api/dev/jobs`, which starts a reel without a Velo checkout. Local only. Never set it on Render, because anyone could spend the card's escrow | Set it yourself in your local `.env` |
+| `PORT` | Port the API listens on | Defaults to `8787` |
 | `NODE_ENV` | Set to `production` on Render so error responses don't include stack traces | Render environment settings |
 | `AGENT_LLM` | Ollama model that reads the script and tags each slot (e.g. `qwen2.5:3b-instruct`). Empty: rules only. If Ollama is down, the agent falls back to the rules | `ollama pull qwen2.5:3b-instruct` |
 | `OLLAMA_URL` | Ollama address | Defaults to `http://localhost:11434` |
 
-**Deploying:** on Render, change the start command to `npm -w @clippass/server start` (the workspace was renamed from `@tollbooth/server`, so the old command no longer finds it), add the four `ARTIST_*_SECRET` values, and remove `MERCHANT_SECRET`, which is no longer used. Vercel only needs a rebuild.
+**Deploying:** see `docs/deploy.md`.
 
 ## Screenshots
 
@@ -199,4 +220,4 @@ A finished reel, started locally with the dev trigger: the license sheet with Te
 
 ## Credits
 
-Built on [Noir](https://github.com/rylsherdamz-rgb/Noir_Wallet) (`@noirx402/agent-sdk`), Velo (`@carts1024/velo-sdk`) and Stellar Testnet. Payment pattern inspired by x402. Typeface: Overpass. The repo began as Tollbooth, a pay-per-call data agent; the demo card's `DEVICE_UID` keeps that name on purpose, because changing it would register a new device and escrow.
+Built on [Noir](https://github.com/rylsherdamz-rgb/Noir_Wallet) (`@noirx402/agent-sdk`), Velo (`@carts1024/velo-sdk`), the Stellar SDK (`@stellar/stellar-sdk`) and Stellar Testnet. x402 is the payment pattern. The site uses React, Vite and three.js, with Archivo and DotGothic16 from Fontsource. The server uses Express. Tooling: tsx and Vitest. The repo began as Tollbooth, a pay-per-call data agent; the demo card's `DEVICE_UID` keeps that name on purpose, because changing it would register a new device and escrow.
