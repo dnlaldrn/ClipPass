@@ -20,6 +20,8 @@ export type Decision = {
   action: DecisionAction
   assetId?: string
   assetType?: AssetType
+  /** The asset's catalog title, so the page can name assets it never licensed. */
+  title?: string
   price?: string
   reason: string
   hash?: string

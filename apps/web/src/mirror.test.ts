@@ -1,5 +1,11 @@
 import { ASSETS, MOODS as SHARED_MOODS } from '@clippass/shared'
+import { makePlan } from '@clippass/agent'
 import { LANES, MOODS } from './mirror'
+import { SLOTS } from './reel/frames'
+
+test('reel slots follow the agent plan order', () => {
+  expect(SLOTS).toEqual(makePlan('anything', 'chill').map((s) => s.type))
+})
 
 test('web mirror matches the shared catalog', () => {
   expect([...MOODS]).toEqual([...SHARED_MOODS])

@@ -43,7 +43,7 @@ export async function runAgent(p: {
     if (!picked) { log({ action: 'skip', assetType: slot.type, reason: `no unused ${slot.type} left` }); continue }
     const { asset, why } = picked
     tried.add(asset.id)
-    const at = { assetId: asset.id, assetType: asset.type }
+    const at = { assetId: asset.id, assetType: asset.type, title: asset.title }
     let price = 0n
     let payee = ''
     try {

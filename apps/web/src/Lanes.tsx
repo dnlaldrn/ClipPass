@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import type { AssetType, DecisionAction } from '@clippass/shared'
 import type { LaneState } from './format'
 import { LANES } from './mirror'
@@ -9,30 +10,26 @@ const STATE_TEXT: Partial<Record<DecisionAction, string>> = {
   skip: 'Skipped', refused: 'Refused by card', failed: 'Failed',
 }
 
-/** The lane board: each lane's top asset price against the card's per-payment clearance bar. */
+/** The lane gauge: each lane's top asset price against the card's per-payment limit. */
 export function Lanes({ states = {} }: { states?: Partial<Record<AssetType, LaneState>> }) {
   return (
-    <figure className="lanes" aria-label="Highest license price in each lane against the 1 XLM per-payment card limit">
-      <div className="lanes-plot">
-        <div className="clearance" style={{ bottom: `${(CAP / SCALE) * 100}%` }}>
-          <span>Card limit: 1 XLM per payment</span>
+    <figure className="gauge" aria-label="Highest license price in each lane against the 1 XLM per-payment card limit">
+      <div className="gauge-rows" style={{ '--cap': `${(CAP / SCALE) * 100}%` } as CSSProperties}>
+        <div className="gauge-row gauge-head" aria-hidden="true">
+          <span />
+          <span className="gauge-track bare"><span className="gauge-limit">Card limit: 1 XLM per payment</span></span>
         </div>
-        {LANES.map((l) => (
-          <div key={l.type} className={`lane ${states[l.type] ? `is-${states[l.type]!.action}` : ''}`}>
-            <div className={`bar ${l.price > CAP ? 'over' : ''}`} style={{ height: `${(l.price / SCALE) * 100}%` }}>
-              <span className="price">{l.price < CAP ? 'up to ' : ''}{l.price} XLM</span>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="lanes-axis">
         {LANES.map((l) => {
           const s = states[l.type]
           const text = s && (s.action === 'paid' ? `Paid ×${s.count}` : STATE_TEXT[s.action])
           return (
-            <div key={l.type} className="lane-name">
-              {l.label}
-              {text && <strong className={`tag is-${s!.action}`}>{text}</strong>}
+            <div key={l.type} className={`gauge-row ${s ? `is-${s.action}` : ''}`}>
+              <span className="gauge-name">{l.label}</span>
+              <span className="gauge-track">
+                <span className={`gauge-bar ${l.price > CAP ? 'over' : ''}`} style={{ width: `${(l.price / SCALE) * 100}%` }} />
+              </span>
+              <span className="gauge-price">{l.price < CAP ? 'up to ' : ''}{l.price} XLM</span>
+              <span className="gauge-tag">{text && <strong className={`tag is-${s!.action}`}>{text}</strong>}</span>
             </div>
           )
         })}

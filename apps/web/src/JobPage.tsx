@@ -4,6 +4,8 @@ import { ApiError, claim, getBalances, getJob, type Balances, type Payout } from
 import { Lanes } from './Lanes'
 import { laneStates, txLink, xlm } from './format'
 import { LANES } from './mirror'
+import { Reel } from './reel/Reel'
+import { reelFrames } from './reel/frames'
 
 const STATUS_TEXT: Record<JobView['status'], string> = {
   awaiting_payment: 'Waiting for Velo to confirm the project fee',
@@ -71,7 +73,8 @@ export function JobPage({ jobId }: { jobId: string }) {
 
   return (
     <div className="job">
-      <section className="job-side">
+      <Reel frames={reelFrames(job.trace, job.licenses)} mode="live" label="The reel: one frame per asset the agent planned, filled as each license is paid" />
+      <header className="job-head">
         <h1>{job.licenses.length ? `This reel uses ${job.licenses.length} assets from ${artists} artists` : 'Reel project'}</h1>
         <p className="script">“{job.script}” · mood {job.mood}</p>
         <dl className="facts">
@@ -81,60 +84,65 @@ export function JobPage({ jobId }: { jobId: string }) {
           <div><dt>Card escrow</dt><dd>{balances ? `${xlm(balances.escrow)} XLM` : '…'}</dd></div>
           <div><dt>Artists can claim</dt><dd>{owed !== undefined ? `${xlm(owed.toString())} XLM` : '…'}</dd></div>
         </dl>
-        <Lanes states={laneStates(job.trace)} />
-        <div className="claim">
-          <button onClick={onClaim} disabled={claiming}>{claiming ? 'Paying out…' : 'Pay out artists'}</button>
-          <p className="hint">This sends each artist what the agent paid them. It doesn’t make a payment.</p>
-          {payouts && (
-            <ul className="payouts">
-              {payouts.map((p) => (
-                <li key={p.hash}>
-                  {p.name}: {xlm(p.amount)} XLM.{' '}
-                  <a href={txLink(p.hash)} target="_blank" rel="noreferrer">See the payout on stellar.expert</a>
-                </li>
-              ))}
-            </ul>
+      </header>
+
+      <div className="job-grid">
+        <section className="sheet" aria-label="License sheet and the agent’s decisions" aria-live="polite">
+          <h2>License sheet</h2>
+          {job.licenses.length ? (
+            <table className="licenses">
+              <thead><tr><th scope="col">Asset</th><th scope="col">Type</th><th scope="col">Artist</th><th scope="col">Price</th><th scope="col">Proof</th></tr></thead>
+              <tbody>
+                {job.licenses.map((l) => (
+                  <tr key={l.hash}>
+                    <td className="asset">{l.title}</td>
+                    <td>{LANE_LABEL[l.assetType]}</td>
+                    <td>{l.artist}</td>
+                    <td className="amt">{xlm(l.price)} XLM</td>
+                    <td className="proof"><a href={txLink(l.hash)} target="_blank" rel="noreferrer">tx {l.hash.slice(0, 8)}…</a></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p className="sheet-empty">{job.status === 'awaiting_payment' ? 'The agent starts once Velo confirms the project fee.' : 'No licenses yet.'}</p>
           )}
-          {claimError && <p className="error" role="alert">{claimError}</p>}
-        </div>
-      </section>
 
-      <section className="tape" aria-label="License sheet and the agent’s decisions" aria-live="polite">
-        <h2>License sheet</h2>
-        {job.licenses.length ? (
-          <table className="licenses">
-            <thead><tr><th scope="col">Asset</th><th scope="col">Type</th><th scope="col">Artist</th><th scope="col">Price</th><th scope="col">Proof</th></tr></thead>
-            <tbody>
-              {job.licenses.map((l) => (
-                <tr key={l.hash}>
-                  <td>{l.title}</td>
-                  <td>{LANE_LABEL[l.assetType]}</td>
-                  <td>{l.artist}</td>
-                  <td className="amt">{xlm(l.price)} XLM</td>
-                  <td><a href={txLink(l.hash)} target="_blank" rel="noreferrer">tx {l.hash.slice(0, 8)}…</a></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className="tape-empty">{job.status === 'awaiting_payment' ? 'The agent starts once Velo confirms the project fee.' : 'No licenses yet.'}</p>
-        )}
+          <h2>How the agent decided</h2>
+          <ol className="trace">
+            {job.trace.map((d, i) => (
+              <li key={i} className={`line is-${d.action}`}>
+                <div className="line-head">
+                  <span className="act">{ACTION_TEXT[d.action]}</span>
+                  {d.assetId && <span className="ep">/api/assets/{d.assetId}</span>}
+                  {d.price && <span className="amt">{xlm(d.price)} XLM</span>}
+                </div>
+                <p className="why">{d.action === 'refused' ? `The card’s policy refused it: ${d.reason}` : d.reason}</p>
+                {d.hash && <a href={txLink(d.hash)} target="_blank" rel="noreferrer">See payment {d.hash.slice(0, 10)}… on stellar.expert</a>}
+              </li>
+            ))}
+          </ol>
+        </section>
 
-        <h2>How the agent decided</h2>
-        <ol>
-          {job.trace.map((d, i) => (
-            <li key={i} className={`line is-${d.action}`}>
-              <div className="line-head">
-                <span className="act">{ACTION_TEXT[d.action]}</span>
-                {d.assetId && <span className="ep">/api/assets/{d.assetId}</span>}
-                {d.price && <span className="amt">{xlm(d.price)} XLM</span>}
-              </div>
-              <p className="why">{d.action === 'refused' ? `The card’s policy refused it: ${d.reason}` : d.reason}</p>
-              {d.hash && <a href={txLink(d.hash)} target="_blank" rel="noreferrer">See payment {d.hash.slice(0, 10)}… on stellar.expert</a>}
-            </li>
-          ))}
-        </ol>
-      </section>
+        <aside className="job-side">
+          <Lanes states={laneStates(job.trace)} />
+          <div className="claim">
+            <button onClick={onClaim} disabled={claiming}>{claiming ? 'Paying out…' : 'Pay out artists'}</button>
+            <p className="hint">This sends each artist what the agent paid them. It doesn’t make a payment.</p>
+            {payouts && (
+              <ul className="payouts">
+                {payouts.map((p) => (
+                  <li key={p.hash}>
+                    {p.name}: {xlm(p.amount)} XLM.{' '}
+                    <a href={txLink(p.hash)} target="_blank" rel="noreferrer">See the payout on stellar.expert</a>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {claimError && <p className="error" role="alert">{claimError}</p>}
+          </div>
+        </aside>
+      </div>
     </div>
   )
 }

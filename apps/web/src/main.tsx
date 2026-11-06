@@ -1,5 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import '@fontsource-variable/archivo/wdth.css'
+import '@fontsource/dotgothic16/latin-400.css'
 import { App } from './App'
 import './styles.css'
 

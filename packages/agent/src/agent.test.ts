@@ -63,7 +63,7 @@ test('demo reel licenses six assets from four artists and the card refuses the e
   expect(result.licenses.map((l) => l.assetId)).toEqual(['m-lofi', 'b-market', 'b-food', 'b-glass', 's-sizzle', 's-crowd'])
   expect(new Set(result.licenses.map((l) => l.artistAddress)).size).toBe(4)
   expect(result.spent).toBe(6_700_000n)
-  expect(log.find((d) => d.assetId === 'x-crown')).toMatchObject({ action: 'refused', reason: 'over_limit' })
+  expect(log.find((d) => d.assetId === 'x-crown')).toMatchObject({ action: 'refused', reason: 'over_limit', title: 'Neon Crown (exclusive rights)' })
   expect(authorized.some((a) => a.amount === 20_000_000n)).toBe(false)
   expect(result.summary).toBe([
     'Licensed 6 assets from 4 artists: Low Tide Lo-fi, Night Market Lights, Street Food Close-ups, Rain on Glass, Wok Sizzle, Market Crowd.',
