@@ -196,11 +196,11 @@ A cool, nearly colourless lightbox carrying one warm material (acetate film) and
 
 A single centred column, max 1320px, with 32px side padding (16px under 640px). The reel band is the exception: it breaks out to full viewport width and tilts about 3 degrees across the page, tipped back on the lightbox (230 to 370px tall depending on page and viewport).
 
-Start page: a two-column hero (headline 1.75fr, intro 1fr, 56px gap, bottom-aligned), the reel, a caption row, then the form on one row (script, mood 190px, budget 220px, button). Job page: the reel band on top, a headline and a facts strip, then a two-column grid (license sheet, 380px sticky sidebar, 56px gap).
+Start page: a compact headline and one-line promise, the reel, replay link and refusal, a live chain strip, the four-node pipeline, then the script console, segmented mood radios, budget slider and checkout action. Job page: the reel band on top, a headline and a facts strip, then a two-column grid (license sheet, 380px sticky sidebar, 56px gap).
 
 Spacing rhythm runs 8, 16, 32, 48, 56px, with 10 to 22px used for tight internal gaps. The 48px lightbox grid is the ground's rhythm, not a layout grid content snaps to.
 
-Breakpoints: at 1080px the hero, form and job grid collapse (form to two columns, script and button full width, sidebar no longer sticky). At 640px the header stacks, the form goes single column with a full-width button, gauge rows drop a column, and the license table turns into two-column stacked rows.
+Breakpoints: at 1200px the console becomes two columns, with script and checkout spanning both, and the job grid collapses with a non-sticky sidebar. At 640px the header stacks, the form goes single column with a full-width button, the pipeline becomes vertical, gauge rows drop a column, and the license table turns into two-column stacked rows.
 
 ## Elevation & Depth
 
@@ -230,7 +230,7 @@ Heavy, wide and square; one action per surface.
 - **Error:** a 700-weight Grease Pencil line spanning the form.
 
 ### Navigation
-A header with the wordmark top-left over a Body Small tagline, and the network badge top-right: Edge print in Frame Black inside a 2px Frame Black border. It stacks under 640px.
+A wordmark-only header with STELLAR TESTNET, a small acetate live dot and a sound toggle. The network badge uses Edge print inside a 2px Frame Black border. It stacks under 640px. The footer is one wrapping edge-print line: TESTNET ONLY · MOCKED MEDIA · REELS RESET ON RESTART · NOIR + VELO.
 
 ### The Reel (signature)
 A three.js strip of 35mm acetate crossing the page. Frames carry the asset, artist and price; the edge print carries the lane and the transaction. Motion: an underdamped spring pull-down (stiffness 70, damping ratio 0.72) so each advance overshoots slightly and locks onto the pin; the replay advances one frame every 2.4s and holds 3.6s at the end of the loop. Develop and fog approach exponentially (rate 3.2 per second, fog at 0.8 of that); the warm flash decays at 2.4 per second, with grain stepping at 12fps only while the flash is live. It pauses off-screen and in hidden tabs. Under reduced motion it renders fully developed and parked on the refused frame. Without WebGL it falls back to a flat, horizontally scrolling acetate strip of 210px black frames (refused frames on Fog with a 3px inset Grease Pencil outline; empty frames in Unexposed Stock).
@@ -262,3 +262,27 @@ Rule-drawn tables, not cards: 2px Frame Black head rule, 1px Cool Rule rows, Sec
 - **Don't** add box shadows or wrap content in cards.
 - **Don't** run film grain, flicker or glow as a constant filter; artifacts fire on a paid or refused event and settle.
 - **Don't** set prose or headings in DotGothic16.
+
+
+## F1 product components
+
+- **Identity and proof:** deterministic FNV-1a 5×5 mirrored Identicons, acetate and print squares on frame black; decorative and hidden from assistive technology. Address and Hash show shortened edge print, copy with a 1.2s check, and a Testnet explorer icon. Artist names remain account links. Icons are inline SVG with 2px square-capped strokes.
+- **Reel evidence:** a semantic caption retains every frame price, artist, refusal reason and receipt link alongside the decorative canvas. Keyboard focus reveals the caption so receipt links remain visible when tabbing through them.
+- **CountUp:** tabular amounts interpolate bigint stroops over 450ms with exponential ease-out. The final amount uses the exact XLM formatter. Counts use whole integers. Reduced motion updates immediately.
+- **ChainStrip:** three rule-separated stats: card escrow from the API, 1 XLM card limit, four artists. Escrow falls back to an em dash. Refreshes no faster than 10s, with requests stopped in hidden tabs.
+- **Pipeline:** four icon nodes on a single rule: 402 QUOTE, AGENT PICKS, CARD CHECK, PAID + LICENSED. An acetate square follows the line over 4s; nodes light in sequence. Runs only in view and while the tab is visible. At phone width it becomes vertical. Reduced motion leaves all nodes lit. A plain accessible sentence describes the flow.
+- **Console:** black leader script with a character count and matched prefix-tag chips; empty state USING MOOD. Four native mood radios share square segments. The 2–5 XLM budget range steps by 0.1, with a square thumb and acetate fill. Start reel · 1 XLM sits above CHECKOUT BY VELO. The lane gauge stays compact below the form.
+- **Job:** exact spent-of-budget meter below the facts. License rows carry Identicons, artist addresses and transaction proof tools. Agent log uses a vertical status-icon timeline, seven plan chips and Full plan disclosure, concise paid reasons, refusal ring and three-line result. AGENT WORKING pulses at the tail while running. Pending artist amounts appear above payout; claiming sweeps acetate across the list, and receipts replace each pending state.
+- **Finish:** a LICENSED edge-print stamp appears beside the headline only when a running session reaches done; finished reels do not replay this on load.
+
+## Sound
+
+Web Audio synthesizes the film projector and editing bench; no audio files or dependencies. Sound defaults on, with its preference saved in localStorage where available. The context is lazy and unlocks only after a pointer or key gesture. The job-page toggle gently pulses if sound is enabled but still locked. Unsupported audio and blocked storage are silent no-ops. Master gain is 0.3.
+
+Tick is a filtered noise click for chips, radio segments and slider steps. Press is a button shutter. Advance combines a low thump and two sprocket clicks; paid adds a warm two-note chime. Refused is a low dull thud with a bandpassed pencil scratch. Done uses three rising warm notes; payout uses quick ascending ticks. Every cue lasts less than 700ms. A very quiet filtered noise hum with slow flutter runs only while the agent is running, and stops on completion, failure and unmount. Toggle off silences every cue and the hum. Reduced motion does not mute sound.
+
+New trace decisions trigger their action cue, spaced 150ms when a poll adds several; the first poll records history silently. Test reels navigate through SPA state and pushState to preserve the unlocked context. Velo checkout retains its full navigation.
+
+## DOM motion
+
+The reel remains the focal moment and keeps its existing film physics. DOM motion explains state with cubic-bezier(0.16, 1, 0.3, 1), without bounce. License rows develop over 500ms with a left-to-right clip-path wipe, brightness 0.3 to 1 and a settling warm flash. Log lines enter over 200ms with a small rise. Refusal rings draw over 600ms using stroke-dashoffset and then stay. The completion stamp scales in once over 450ms. Chips pop in over 200ms. Content is visible by default without animation. Reduced-motion styles disable animations and transitions while preserving final colour, opacity and content states.

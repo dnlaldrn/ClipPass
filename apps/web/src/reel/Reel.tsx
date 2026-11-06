@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { FrameSpec } from './frames'
 import type { ReelMode, ReelScene } from './ReelScene'
 import { LANES } from '../mirror'
-import { xlm } from '../format'
+import { txLink, xlm } from '../format'
 
 const LANE = Object.fromEntries(LANES.map((l) => [l.type, l.label]))
 
@@ -90,6 +90,13 @@ export function Reel({ frames, mode, label }: { frames: FrameSpec[]; mode: ReelM
       ) : (
         <canvas ref={canvasRef} className="reel-canvas" aria-hidden="true" />
       )}
+      <figcaption className="reel-evidence sr-only">
+        <ol>{frames.map(f => <li key={f.key}>
+          {LANE[f.type]}: {f.title || f.state}. {f.artist && f.artist + '. '}
+          {f.price && xlm(f.price) + ' XLM. '}{f.note && f.note + '. '}
+          {f.hash && <a href={txLink(f.hash)} target="_blank" rel="noreferrer">License transaction {f.hash}</a>}
+        </li>)}</ol>
+      </figcaption>
     </figure>
   )
 }
