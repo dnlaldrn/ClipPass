@@ -2,7 +2,7 @@
 
 An AI agent for short-form creators that licenses stock media for each reel and pays every artist per use on Stellar Testnet, inside a card limit it cannot exceed.
 
-**Live website:** _to fill: https://..._
+**Live website:** https://clippass.vercel.app
 
 **Demo video (2 min):** _to fill: https://..._
 
