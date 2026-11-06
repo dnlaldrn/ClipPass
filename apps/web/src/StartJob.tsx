@@ -1,92 +1,61 @@
-import { useState, type FormEvent, type MouseEvent } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type MouseEvent } from 'react'
 import { createDevJob, createJob } from './api'
 import { Lanes } from './Lanes'
 import { MOODS } from './mirror'
 import { Reel } from './reel/Reel'
 import { DEMO_REEL } from './reel/demo'
-import { txLink } from './format'
+import { matchTags, txLink } from './format'
 import { PencilMark } from './PencilMark'
 import { Edge } from './Edge'
-
-export function StartJob() {
+import { Icon } from './Icon'
+import { ChainStrip } from './ChainStrip'
+import { Pipeline } from './Pipeline'
+import { sound } from './sound'
+export function StartJob({ navigate }: { navigate: (url: string) => void }) {
   const [script, setScript] = useState('Rain at a night market in Manila, street food sizzle, crowd chatter')
   const [mood, setMood] = useState<string>('chill')
   const [budget, setBudget] = useState('2.5')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
-
+  const tags = matchTags(script)
+  const previousTags = useRef(tags)
+  const tagKey = tags.join('|')
+  useEffect(() => {
+    if (tags.some(tag => !previousTags.current.includes(tag))) sound.play('tick')
+    previousTags.current = tags
+  }, [tagKey]) // tags are deterministic from tagKey
   async function submit(e: FormEvent) {
-    e.preventDefault()
-    setBusy(true)
-    setError(null)
-    try {
-      location.href = (await createJob(script, mood, budget)).checkoutUrl
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err))
-      setBusy(false)
-    }
+    e.preventDefault(); sound.play('press'); setBusy(true); setError(null)
+    try { location.href = (await createJob(script, mood, budget)).checkoutUrl }
+    catch (err) { setError(err instanceof Error ? err.message : String(err)); setBusy(false) }
   }
-
   async function startTestReel(e: MouseEvent<HTMLButtonElement>) {
     if (!e.currentTarget.form?.reportValidity()) return
-    setBusy(true)
-    setError(null)
-    try {
-      location.href = `/jobs/${(await createDevJob(script, mood, budget)).jobId}`
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err))
-      setBusy(false)
-    }
+    sound.play('press'); setBusy(true); setError(null)
+    try { navigate('/jobs/' + (await createDevJob(script, mood, budget)).jobId) }
+    catch (err) { setError(err instanceof Error ? err.message : String(err)); setBusy(false) }
   }
-
-  return (
-    <div className="start">
-      <section className="hero">
-        <h1>Describe your reel and set a budget. The agent licenses the music, b-roll and sound effects, and pays each artist per use.</h1>
-        <p className="intro">
-          Every asset answers with <em>402 Payment Required</em> and its own price. The agent picks the cheapest asset
-          that fits your script and mood, then checks the price against your budget and the card’s 1 XLM limit per
-          payment. If both allow it, the agent pays that artist from the card’s escrow, and the payment is your license.
-          The exclusive-rights track costs more than the card allows, so the card refuses it every time.
-        </p>
-      </section>
-
-      <Reel frames={DEMO_REEL} mode="replay" label="A replay of a real Testnet reel: six licensed frames and the exclusive track refused by the card" />
-      <div className="reel-notes">
-        <p className="reel-caption">
-          A replay of a real Testnet reel: 6 licenses from 4 artists, and Neon Crown refused by the card.{' '}
-          <a href={txLink(DEMO_REEL[1].hash!)} target="_blank" rel="noreferrer">See the first license on stellar.expert</a>
-        </p>
-        <p className="reel-refusal">
-          <Edge>Card limit: 1 XLM per payment</Edge>
-          <PencilMark><Edge>Neon Crown, 2 XLM: refused by card, over_limit</Edge></PencilMark>
-        </p>
-      </div>
-
-      <form className="leader-form" onSubmit={submit}>
-        <label className="leader-field">
-          Reel script
-          <textarea value={script} onChange={(e) => setScript(e.target.value)} required maxLength={500} rows={2} />
-        </label>
-        <label>
-          Mood
-          <select value={mood} onChange={(e) => setMood(e.target.value)}>
-            {MOODS.map((m) => <option key={m} value={m}>{m}</option>)}
-          </select>
-        </label>
-        <label>
-          License budget in XLM (2 to 5)
-          <input value={budget} onChange={(e) => setBudget(e.target.value)} inputMode="decimal" required />
-        </label>
-        <button type="submit" disabled={busy}>{busy ? 'Opening checkout…' : 'Pay reel project fee (1 XLM) with Velo'}</button>
-        {error && <p className="error" role="alert">{error}</p>}
-        <p className="hint">You pay the project fee once at checkout. After that, the agent decides every license itself.</p>
-        {import.meta.env.DEV && (
-          <button type="button" className="dev-reel" onClick={startTestReel} disabled={busy}>Run test reel without Velo (local only)</button>
-        )}
-      </form>
-
-      <Lanes />
+  return <div className="start">
+    <section className="hero"><h1>Your reel, licensed by an agent.</h1><p>Set a budget. It pays every artist per use.</p></section>
+    <Reel frames={DEMO_REEL} mode="replay" label="A replay of a real Testnet reel: six licensed frames and the exclusive track refused by the card" />
+    <div className="reel-notes">
+      <a className="replay-link" href={txLink(DEMO_REEL[1].hash!)} target="_blank" rel="noreferrer">Real Testnet replay <Icon name="external" /></a>
+      <p className="reel-refusal"><PencilMark><Edge>Neon Crown, 2 XLM: refused by card, over_limit</Edge></PencilMark></p>
     </div>
-  )
+    <ChainStrip />
+    <Pipeline />
+    <form className="leader-form" onSubmit={submit}>
+      <div className="script-console">
+        <label className="leader-field">Reel script<textarea value={script} onChange={e => setScript(e.target.value)} required maxLength={500} rows={3} aria-describedby="script-count" /></label>
+        <span className="character-count" id="script-count"><Edge>{script.length + '/500'}</Edge></span>
+        <div className="live-tags" aria-label="Matched script tags" aria-live="polite">{tags.length ? tags.map(tag => <span key={tag} className="tag-chip"><Edge>{tag}</Edge></span>) : <Edge>USING MOOD</Edge>}</div>
+      </div>
+      <fieldset className="mood-field"><legend>Mood</legend><div className="mood-segments">{MOODS.map(m => <label key={m}><input type="radio" name="mood" value={m} checked={mood === m} onChange={() => { setMood(m); sound.play('tick') }} /><span>{m}</span></label>)}</div></fieldset>
+      <label className="budget-field">License budget in XLM (2 to 5)<output htmlFor="budget">{budget} <span>XLM</span></output><input id="budget" type="range" min="2" max="5" step="0.1" value={budget} style={{ '--fill': ((Number(budget) - 2) / 3 * 100) + '%' } as CSSProperties} onChange={e => { setBudget(e.target.value); sound.play('tick') }} /></label>
+      <div className="checkout"><button type="submit" disabled={busy}>{busy ? 'Opening checkout…' : 'Start reel · 1 XLM'}</button><Edge>CHECKOUT BY VELO</Edge></div>
+      {error && <p className="error" role="alert">{error}</p>}
+      {import.meta.env.DEV && <button type="button" className="dev-reel" onClick={startTestReel} disabled={busy}>Run test reel without Velo (local only)</button>}
+    </form>
+    <Lanes />
+  </div>
 }

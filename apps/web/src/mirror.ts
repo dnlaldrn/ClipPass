@@ -10,3 +10,7 @@ export const LANES: { type: AssetType; label: string; price: number }[] = [
   { type: 'music', label: 'Music', price: 0.3 },
   { type: 'exclusive', label: 'Exclusive', price: 2 },
 ]
+
+/** First-seen lane vocabulary, guarded against the agent planner. */
+export const BROLL_TAGS = ['rain', 'city', 'beach', 'sunset', 'night', 'market', 'street', 'food'] as const
+export const SFX_TAGS = ['rain', 'whoosh', 'sizzle', 'food', 'crowd', 'market'] as const
