@@ -46,7 +46,7 @@ Tested on Nov 6. Each tool answered a one-line prompt from an empty folder.
 | ID | Task | Owner | Status | Files owned |
 |---|---|---|---|---|
 | B1 | Fresh-clone setup picks a unique `DEVICE_UID`; add `PORT` to `.env.example` | Sol 6.1 | Merged | `scripts/setup.ts`, new test in `scripts/`, `.env.example` |
-| B2 | Deploy readiness, no deploying | Gemini 4 Argon | Queued | `render.yaml`, `docs/deploy.md` |
+| B2 | Deploy readiness, no deploying | Gemini 4 Argon | Merged | `render.yaml`, `docs/deploy.md` |
 | D1 | README in the handbook format | Claude | Queued | `README.md`, `scripts/readme-links.test.ts` |
 | F1 | Site redesign: far less copy, more real UI, motion, sound | Claude directs, Sol 6.1 builds | Queued | `apps/web/**`, `DESIGN.md` |
 | S1 | Write-up, demo script, pitch deck, logo | Claude | Queued | `docs/submission/**` |
