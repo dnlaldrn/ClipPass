@@ -1,5 +1,7 @@
-export type IconName = 'copy' | 'check' | 'external' | 'speaker' | 'muted' | 'quote' | 'pick' | 'card' | 'paid' | 'refused' | 'skip' | 'plan' | 'done' | 'failed'
+export type IconName = 'copy' | 'check' | 'external' | 'speaker' | 'muted' | 'quote' | 'pick' | 'card' | 'paid' | 'refused' | 'skip' | 'plan' | 'done' | 'failed' | 'sun' | 'moon'
 const paths: Record<IconName, string> = {
+  sun: 'M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z M12 2v2 M12 20v2 M2 12h2 M20 12h2 M5 5l1 1 M18 18l1 1 M5 19l1-1 M18 6l1-1',
+  moon: 'M21 13a9 9 0 1 1-10-10 8 8 0 0 0 10 10z',
   copy: 'M8 8h12v12H8z M4 15V4h11', check: 'm5 12 4 4L19 6', external: 'M14 4h6v6 M20 4 10 14 M10 4H4v16h16v-6',
   speaker: 'M11 4 5 9H2v6h3l6 5z M15 8c3 2 3 6 0 8 M18 4c6 4 6 12 0 16',
   muted: 'M11 4 5 9H2v6h3l6 5z M16 9l6 6 M22 9l-6 6', quote: 'M3 5h18v14H3z M7 9h10 M7 14h5',

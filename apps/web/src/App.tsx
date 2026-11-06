@@ -11,6 +11,7 @@ import { SamplePage } from './SamplePage'
 import { Activity, Artists, Library } from './pages'
 import { appUrl, isPlainClick, matchRoute, type Route } from './routes'
 import { SAMPLE_JOB } from './sample'
+import { Icon } from './Icon'
 
 function Page({ route, navigate }: { route: Route; navigate: (url: string) => void }) {
   switch (route.name) {
@@ -28,6 +29,7 @@ function Page({ route, navigate }: { route: Route; navigate: (url: string) => vo
 
 export function App() {
   const [path, setPath] = useState(location.pathname)
+  const [scrolled, setScrolled] = useState(() => window.scrollY > 48)
   const [lightTheme, setLightTheme] = useState(() => {
     try { return localStorage.getItem('clippass.homeTheme') === 'light' } catch { return false }
   })
@@ -47,18 +49,26 @@ export function App() {
   }, [navigate])
   const route = matchRoute(path)
   useEffect(() => {
+    const update = () => setScrolled(window.scrollY > 48)
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    return () => window.removeEventListener('scroll', update)
+  }, [])
+  useEffect(() => {
     document.documentElement.classList.toggle('music-dark', !lightTheme)
     return () => document.documentElement.classList.remove('music-dark')
   }, [lightTheme])
   return <>
-    <header className="top">
-      <a href="/" className="wordmark" aria-label="ClipPass home">Clip<span>Pass</span></a>
+    <header className={scrolled ? 'top is-scrolled' : 'top'}>
+      <a href="/" className="wordmark" aria-label="ClipPass home">
+        <span className="wordmark-name" aria-hidden="true">Cl<span className="wordmark-note">ı<svg viewBox="0 0 18 10" focusable="false"><path d="M2 6v2m4-5v6m3-8v8m3-5v5m4-3v2" /></svg></span>p<span className="wordmark-pass">Pass</span></span>
+      </a>
       <Nav path={path} />
-      <div className="header-tools"><p className="network"><span className="live-dot" aria-hidden="true" /><Edge>STELLAR TESTNET</Edge></p>
-        <button className="theme-toggle" type="button" onClick={() => {
+      <div className="header-tools"><p className="network" title="Stellar Testnet"><span className="live-dot" aria-hidden="true" /><span className="sr-only">Stellar </span><Edge>Testnet</Edge></p>
+        <button className="theme-toggle icon-button" type="button" aria-label={lightTheme ? 'Switch to dark mode' : 'Switch to light mode'} title={lightTheme ? 'Dark mode' : 'Light mode'} onClick={() => {
           setLightTheme(!lightTheme)
           try { localStorage.setItem('clippass.homeTheme', lightTheme ? 'dark' : 'light') } catch {}
-        }}>{lightTheme ? 'Dark mode' : 'Light mode'}</button>
+        }}><Icon name={lightTheme ? 'moon' : 'sun'} /></button>
         <SoundToggle jobPage={route.name === 'job'} />
       </div>
     </header>
